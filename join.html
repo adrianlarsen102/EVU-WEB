@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVU - Join Server</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">EVU Server</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Status</a></li>
+                <li><a href="join.html" class="active">Join</a></li>
+                <li><a href="forum.html">Forum</a></li>
+                <li><a href="changelog.html">Changelog</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="container">
+            <h1>Join EVU Server</h1>
+            <p>Connect to our FiveM server</p>
+        </div>
+    </div>
+
+    <div class="container main-content">
+        <section class="join-section">
+            <h2>How to Connect</h2>
+            
+            <div class="connection-box">
+                <h3>Direct Connect</h3>
+                <div class="connect-info">
+                    <p class="connect-ip">cfx.re/join/[SERVER_ID]</p>
+                    <button class="btn-primary" onclick="copyToClipboard()">Copy IP</button>
+                </div>
+                <p class="connect-note">Press F8 in FiveM and type: <code>connect cfx.re/join/[SERVER_ID]</code></p>
+            </div>
+
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Install FiveM</h3>
+                    <p>Download and install FiveM from <a href="https://fivem.net" target="_blank">fivem.net</a></p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>Launch FiveM</h3>
+                    <p>Open FiveM and wait for it to finish loading</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Connect</h3>
+                    <p>Use the direct connect option with our server IP or find us in the server list</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h3>Enjoy</h3>
+                    <p>Start your roleplay journey on EVU Server!</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="requirements-section">
+            <h2>Requirements</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>📋 Prerequisites</h3>
+                    <ul>
+                        <li>GTA V (Legal Copy)</li>
+                        <li>FiveM Client</li>
+                        <li>Microphone (Recommended)</li>
+                        <li>Discord Account</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h3>💻 System Requirements</h3>
+                    <ul>
+                        <li>OS: Windows 10 64-bit</li>
+                        <li>RAM: 8GB minimum</li>
+                        <li>CPU: Intel Core i5 / AMD FX</li>
+                        <li>GPU: NVIDIA GTX 660 2GB / AMD HD 7870</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="discord-section">
+            <h2>Join Our Community</h2>
+            <p>Connect with other players and stay updated on our Discord server</p>
+            <button class="btn-primary btn-large">Join Discord</button>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 EVU Server. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function copyToClipboard() {
+            const ip = document.querySelector('.connect-ip').textContent;
+            navigator.clipboard.writeText(ip).then(() => {
+                alert('Server IP copied to clipboard!');
+            }).catch(() => {
+                alert('Failed to copy. Please copy manually.');
+            });
+        }
+    </script>
+</body>
+</html>
