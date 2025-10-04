@@ -1,0 +1,85 @@
+{
+  "serverInfo": {
+    "name": "EVU Server",
+    "title": "Welcome to EVU Server",
+    "subtitle": "QBCore FiveM Roleplay Experience",
+    "version": "QBCore v1.0"
+  },
+  "serverStatus": {
+    "isOnline": true,
+    "maxPlayers": 64,
+    "uptime": "99.9%"
+  },
+  "features": [
+    {
+      "icon": "🎮",
+      "title": "Roleplay",
+      "description": "Immersive roleplay experience with custom scripts and scenarios"
+    },
+    {
+      "icon": "👮",
+      "title": "Jobs",
+      "description": "Multiple job opportunities including police, EMS, mechanics, and more"
+    },
+    {
+      "icon": "🏪",
+      "title": "Economy",
+      "description": "Balanced economy system with legal and illegal activities"
+    },
+    {
+      "icon": "🚗",
+      "title": "Vehicles",
+      "description": "Wide variety of vehicles with realistic handling and customization"
+    }
+  ],
+  "joinInfo": {
+    "serverIP": "connect cfx.re/join/xxxxx",
+    "discordLink": "https://discord.gg/yourserver"
+  },
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2024-01-15",
+      "changes": {
+        "features": [
+          "Initial server launch",
+          "QBCore framework implementation",
+          "Custom vehicle pack"
+        ],
+        "improvements": [
+          "Performance optimizations",
+          "UI enhancements"
+        ],
+        "fixes": [
+          "Fixed various bugs"
+        ]
+      }
+    }
+  ],
+  "forumCategories": [
+    {
+      "name": "Announcements",
+      "description": "Official server announcements and updates",
+      "topics": 12,
+      "posts": 45
+    },
+    {
+      "name": "General Discussion",
+      "description": "General chat about the server",
+      "topics": 156,
+      "posts": 892
+    },
+    {
+      "name": "Support",
+      "description": "Get help with server issues",
+      "topics": 78,
+      "posts": 324
+    },
+    {
+      "name": "Suggestions",
+      "description": "Suggest new features and improvements",
+      "topics": 43,
+      "posts": 167
+    }
+  ]
+}

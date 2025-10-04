@@ -33,10 +33,10 @@
             <div class="connection-box">
                 <h3>Direct Connect</h3>
                 <div class="connect-info">
-                    <p class="connect-ip">cfx.re/join/[SERVER_ID]</p>
+                    <p class="connect-ip" id="server-ip">cfx.re/join/[SERVER_ID]</p>
                     <button class="btn-primary" onclick="copyToClipboard()">Copy IP</button>
                 </div>
-                <p class="connect-note">Press F8 in FiveM and type: <code>connect cfx.re/join/[SERVER_ID]</code></p>
+                <p class="connect-note">Press F8 in FiveM and type: <code id="connect-command">connect cfx.re/join/[SERVER_ID]</code></p>
             </div>
 
             <div class="steps-grid">
@@ -90,7 +90,7 @@
         <section class="discord-section">
             <h2>Join Our Community</h2>
             <p>Connect with other players and stay updated on our Discord server</p>
-            <button class="btn-primary btn-large">Join Discord</button>
+            <a href="#" id="discord-link" target="_blank"><button class="btn-primary btn-large">Join Discord</button></a>
         </section>
     </div>
 
@@ -101,6 +101,21 @@
     </footer>
 
     <script>
+        async function loadContent() {
+            try {
+                const response = await fetch('/api/content');
+                const data = await response.json();
+
+                if (data.joinInfo) {
+                    document.getElementById('server-ip').textContent = data.joinInfo.serverIP;
+                    document.getElementById('connect-command').textContent = data.joinInfo.serverIP;
+                    document.getElementById('discord-link').href = data.joinInfo.discordLink;
+                }
+            } catch (error) {
+                console.error('Failed to load content:', error);
+            }
+        }
+
         function copyToClipboard() {
             const ip = document.querySelector('.connect-ip').textContent;
             navigator.clipboard.writeText(ip).then(() => {
@@ -109,6 +124,8 @@
                 alert('Failed to copy. Please copy manually.');
             });
         }
+
+        document.addEventListener('DOMContentLoaded', loadContent);
     </script>
 </body>
 </html>

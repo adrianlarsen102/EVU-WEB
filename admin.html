@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - EVU Server</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 4rem auto;
+            padding: 2rem;
+            background: var(--secondary-color);
+            border-radius: 8px;
+        }
+
+        .login-form h2 {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            color: var(--text-color);
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab {
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: var(--accent-color);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-card {
+            background: var(--secondary-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-card h3 {
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        .array-item {
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .add-btn {
+            margin-top: 0.5rem;
+        }
+
+        .success-message {
+            background: #28a745;
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message {
+            background: #dc3545;
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="loginSection">
+        <div class="login-form">
+            <h2>Admin Login</h2>
+            <div id="loginError" class="error-message"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="adminSection" class="hidden">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>Admin Panel</h1>
+                <button id="logoutBtn" class="btn btn-danger">Logout</button>
+            </div>
+
+            <div id="successMessage" class="success-message">Changes saved successfully!</div>
+            <div id="errorMessage" class="error-message">Error saving changes!</div>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="server">Server Info</button>
+                <button class="tab" data-tab="features">Features</button>
+                <button class="tab" data-tab="join">Join Info</button>
+                <button class="tab" data-tab="changelog">Changelog</button>
+                <button class="tab" data-tab="forum">Forum</button>
+            </div>
+
+            <div id="serverTab" class="tab-content active">
+                <div class="section-card">
+                    <h3>Server Information</h3>
+                    <div class="form-group">
+                        <label>Server Name:</label>
+                        <input type="text" id="serverName" class="content-field">
+                    </div>
+                    <div class="form-group">
+                        <label>Title:</label>
+                        <input type="text" id="serverTitle" class="content-field">
+                    </div>
+                    <div class="form-group">
+                        <label>Subtitle:</label>
+                        <input type="text" id="serverSubtitle" class="content-field">
+                    </div>
+                    <div class="form-group">
+                        <label>Version:</label>
+                        <input type="text" id="serverVersion" class="content-field">
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Server Status</h3>
+                    <div class="form-group">
+                        <label>Status:</label>
+                        <select id="serverOnline" class="content-field">
+                            <option value="true">Online</option>
+                            <option value="false">Offline</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Max Players:</label>
+                        <input type="number" id="maxPlayers" class="content-field">
+                    </div>
+                    <div class="form-group">
+                        <label>Uptime:</label>
+                        <input type="text" id="uptime" class="content-field">
+                    </div>
+                </div>
+
+                <button onclick="saveServerInfo()" class="btn">Save Server Info</button>
+            </div>
+
+            <div id="featuresTab" class="tab-content">
+                <div class="section-card">
+                    <h3>Server Features</h3>
+                    <div id="featuresContainer"></div>
+                    <button onclick="addFeature()" class="btn add-btn">Add Feature</button>
+                </div>
+                <button onclick="saveFeatures()" class="btn">Save Features</button>
+            </div>
+
+            <div id="joinTab" class="tab-content">
+                <div class="section-card">
+                    <h3>Join Information</h3>
+                    <div class="form-group">
+                        <label>Server IP/Connect Command:</label>
+                        <input type="text" id="serverIP" class="content-field">
+                    </div>
+                    <div class="form-group">
+                        <label>Discord Link:</label>
+                        <input type="text" id="discordLink" class="content-field">
+                    </div>
+                </div>
+                <button onclick="saveJoinInfo()" class="btn">Save Join Info</button>
+            </div>
+
+            <div id="changelogTab" class="tab-content">
+                <div class="section-card">
+                    <h3>Changelog Entries</h3>
+                    <div id="changelogContainer"></div>
+                    <button onclick="addChangelog()" class="btn add-btn">Add Version</button>
+                </div>
+                <button onclick="saveChangelog()" class="btn">Save Changelog</button>
+            </div>
+
+            <div id="forumTab" class="tab-content">
+                <div class="section-card">
+                    <h3>Forum Categories</h3>
+                    <div id="forumContainer"></div>
+                    <button onclick="addForumCategory()" class="btn add-btn">Add Category</button>
+                </div>
+                <button onclick="saveForum()" class="btn">Save Forum</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
