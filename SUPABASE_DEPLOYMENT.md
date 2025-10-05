@@ -1,80 +1,33 @@
-# Deploying with Supabase Database (Alternative)
+# Deploying EVU Website with Supabase + Vercel
 
-Supabase is a powerful PostgreSQL-based alternative to Turso with generous free tier and additional features like authentication, storage, and real-time subscriptions.
+Complete guide for deploying your EVU FiveM server website using Supabase (PostgreSQL database) and Vercel (hosting).
 
-## 📋 Why Choose Supabase?
+## 📋 Overview
 
-### Advantages
-- ✅ **PostgreSQL** - More powerful than SQLite for complex queries
-- ✅ **Built-in Auth** - Can replace custom authentication (optional)
-- ✅ **Real-time** - Subscribe to database changes
-- ✅ **Storage** - Built-in file storage for images/videos
-- ✅ **Free Tier** - 500MB database, 1GB file storage, 2GB bandwidth
-- ✅ **Auto Backups** - Daily backups included
-- ✅ **Dashboard** - Powerful database management UI
+- **Database**: Supabase (PostgreSQL)
+- **Hosting**: Vercel (Serverless)
+- **Authentication**: Custom with bcrypt
+- **Content Storage**: Supabase JSONB
+- **Free Tier**: 500MB database, unlimited API requests
 
-### When to Use Supabase vs Turso
+## 🚀 Deployment Steps
 
-**Choose Supabase if you want:**
-- PostgreSQL instead of SQLite
-- Built-in authentication system
-- File storage capabilities
-- Real-time features
-- More complex database operations
-
-**Choose Turso if you want:**
-- Stay with SQLite syntax
-- Simpler setup
-- Edge replication
-- Lower latency globally
-
-## 🚀 Migration Guide
-
-### Step 1: Install Supabase Client
-
-Update `package.json`:
-
-```json
-{
-  "dependencies": {
-    "next": "^14.0.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@supabase/supabase-js": "^2.39.0",
-    "bcrypt": "^5.1.1"
-  }
-}
-```
-
-Then run:
-```bash
-npm install
-```
-
-### Step 2: Create Supabase Project
+### Step 1: Create Supabase Project
 
 1. Go to [supabase.com](https://supabase.com)
 2. Click **"New project"**
 3. Choose organization or create new one
 4. Fill in project details:
-   - **Name**: `evu-admin`
+   - **Name**: `evu-web` (or your preference)
    - **Database Password**: Generate strong password (save it!)
    - **Region**: Choose closest to your users
 5. Click **"Create new project"** (takes ~2 minutes)
 
-### Step 3: Get Connection Details
+### Step 2: Create Database Tables
 
-1. In Supabase dashboard, go to **Settings** → **API**
-2. Copy these values:
-   - **Project URL**: `https://xxxxx.supabase.co`
-   - **Project API Key** (anon/public): `eyJhbGc...`
-   - **Service Role Key**: `eyJhbGc...` (keep secret!)
-
-### Step 4: Create Database Schema
-
-1. In Supabase dashboard, go to **SQL Editor**
+1. In Supabase dashboard, go to **SQL Editor** (left sidebar)
 2. Click **"New query"**
-3. Paste this SQL:
+3. Copy and paste this complete SQL:
 
 ```sql
 -- Create admins table
@@ -95,7 +48,7 @@ CREATE TABLE sessions (
   expires_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
--- Create index on sessions for faster lookups
+-- Create indexes
 CREATE INDEX idx_sessions_expires ON sessions(expires_at);
 CREATE INDEX idx_sessions_admin_id ON sessions(admin_id);
 
@@ -190,437 +143,273 @@ CREATE POLICY "Service role can do everything on site_content"
   WITH CHECK (true);
 ```
 
-4. Click **"Run"**
+4. Click **"Run"** (bottom right)
+5. Verify success - you should see "Success. No rows returned"
 
-### Step 5: Update Database Code
+### Step 3: Deploy to Vercel
 
-Create a new file `lib/database-supabase.js`:
+1. Go to [vercel.com](https://vercel.com)
+2. Click **"Add New..."** → **"Project"**
+3. Import your GitHub repository (`adrianlarsen102/EVU-WEB`)
+4. Click **"Deploy"** (it will fail - that's expected, we need environment variables!)
 
-```javascript
-const { createClient } = require('@supabase/supabase-js');
-const bcrypt = require('bcrypt');
+### Step 4: Add Supabase Integration to Vercel
 
-const SALT_ROUNDS = 10;
+**Option A: Use Vercel Integration (Recommended - Easiest)**
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+1. In your Vercel project, go to **Settings** → **Integrations**
+2. Click **"Browse Marketplace"**
+3. Search for **"Supabase"**
+4. Click **"Add Integration"**
+5. Select your Vercel project
+6. Select your Supabase project
+7. Click **"Connect"**
+8. Environment variables (`NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`) are automatically added!
 
-let initialized = false;
+**Option B: Manual Environment Variables**
 
-async function initializeDatabase() {
-  if (initialized) return;
+If the integration doesn't work:
 
-  try {
-    // Check if default admin exists
-    const { data: admins, error } = await supabase
-      .from('admins')
-      .select('id')
-      .limit(1);
+1. In Supabase dashboard, go to **Settings** → **API**
+2. Copy these values:
+   - **Project URL**: `https://xxxxx.supabase.co`
+   - **Service Role Key**: `eyJhbGc...` (⚠️ Use the **service_role** key, NOT the anon key!)
+3. In Vercel project, go to **Settings** → **Environment Variables**
+4. Add these variables:
 
-    if (error) throw error;
+   **Variable 1:**
+   - Name: `NEXT_PUBLIC_SUPABASE_URL`
+   - Value: Your Supabase project URL (e.g., `https://xxxxx.supabase.co`)
+   - Environments: Select **Production**, **Preview**, and **Development**
+   - Click **"Save"**
 
-    if (!admins || admins.length === 0) {
-      // Create default admin with password "admin123"
-      const defaultPassword = 'admin123';
-      const passwordHash = bcrypt.hashSync(defaultPassword, SALT_ROUNDS);
+   **Variable 2:**
+   - Name: `SUPABASE_SERVICE_ROLE_KEY`
+   - Value: Your service role key from Supabase API settings
+   - Environments: Select **Production**, **Preview**, and **Development**
+   - Click **"Save"**
 
-      const { error: insertError } = await supabase
-        .from('admins')
-        .insert({
-          username: 'admin',
-          password_hash: passwordHash,
-          is_default_password: true
-        });
+### Step 5: Redeploy
 
-      if (insertError) throw insertError;
+1. Go to **Deployments** tab in Vercel
+2. Click **•••** menu on the latest deployment
+3. Click **"Redeploy"**
+4. Wait for deployment to complete (~2 minutes)
+5. You should see "Deployment Completed" with a green checkmark
 
-      console.log('Created default admin account. Username: admin, Password: admin123');
-      console.log('⚠️  IMPORTANT: You will be prompted to change this password on first login!');
-    }
+### Step 6: Access Your Site & Admin Panel
 
-    // Clean up expired sessions
-    await supabase
-      .from('sessions')
-      .delete()
-      .lt('expires_at', new Date().toISOString());
+1. Click **"Visit"** to open your deployed site
+2. Your site is now live at `https://your-project.vercel.app`
+3. Go to `/admin` (e.g., `https://your-project.vercel.app/admin`)
+4. Login with default credentials:
+   - Username: `admin`
+   - Password: `admin123`
+5. **IMPORTANT**: You'll be forced to change the password immediately
+6. Choose a strong password and save it securely
 
-    initialized = true;
-  } catch (error) {
-    console.error('Database initialization error:', error);
-    throw error;
-  }
-}
+## ✅ Verification Checklist
 
-async function verifyPassword(username, password) {
-  await initializeDatabase();
+After deployment, verify everything works:
 
-  try {
-    const { data: admin, error } = await supabase
-      .from('admins')
-      .select('*')
-      .eq('username', username)
-      .single();
+- [ ] Supabase project created
+- [ ] SQL tables created (admins, sessions, site_content)
+- [ ] Vercel project deployed successfully
+- [ ] Supabase integration added (or environment variables set)
+- [ ] Site homepage loads (`https://your-project.vercel.app`)
+- [ ] Admin login works (`/admin`)
+- [ ] Password change works (forced on first login)
+- [ ] Content can be edited and saved in admin panel
 
-    if (error || !admin) {
-      return null;
-    }
+## 🔧 Troubleshooting
 
-    const isValid = bcrypt.compareSync(password, admin.password_hash);
+### "500 Internal Server Error" on login
 
-    if (isValid) {
-      return {
-        id: admin.id,
-        username: admin.username,
-        isDefaultPassword: admin.is_default_password === true
-      };
-    }
+**Problem**: Database tables don't exist or weren't created properly
 
-    return null;
-  } catch (error) {
-    console.error('Verify password error:', error);
-    return null;
-  }
-}
+**Solution**:
+1. Go to Supabase → **SQL Editor**
+2. Run the complete SQL from Step 2 above
+3. Go to Supabase → **Table Editor**
+4. Verify you see 3 tables: `admins`, `sessions`, `site_content`
+5. Check `site_content` table has 1 row with id=1
 
-async function changePassword(adminId, newPassword) {
-  await initializeDatabase();
+### "Failed to read content" or content doesn't load
 
-  try {
-    const passwordHash = bcrypt.hashSync(newPassword, SALT_ROUNDS);
+**Problem**: `site_content` table is empty
 
-    const { error } = await supabase
-      .from('admins')
-      .update({
-        password_hash: passwordHash,
-        is_default_password: false,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', adminId);
+**Solution**:
+1. Go to Supabase → **Table Editor**
+2. Open `site_content` table
+3. Should have 1 row with id=1 and JSON content
+4. If empty, run the INSERT statement from Step 2 SQL
 
-    if (error) throw error;
+### "Invalid API key" or authentication errors
 
-    return true;
-  } catch (error) {
-    console.error('Change password error:', error);
-    return false;
-  }
-}
+**Problem**: Environment variables not set correctly
 
-async function createSession(adminId) {
-  await initializeDatabase();
+**Solution**:
+1. Go to Vercel → **Settings** → **Environment Variables**
+2. Verify both variables exist:
+   - `NEXT_PUBLIC_SUPABASE_URL` ✓
+   - `SUPABASE_SERVICE_ROLE_KEY` ✓
+3. Make sure you used the **service_role** key (not anon/public key)
+4. Go to Supabase → **Settings** → **API** to get the correct keys
+5. After updating variables, go to **Deployments** and redeploy
 
-  try {
-    const sessionId = require('crypto').randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+### Build fails with "Module not found: @supabase/supabase-js"
 
-    const { error } = await supabase
-      .from('sessions')
-      .insert({
-        id: sessionId,
-        admin_id: adminId,
-        expires_at: expiresAt.toISOString()
-      });
+**Problem**: Missing dependencies in package.json
 
-    if (error) throw error;
+**Solution**:
+1. Check your repository has latest code with Supabase package
+2. Run `git pull` to get latest changes
+3. Verify `package.json` includes `@supabase/supabase-js`
+4. Commit and push if needed
+5. Vercel will auto-deploy
 
-    return sessionId;
-  } catch (error) {
-    console.error('Create session error:', error);
-    return null;
-  }
-}
+### Default admin account doesn't work
 
-async function validateSession(sessionId) {
-  await initializeDatabase();
+**Problem**: Admin wasn't created in database
 
-  try {
-    const { data: session, error } = await supabase
-      .from('sessions')
-      .select(`
-        *,
-        admins (
-          id,
-          username,
-          is_default_password
-        )
-      `)
-      .eq('id', sessionId)
-      .gt('expires_at', new Date().toISOString())
-      .single();
-
-    if (error || !session) {
-      return null;
-    }
-
-    return {
-      adminId: session.admin_id,
-      username: session.admins.username,
-      isDefaultPassword: session.admins.is_default_password === true
-    };
-  } catch (error) {
-    console.error('Validate session error:', error);
-    return null;
-  }
-}
-
-async function destroySession(sessionId) {
-  await initializeDatabase();
-
-  try {
-    await supabase
-      .from('sessions')
-      .delete()
-      .eq('id', sessionId);
-  } catch (error) {
-    console.error('Destroy session error:', error);
-  }
-}
-
-async function cleanupExpiredSessions() {
-  try {
-    await supabase
-      .from('sessions')
-      .delete()
-      .lt('expires_at', new Date().toISOString());
-  } catch (error) {
-    console.error('Cleanup sessions error:', error);
-  }
-}
-
-// Initialize database on first import
-initializeDatabase().catch(console.error);
-
-// Cleanup expired sessions every hour
-setInterval(() => {
-  cleanupExpiredSessions().catch(console.error);
-}, 60 * 60 * 1000);
-
-module.exports = {
-  verifyPassword,
-  changePassword,
-  createSession,
-  validateSession,
-  destroySession
-};
-```
-
-### Step 6: Update Environment Variables
-
-Create `.env.local` for local development:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...your-service-role-key
-```
-
-**⚠️ Important:**
-- `NEXT_PUBLIC_SUPABASE_URL` - Public, safe to expose
-- `SUPABASE_SERVICE_ROLE_KEY` - **KEEP SECRET!** Never expose to client
-
-### Step 7: Switch to Supabase Database
-
-Rename the current database file:
-```bash
-mv lib/database.js lib/database-turso.js
-mv lib/database-supabase.js lib/database.js
-```
-
-Or manually update `lib/database.js` with the Supabase code above.
-
-### Step 8: Test Locally
-
-```bash
-npm install
-npm run dev
-```
-
-Visit `http://localhost:3000/admin` and test login.
-
-### Step 9: Deploy to Vercel
-
-1. Go to [vercel.com](https://vercel.com/new)
-2. Import your GitHub repository
-3. Add environment variables:
-   - `NEXT_PUBLIC_SUPABASE_URL` = `https://xxxxx.supabase.co`
-   - `SUPABASE_SERVICE_ROLE_KEY` = `eyJhbGc...`
-4. Click **"Deploy"**
-
-## 🎯 Advanced Features (Optional)
-
-### Use Supabase Auth Instead of Custom
-
-Supabase has built-in authentication. To use it:
-
-1. **Enable Email Auth** in Supabase dashboard
-2. Install auth helpers:
-   ```bash
-   npm install @supabase/auth-helpers-nextjs
+**Solution**:
+1. Go to Supabase → **Table Editor** → **admins**
+2. If empty, manually insert admin:
+   ```sql
+   INSERT INTO admins (username, password_hash, is_default_password)
+   VALUES ('admin', '$2b$10$abcdefghijklmnopqrstuvwxy', true);
    ```
-3. Replace custom auth with Supabase Auth
-4. Much simpler - no password hashing needed!
+3. Or redeploy - the code will auto-create the admin on first load
 
-### Add File Storage
+## 🎨 Customization
 
-Store images for your server:
+After successful deployment, customize your site through the admin panel at `/admin`:
 
-```javascript
-// Upload server logo
-const { data, error } = await supabase
-  .storage
-  .from('server-assets')
-  .upload('logo.png', file);
-```
+### Server Info Tab
+- **Server Name**: Your server's name
+- **Title**: Welcome message
+- **Subtitle**: Server description
+- **Version**: Current version number
+- **Status**: Online/Offline
+- **Max Players**: Maximum player count
+- **Uptime**: Server uptime percentage
 
-### Real-time Updates
+### Features Tab
+- Add/remove server features
+- Use emojis for icons (🎮 🚗 💼 🏠)
+- Customize descriptions
 
-Subscribe to content changes:
+### Join Info Tab
+- Update server IP or connect command
+- Update Discord invite link
 
-```javascript
-const channel = supabase
-  .channel('content-changes')
-  .on('postgres_changes',
-    { event: '*', schema: 'public', table: 'admins' },
-    (payload) => console.log('Change!', payload)
-  )
-  .subscribe();
-```
+### Changelog Tab
+- Document version updates
+- Add features, improvements, and bug fixes
+- Set release dates
 
-## 💰 Pricing Comparison
+### Forum Tab
+- Create forum categories
+- Set topic and post counts
 
-### Supabase Free Tier
-- 500 MB database space
-- 1 GB file storage
-- 2 GB bandwidth
-- 50 MB file uploads
-- 500K Edge Function invocations
+## 🔒 Security Notes
 
-### Supabase Pro ($25/month)
-- 8 GB database space
-- 100 GB file storage
-- 250 GB bandwidth
-- 5 GB file uploads
-- 2M Edge Function invocations
+✅ **Password Security**
+- Default password MUST be changed on first login
+- Passwords are hashed with bcrypt (10 salt rounds)
+- Never stored in plain text
 
-## 🔐 Security Best Practices
+✅ **Environment Variables**
+- Never commit `.env` files to Git (.gitignore handles this)
+- Always use `SUPABASE_SERVICE_ROLE_KEY` server-side
+- `NEXT_PUBLIC_SUPABASE_URL` is safe to expose
 
-### Row Level Security (RLS)
+✅ **Database Security**
+- Row Level Security (RLS) enabled on all tables
+- Service role policies restrict access
+- Expired sessions are automatically cleaned up
 
-Already enabled in setup! This ensures:
-- Only your server can access the database
-- Service role key required for operations
-- Extra layer of protection
+✅ **Supabase Security**
+- Keep your database password secure
+- Never share service role key
+- Use anon key only for client-side operations (not used in this project)
 
-### API Keys
+## 📊 Database Schema
 
-- **Anon/Public Key**: Safe to expose (used for client-side)
-- **Service Role Key**: NEVER expose! (used server-side only)
+### Tables Created
 
-### Environment Variables
+**admins**
+- `id` - Auto-incrementing primary key
+- `username` - Unique username (default: "admin")
+- `password_hash` - Bcrypt hashed password
+- `is_default_password` - Boolean flag for forced password change
+- `created_at` - Account creation timestamp
+- `updated_at` - Last update timestamp
 
-Never commit these to git:
-```
-SUPABASE_SERVICE_ROLE_KEY=...  # SECRET!
-```
+**sessions**
+- `id` - Session ID (random 32-byte hex string)
+- `admin_id` - Foreign key to admins table
+- `created_at` - Session creation timestamp
+- `expires_at` - Expiration timestamp (24 hours)
 
-## 🐛 Troubleshooting
+**site_content**
+- `id` - Always 1 (single row constraint)
+- `content` - JSONB containing all website content
+- `updated_at` - Last content update timestamp
 
-### "Invalid API key"
-- Check environment variables are set correctly
-- Verify you're using the **service role key** (not anon key)
+## 🆓 Free Tier Limits
 
-### "Row level security" errors
-- Make sure RLS policies are created
-- Use service role key for server-side operations
+**Supabase Free Tier:**
+- ✅ 500MB database storage
+- ✅ 1GB file storage
+- ✅ 2GB bandwidth per month
+- ✅ Unlimited API requests
+- ✅ 50,000 monthly active users
+- ✅ Daily automated backups
 
-### Connection timeout
-- Check Supabase project is not paused (free tier pauses after inactivity)
-- Restart project in Supabase dashboard
+**Vercel Free Tier:**
+- ✅ 100GB bandwidth per month
+- ✅ Unlimited deployments
+- ✅ Automatic HTTPS
+- ✅ Custom domains
+- ✅ Serverless functions
 
-### Build fails on Vercel
-- Ensure all environment variables are added
-- Check package.json has `@supabase/supabase-js`
+**Perfect for small to medium FiveM servers!**
 
-## 📊 Supabase Dashboard Features
+## 🚀 Next Steps
 
-### Database
-- Visual table editor
-- SQL query editor
-- Automated backups
-- Database logs
+After successful deployment:
 
-### Authentication
-- Email/password login
-- OAuth providers (Google, GitHub, etc.)
-- Magic links
-- User management
+1. **Custom Domain**: Add your own domain in Vercel settings
+2. **Test Everything**: Try all admin panel features
+3. **Customize Content**: Update all sections with your server info
+4. **Monitor Usage**: Check Supabase dashboard for database usage
+5. **Set Up Backups**: Supabase auto-backs up daily, but export manually for safety
+6. **Analytics**: Consider enabling Vercel Analytics
+7. **Share**: Give your players the site URL!
 
-### Storage
-- File upload/download
-- Image transformations
-- CDN delivery
-- Access policies
-
-### API
-- Auto-generated REST API
-- Auto-generated GraphQL API
-- Real-time subscriptions
-
-## 🔄 Migrating from Turso to Supabase
-
-If you started with Turso and want to switch:
-
-1. **Export data from Turso:**
-   ```bash
-   turso db shell evu-admin-db
-   .output backup.sql
-   .dump admins
-   .dump sessions
-   .quit
-   ```
-
-2. **Import to Supabase:**
-   - Go to SQL Editor in Supabase
-   - Paste exported SQL
-   - Run query
-
-3. **Update code** (use database-supabase.js)
-4. **Deploy!**
-
-## ✅ Supabase Deployment Checklist
-
-- [ ] Created Supabase project
-- [ ] Created database tables (admins, sessions)
-- [ ] Enabled RLS and created policies
-- [ ] Got Project URL and Service Role Key
-- [ ] Updated `lib/database.js` with Supabase code
-- [ ] Updated `package.json` with `@supabase/supabase-js`
-- [ ] Added environment variables to Vercel
-- [ ] Tested locally
-- [ ] Deployed to Vercel
-- [ ] Tested admin login on production
-
-## 📚 Resources
+## 📚 Helpful Resources
 
 - [Supabase Documentation](https://supabase.com/docs)
-- [Supabase + Next.js Guide](https://supabase.com/docs/guides/getting-started/quickstarts/nextjs)
-- [Supabase Auth Helpers](https://supabase.com/docs/guides/auth/auth-helpers/nextjs)
-- [Row Level Security Guide](https://supabase.com/docs/guides/auth/row-level-security)
+- [Vercel Documentation](https://vercel.com/docs)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Project README](README.md)
 
-## 🎉 Summary
+## 💡 Tips
 
-Supabase offers a more feature-rich alternative to Turso:
-- ✅ PostgreSQL database (more powerful than SQLite)
-- ✅ Built-in authentication (optional)
-- ✅ File storage included
-- ✅ Real-time capabilities
-- ✅ Free tier is generous
-- ✅ Great developer experience
+- **Bookmark your admin panel**: `https://your-site.vercel.app/admin`
+- **Save your Supabase password**: You'll need it for database access
+- **Monitor your free tier**: Check Supabase and Vercel dashboards monthly
+- **Regular backups**: Export your database occasionally from Supabase
+- **Update content regularly**: Keep your changelog and features fresh
 
-**Both are excellent choices!** Pick based on your needs:
-- **Simple SQLite syntax?** → Use Turso
-- **More features and PostgreSQL?** → Use Supabase
+## ✨ You're Done!
 
-Your EVU website works great with either! 🚀
+Your EVU FiveM server website is now live and fully functional. Players can visit your site, and you can manage all content through the admin panel without touching any code!
+
+**Default Admin Login:**
+- URL: `https://your-site.vercel.app/admin`
+- Username: `admin`
+- Password: `admin123` (change immediately!)
+
+Enjoy your new website! 🎉
