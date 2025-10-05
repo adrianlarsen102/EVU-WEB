@@ -40,12 +40,12 @@ See [INSTALL.md](INSTALL.md) for detailed installation instructions.
 
 This website uses **enterprise-level security**:
 
-- ✅ Turso Edge database for credential storage (SQLite-compatible)
+- ✅ Supabase PostgreSQL database for credential storage
 - ✅ Bcrypt password hashing (10 salt rounds)
 - ✅ Forced password change on first login
 - ✅ Session-based authentication
 - ✅ No plain-text passwords anywhere
-- ✅ Database file excluded from git
+- ✅ Environment variables for secrets
 
 **Default Login:**
 - Username: `admin`
@@ -92,9 +92,9 @@ Manage your entire website without touching code:
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 14
+- **Framework**: Next.js 15
 - **Frontend**: React 18
-- **Database**: Turso (Edge SQLite with libSQL)
+- **Database**: Supabase (PostgreSQL)
 - **Security**: bcrypt
 - **Styling**: Custom CSS
 - **API**: Next.js API Routes
@@ -113,18 +113,14 @@ Manage your entire website without touching code:
 ├── components/        # Reusable React components
 ├── lib/              # Utility functions and database
 ├── public/           # Static files (CSS, images)
-├── data/             # Content storage and database
-│   ├── content.json  # Website content
-│   └── admin.db      # SQLite database (auto-created)
-└── docs/             # Documentation
+└── data/             # Content storage
+    └── content.json  # Website content
 ```
 
 ## 📖 Documentation
 
 - [INSTALL.md](INSTALL.md) - Local installation guide
-- [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) - **Deploy with Turso (SQLite)**
-- [SUPABASE_DEPLOYMENT.md](SUPABASE_DEPLOYMENT.md) - **Deploy with Supabase (PostgreSQL)**
-- [DATABASE_COMPARISON.md](DATABASE_COMPARISON.md) - **Compare Turso vs Supabase**
+- [SUPABASE_DEPLOYMENT.md](SUPABASE_DEPLOYMENT.md) - **Deploy to Vercel with Supabase**
 - [DATABASE_README.md](DATABASE_README.md) - Security and authentication
 - [NEXTJS_README.md](NEXTJS_README.md) - Next.js features and development
 
@@ -146,43 +142,27 @@ npm run lint
 
 ## 🌐 Deployment
 
-### Option 1: Vercel + Turso (Recommended - Simple)
-
-**📖 Complete Guide:** See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md)
-
-**Quick Start:**
-1. Create Turso database at [turso.tech](https://turso.tech)
-2. Import repository on [vercel.com](https://vercel.com/new)
-3. Add environment variables: `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN`
-4. Deploy! ✨
-
-**Free Tier:** 9GB storage, 500M row reads, edge replication
-
-### Option 2: Vercel + Supabase (PostgreSQL + More Features)
+### Vercel + Supabase
 
 **📖 Complete Guide:** See [SUPABASE_DEPLOYMENT.md](SUPABASE_DEPLOYMENT.md)
 
 **Quick Start:**
 1. Create Supabase project at [supabase.com](https://supabase.com)
-2. Run SQL to create tables (in guide)
+2. Run SQL to create tables (in deployment guide)
 3. Import repository on [vercel.com](https://vercel.com/new)
-4. Add environment variables: `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`
+4. Configure Vercel Supabase integration for automatic environment variables
 5. Deploy! ✨
 
-**Free Tier:** 500MB database, 1GB file storage, built-in auth & storage
+**Environment Variables:**
+- `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
+- `SUPABASE_SERVICE_ROLE_KEY` - Service role key (keep secret!)
 
-**Need help choosing?** See [DATABASE_COMPARISON.md](DATABASE_COMPARISON.md)
-
-**Quick Comparison:**
-- **Turso**: SQLite, simpler, edge-first, 9GB free, minimal setup
-- **Supabase**: PostgreSQL, more features (auth, storage, real-time), 500MB free
+**Free Tier:** 500MB database, 1GB file storage, unlimited API requests
 
 ### Alternative Platforms
-- **Railway** - Supports persistent volumes
-- **Fly.io** - Has persistent storage
-- **DigitalOcean App Platform** - Supports volumes
-
-⚠️ **Note**: Vercel requires a cloud database (Turso/Supabase/etc) due to serverless architecture.
+- **Railway** - Supports PostgreSQL
+- **Fly.io** - Has managed PostgreSQL
+- **DigitalOcean App Platform** - Supports databases
 
 ## 🎨 Customization
 
@@ -215,21 +195,22 @@ const response = await fetch('YOUR_FIVEM_API');
 - See [INSTALL.md](INSTALL.md) troubleshooting section
 
 **Forgot password?**
-- Local: Delete `local.db` and restart
-- Vercel: Redeploy to reset database
+- Delete the admin row from Supabase `admins` table
+- Redeploy to create new default admin
 
 **Port already in use?**
 - Run `PORT=3001 npm run dev` to use different port
 
-**Database locked?**
-- Ensure only one server instance is running
+**Database connection errors?**
+- Verify environment variables in `.env.local`
+- Check Supabase project status
 
 ## 🆕 What's New in v2.0
 
-- ✅ Migrated to Next.js framework
-- ✅ **Vercel-ready deployment** with Turso database
-- ✅ Edge database with Turso (SQLite-compatible)
-- ✅ **Supabase support** as PostgreSQL alternative
+- ✅ Migrated to Next.js 15 framework
+- ✅ **Vercel-ready deployment** with Supabase
+- ✅ Supabase PostgreSQL database integration
+- ✅ Vercel integration for automatic environment setup
 - ✅ Bcrypt password hashing
 - ✅ Forced password change on first login
 - ✅ Improved session management
@@ -247,4 +228,4 @@ This is a template for your FiveM server. Feel free to customize it however you 
 
 ---
 
-**Made for EVU Server** | Powered by Next.js + Turso | Deployed on Vercel
+**Made for EVU Server** | Powered by Next.js + Supabase | Deployed on Vercel
