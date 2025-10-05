@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import CookieConsent from './CookieConsent';
 
 export default function Layout({ children, title = 'EVU Server' }) {
   return (
@@ -29,6 +30,8 @@ export default function Layout({ children, title = 'EVU Server' }) {
           <p>&copy; 2024 EVU Server. All rights reserved.</p>
         </div>
       </footer>
+
+      <CookieConsent />
     </>
   );
 }
