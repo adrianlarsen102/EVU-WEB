@@ -14,6 +14,11 @@ CREATE TABLE admins (
   username TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
   is_default_password BOOLEAN DEFAULT true,
+  email TEXT,
+  display_name TEXT,
+  avatar_url TEXT,
+  bio TEXT,
+  is_admin BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );

@@ -19,6 +19,7 @@ export default function Layout({ children, title = 'EVU Server' }) {
             <li><Link href="/join">Join</Link></li>
             <li><Link href="/forum">Forum</Link></li>
             <li><Link href="/changelog">Changelog</Link></li>
+            <li><Link href="/profile" style={{ backgroundColor: 'rgba(0, 212, 255, 0.1)', borderRadius: '5px' }}>👤 Login</Link></li>
           </ul>
         </div>
       </nav>
