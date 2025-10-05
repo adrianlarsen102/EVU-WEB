@@ -99,9 +99,73 @@ CREATE TABLE sessions (
 CREATE INDEX idx_sessions_expires ON sessions(expires_at);
 CREATE INDEX idx_sessions_admin_id ON sessions(admin_id);
 
+-- Create content table for website content storage
+CREATE TABLE site_content (
+  id INTEGER PRIMARY KEY DEFAULT 1,
+  content JSONB NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  CONSTRAINT single_row CHECK (id = 1)
+);
+
+-- Insert default content
+INSERT INTO site_content (id, content) VALUES (1, '{
+  "serverInfo": {
+    "name": "EVU",
+    "title": "Welcome to EVU",
+    "subtitle": "Premium FiveM Roleplay Server",
+    "version": "v1.0.0"
+  },
+  "serverStatus": {
+    "isOnline": true,
+    "maxPlayers": 64,
+    "uptime": "99.9%"
+  },
+  "features": [
+    {
+      "icon": "🚗",
+      "title": "Custom Vehicles",
+      "description": "Hundreds of custom vehicles to choose from"
+    },
+    {
+      "icon": "💼",
+      "title": "Realistic Jobs",
+      "description": "Work as a cop, medic, mechanic, and more"
+    },
+    {
+      "icon": "🏠",
+      "title": "Housing System",
+      "description": "Buy and customize your own properties"
+    }
+  ],
+  "joinInfo": {
+    "serverIP": "connect fivem.server.ip",
+    "discordLink": "https://discord.gg/yourserver"
+  },
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2024-01-01",
+      "changes": {
+        "features": ["Initial release", "Core systems implemented"],
+        "improvements": [],
+        "fixes": []
+      }
+    }
+  ],
+  "forumCategories": [
+    {
+      "name": "General Discussion",
+      "description": "General server talk",
+      "topics": 42,
+      "posts": 328
+    }
+  ]
+}'::jsonb);
+
 -- Enable Row Level Security (RLS)
 ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE site_content ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for service role access (bypass RLS)
 CREATE POLICY "Service role can do everything on admins"
@@ -113,6 +177,13 @@ CREATE POLICY "Service role can do everything on admins"
 
 CREATE POLICY "Service role can do everything on sessions"
   ON sessions
+  FOR ALL
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
+
+CREATE POLICY "Service role can do everything on site_content"
+  ON site_content
   FOR ALL
   TO service_role
   USING (true)
