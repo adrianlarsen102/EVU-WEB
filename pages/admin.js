@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -254,7 +255,9 @@ export default function Admin() {
     return (
       <>
         <Head>
-          <title>Change Password - EVU Server</title>
+          <title>Change Password - EVU Server Admin</title>
+          <link rel="stylesheet" href="/styles/style.css" />
+          <link rel="stylesheet" href="/styles/admin.css" />
         </Head>
         <div style={{
           position: 'fixed',
@@ -262,28 +265,32 @@ export default function Admin() {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          backgroundColor: 'rgba(0, 0, 0, 0.9)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 9999
+          zIndex: 9999,
+          padding: '20px'
         }}>
-          <div className="login-form" style={{ maxWidth: '500px', margin: '0 auto' }}>
-            <h2>⚠️ Change Default Password</h2>
-            <p style={{ marginBottom: '1.5rem', color: 'var(--accent-color)' }}>
-              For security reasons, you must change the default password before continuing.
-            </p>
+          <div className="admin-card" style={{ maxWidth: '500px', width: '100%' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <h2 style={{ color: 'var(--primary-color)', marginBottom: '1rem' }}>⚠️ Change Default Password</h2>
+              <p style={{ color: 'var(--accent-color)' }}>
+                For security reasons, you must change the default password before continuing.
+              </p>
+            </div>
             {passwordError && (
-              <div className="error-message" style={{ display: 'block', marginBottom: '1rem' }}>
+              <div className="alert alert-error">
                 {passwordError}
               </div>
             )}
             <form onSubmit={handlePasswordChange}>
               <div className="form-group">
-                <label htmlFor="newPassword">New Password:</label>
+                <label htmlFor="newPassword">New Password</label>
                 <input
                   type="password"
                   id="newPassword"
+                  className="form-input"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Minimum 8 characters"
@@ -291,10 +298,11 @@ export default function Admin() {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="confirmPassword">Confirm Password:</label>
+                <label htmlFor="confirmPassword">Confirm Password</label>
                 <input
                   type="password"
                   id="confirmPassword"
+                  className="form-input"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Re-enter your password"
@@ -302,13 +310,13 @@ export default function Admin() {
                 />
               </div>
               <div style={{ display: 'flex', gap: '1rem' }}>
-                <button type="submit" className="btn" style={{ flex: 1 }}>
+                <button type="submit" className="btn-admin btn-admin-primary" style={{ flex: 1 }}>
                   Change Password
                 </button>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="btn btn-secondary"
+                  className="btn-admin btn-admin-danger"
                   style={{ flex: 1 }}
                 >
                   Logout
@@ -326,226 +334,455 @@ export default function Admin() {
       <>
         <Head>
           <title>Admin Login - EVU Server</title>
+          <link rel="stylesheet" href="/styles/style.css" />
+          <link rel="stylesheet" href="/styles/admin.css" />
         </Head>
-        <div className="login-form">
-          <h2>Admin Login</h2>
-          {loginError && <div className="error-message" style={{ display: 'block' }}>{loginError}</div>}
-          <form onSubmit={handleLogin}>
-            <div className="form-group">
-              <label htmlFor="password">Password:</label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter admin password"
-                required
-              />
+        <div className="admin-login-wrapper">
+          <div className="admin-card" style={{ maxWidth: '450px', width: '100%' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <h2 style={{ color: 'var(--primary-color)', fontSize: '2rem', marginBottom: '0.5rem' }}>🔐 Admin Login</h2>
+              <p style={{ color: 'var(--text-secondary)' }}>Enter your credentials to continue</p>
             </div>
-            <button type="submit" className="btn" style={{ width: '100%' }}>Login</button>
-          </form>
-          <p style={{ marginTop: '1rem', fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.6)', textAlign: 'center' }}>
-            Default credentials: admin / admin123
-          </p>
+            {loginError && (
+              <div className="alert alert-error">
+                {loginError}
+              </div>
+            )}
+            <form onSubmit={handleLogin}>
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  className="form-input"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter admin password"
+                  required
+                />
+              </div>
+              <button type="submit" className="btn-admin btn-admin-primary" style={{ width: '100%' }}>
+                Login
+              </button>
+            </form>
+            <p style={{ marginTop: '1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
+              Default: admin / admin123
+            </p>
+          </div>
         </div>
       </>
     );
   }
 
   if (!content) {
-    return <div>Loading...</div>;
+    return (
+      <>
+        <Head>
+          <title>Loading... - EVU Server Admin</title>
+          <link rel="stylesheet" href="/styles/style.css" />
+          <link rel="stylesheet" href="/styles/admin.css" />
+        </Head>
+        <div className="admin-login-wrapper">
+          <div style={{ textAlign: 'center', color: 'var(--primary-color)' }}>
+            <h2>Loading...</h2>
+          </div>
+        </div>
+      </>
+    );
   }
 
   return (
     <>
       <Head>
         <title>Admin Panel - EVU Server</title>
+        <link rel="stylesheet" href="/styles/style.css" />
+        <link rel="stylesheet" href="/styles/admin.css" />
       </Head>
 
-      <div className="admin-container">
-        <div className="admin-header">
-          <h1>Admin Panel</h1>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            {isDefaultPassword && (
-              <span style={{ color: 'var(--accent-color)', fontSize: '0.875rem' }}>
-                ⚠️ Using default password
-              </span>
+      <div className="admin-wrapper">
+        {/* Admin Navbar */}
+        <nav className="admin-navbar">
+          <div className="admin-navbar-content">
+            <div className="admin-navbar-left">
+              <h1 className="admin-logo">⚙️ EVU ADMIN</h1>
+              <Link href="/" className="admin-nav-link">
+                ← Back to Site
+              </Link>
+            </div>
+            <div className="admin-navbar-right">
+              {isDefaultPassword && (
+                <span className="admin-warning-badge">
+                  ⚠️ Default Password
+                </span>
+              )}
+              <button onClick={() => setShowPasswordChange(true)} className="btn-admin btn-admin-secondary">
+                Change Password
+              </button>
+              <button onClick={handleLogout} className="btn-admin btn-admin-danger">
+                Logout
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        {/* Main Content */}
+        <div className="admin-content">
+          <div className="admin-container">
+            {message.text && (
+              <div className={`alert ${message.type === 'success' ? 'alert-success' : 'alert-error'}`}>
+                {message.text}
+              </div>
             )}
-            <button onClick={() => setShowPasswordChange(true)} className="btn btn-secondary">
-              Change Password
-            </button>
-            <button onClick={handleLogout} className="btn btn-danger">Logout</button>
+
+            {/* Tabs */}
+            <div className="admin-tabs">
+              <button
+                className={`admin-tab ${activeTab === 'server' ? 'active' : ''}`}
+                onClick={() => setActiveTab('server')}
+              >
+                🖥️ Server Info
+              </button>
+              <button
+                className={`admin-tab ${activeTab === 'features' ? 'active' : ''}`}
+                onClick={() => setActiveTab('features')}
+              >
+                ⭐ Features
+              </button>
+              <button
+                className={`admin-tab ${activeTab === 'join' ? 'active' : ''}`}
+                onClick={() => setActiveTab('join')}
+              >
+                🔗 Join Info
+              </button>
+              <button
+                className={`admin-tab ${activeTab === 'changelog' ? 'active' : ''}`}
+                onClick={() => setActiveTab('changelog')}
+              >
+                📝 Changelog
+              </button>
+              <button
+                className={`admin-tab ${activeTab === 'forum' ? 'active' : ''}`}
+                onClick={() => setActiveTab('forum')}
+              >
+                💬 Forum
+              </button>
+            </div>
+
+            {/* Tab Contents */}
+            {activeTab === 'server' && (
+              <div className="admin-tab-content">
+                <div className="admin-card">
+                  <h3 className="admin-card-title">Server Information</h3>
+                  <div className="form-grid">
+                    <div className="form-group">
+                      <label>Server Name</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={content.serverInfo?.name || ''}
+                        onChange={(e) => updateServerInfo('name', e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Title</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={content.serverInfo?.title || ''}
+                        onChange={(e) => updateServerInfo('title', e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Subtitle</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={content.serverInfo?.subtitle || ''}
+                        onChange={(e) => updateServerInfo('subtitle', e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Version</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={content.serverInfo?.version || ''}
+                        onChange={(e) => updateServerInfo('version', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="admin-card">
+                  <h3 className="admin-card-title">Server Status</h3>
+                  <div className="form-grid">
+                    <div className="form-group">
+                      <label>Status</label>
+                      <select
+                        className="form-input"
+                        value={content.serverStatus?.isOnline}
+                        onChange={(e) => updateServerStatus('isOnline', e.target.value === 'true')}
+                      >
+                        <option value="true">Online</option>
+                        <option value="false">Offline</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label>Max Players</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={content.serverStatus?.maxPlayers || 64}
+                        onChange={(e) => updateServerStatus('maxPlayers', parseInt(e.target.value))}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Uptime</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={content.serverStatus?.uptime || ''}
+                        onChange={(e) => updateServerStatus('uptime', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <button onClick={saveContent} className="btn-admin btn-admin-primary">
+                  💾 Save Server Info
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'features' && (
+              <div className="admin-tab-content">
+                <div className="admin-card">
+                  <h3 className="admin-card-title">Server Features</h3>
+                  {content.features?.map((feature, index) => (
+                    <div key={index} className="admin-item-card">
+                      <div className="admin-item-header">
+                        <h4>Feature #{index + 1}</h4>
+                        <button
+                          onClick={() => removeFeature(index)}
+                          className="btn-admin btn-admin-danger btn-admin-sm"
+                        >
+                          🗑️ Remove
+                        </button>
+                      </div>
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label>Icon (emoji)</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={feature.icon}
+                            onChange={(e) => updateFeature(index, 'icon', e.target.value)}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Title</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={feature.title}
+                            onChange={(e) => updateFeature(index, 'title', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label>Description</label>
+                        <textarea
+                          className="form-input"
+                          value={feature.description}
+                          onChange={(e) => updateFeature(index, 'description', e.target.value)}
+                          rows={3}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  <button onClick={addFeature} className="btn-admin btn-admin-secondary">
+                    ➕ Add Feature
+                  </button>
+                </div>
+                <button onClick={saveContent} className="btn-admin btn-admin-primary">
+                  💾 Save Features
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'join' && (
+              <div className="admin-tab-content">
+                <div className="admin-card">
+                  <h3 className="admin-card-title">Join Information</h3>
+                  <div className="form-group">
+                    <label>Server IP / Connect Command</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={content.joinInfo?.serverIP || ''}
+                      onChange={(e) => updateJoinInfo('serverIP', e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Discord Link</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={content.joinInfo?.discordLink || ''}
+                      onChange={(e) => updateJoinInfo('discordLink', e.target.value)}
+                    />
+                  </div>
+                </div>
+                <button onClick={saveContent} className="btn-admin btn-admin-primary">
+                  💾 Save Join Info
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'changelog' && (
+              <div className="admin-tab-content">
+                <div className="admin-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                    <h3 className="admin-card-title" style={{ marginBottom: 0 }}>Changelog Entries</h3>
+                    <button onClick={addChangelog} className="btn-admin btn-admin-secondary">
+                      ➕ Add Version
+                    </button>
+                  </div>
+                  {content.changelog?.map((entry, index) => (
+                    <div key={index} className="admin-item-card">
+                      <div className="admin-item-header">
+                        <h4>Version {entry.version}</h4>
+                        <button
+                          onClick={() => removeChangelog(index)}
+                          className="btn-admin btn-admin-danger btn-admin-sm"
+                        >
+                          🗑️ Remove
+                        </button>
+                      </div>
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label>Version</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={entry.version}
+                            onChange={(e) => updateChangelog(index, 'version', e.target.value)}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Date</label>
+                          <input
+                            type="date"
+                            className="form-input"
+                            value={entry.date}
+                            onChange={(e) => updateChangelog(index, 'date', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label>Features (one per line)</label>
+                        <textarea
+                          className="form-input"
+                          value={entry.changes.features?.join('\n') || ''}
+                          onChange={(e) => updateChangelogChanges(index, 'features', e.target.value)}
+                          rows={4}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Improvements (one per line)</label>
+                        <textarea
+                          className="form-input"
+                          value={entry.changes.improvements?.join('\n') || ''}
+                          onChange={(e) => updateChangelogChanges(index, 'improvements', e.target.value)}
+                          rows={4}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Fixes (one per line)</label>
+                        <textarea
+                          className="form-input"
+                          value={entry.changes.fixes?.join('\n') || ''}
+                          onChange={(e) => updateChangelogChanges(index, 'fixes', e.target.value)}
+                          rows={4}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={saveContent} className="btn-admin btn-admin-primary">
+                  💾 Save Changelog
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'forum' && (
+              <div className="admin-tab-content">
+                <div className="admin-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                    <h3 className="admin-card-title" style={{ marginBottom: 0 }}>Forum Categories</h3>
+                    <button onClick={addForumCategory} className="btn-admin btn-admin-secondary">
+                      ➕ Add Category
+                    </button>
+                  </div>
+                  {content.forumCategories?.map((category, index) => (
+                    <div key={index} className="admin-item-card">
+                      <div className="admin-item-header">
+                        <h4>{category.name}</h4>
+                        <button
+                          onClick={() => removeForumCategory(index)}
+                          className="btn-admin btn-admin-danger btn-admin-sm"
+                        >
+                          🗑️ Remove
+                        </button>
+                      </div>
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label>Name</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={category.name}
+                            onChange={(e) => updateForumCategory(index, 'name', e.target.value)}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Topics</label>
+                          <input
+                            type="number"
+                            className="form-input"
+                            value={category.topics}
+                            onChange={(e) => updateForumCategory(index, 'topics', e.target.value)}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Posts</label>
+                          <input
+                            type="number"
+                            className="form-input"
+                            value={category.posts}
+                            onChange={(e) => updateForumCategory(index, 'posts', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label>Description</label>
+                        <textarea
+                          className="form-input"
+                          value={category.description}
+                          onChange={(e) => updateForumCategory(index, 'description', e.target.value)}
+                          rows={2}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={saveContent} className="btn-admin btn-admin-primary">
+                  💾 Save Forum
+                </button>
+              </div>
+            )}
           </div>
         </div>
-
-        {message.text && (
-          <div className={`${message.type === 'success' ? 'success-message' : 'error-message'}`} style={{ display: 'block' }}>
-            {message.text}
-          </div>
-        )}
-
-        <div className="tabs">
-          <button className={`tab ${activeTab === 'server' ? 'active' : ''}`} onClick={() => setActiveTab('server')}>Server Info</button>
-          <button className={`tab ${activeTab === 'features' ? 'active' : ''}`} onClick={() => setActiveTab('features')}>Features</button>
-          <button className={`tab ${activeTab === 'join' ? 'active' : ''}`} onClick={() => setActiveTab('join')}>Join Info</button>
-          <button className={`tab ${activeTab === 'changelog' ? 'active' : ''}`} onClick={() => setActiveTab('changelog')}>Changelog</button>
-          <button className={`tab ${activeTab === 'forum' ? 'active' : ''}`} onClick={() => setActiveTab('forum')}>Forum</button>
-        </div>
-
-        {activeTab === 'server' && (
-          <div className="tab-content active">
-            <div className="section-card">
-              <h3>Server Information</h3>
-              <div className="form-group">
-                <label>Server Name:</label>
-                <input type="text" value={content.serverInfo?.name || ''} onChange={(e) => updateServerInfo('name', e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label>Title:</label>
-                <input type="text" value={content.serverInfo?.title || ''} onChange={(e) => updateServerInfo('title', e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label>Subtitle:</label>
-                <input type="text" value={content.serverInfo?.subtitle || ''} onChange={(e) => updateServerInfo('subtitle', e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label>Version:</label>
-                <input type="text" value={content.serverInfo?.version || ''} onChange={(e) => updateServerInfo('version', e.target.value)} />
-              </div>
-            </div>
-
-            <div className="section-card">
-              <h3>Server Status</h3>
-              <div className="form-group">
-                <label>Status:</label>
-                <select value={content.serverStatus?.isOnline} onChange={(e) => updateServerStatus('isOnline', e.target.value === 'true')}>
-                  <option value="true">Online</option>
-                  <option value="false">Offline</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Max Players:</label>
-                <input type="number" value={content.serverStatus?.maxPlayers || 64} onChange={(e) => updateServerStatus('maxPlayers', parseInt(e.target.value))} />
-              </div>
-              <div className="form-group">
-                <label>Uptime:</label>
-                <input type="text" value={content.serverStatus?.uptime || ''} onChange={(e) => updateServerStatus('uptime', e.target.value)} />
-              </div>
-            </div>
-
-            <button onClick={saveContent} className="btn">Save Server Info</button>
-          </div>
-        )}
-
-        {activeTab === 'features' && (
-          <div className="tab-content active">
-            <div className="section-card">
-              <h3>Server Features</h3>
-              {content.features?.map((feature, index) => (
-                <div key={index} className="array-item">
-                  <button onClick={() => removeFeature(index)} className="btn btn-danger remove-btn">Remove</button>
-                  <div className="form-group">
-                    <label>Icon (emoji):</label>
-                    <input type="text" value={feature.icon} onChange={(e) => updateFeature(index, 'icon', e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label>Title:</label>
-                    <input type="text" value={feature.title} onChange={(e) => updateFeature(index, 'title', e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label>Description:</label>
-                    <textarea value={feature.description} onChange={(e) => updateFeature(index, 'description', e.target.value)} />
-                  </div>
-                </div>
-              ))}
-              <button onClick={addFeature} className="btn add-btn">Add Feature</button>
-            </div>
-            <button onClick={saveContent} className="btn">Save Features</button>
-          </div>
-        )}
-
-        {activeTab === 'join' && (
-          <div className="tab-content active">
-            <div className="section-card">
-              <h3>Join Information</h3>
-              <div className="form-group">
-                <label>Server IP/Connect Command:</label>
-                <input type="text" value={content.joinInfo?.serverIP || ''} onChange={(e) => updateJoinInfo('serverIP', e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label>Discord Link:</label>
-                <input type="text" value={content.joinInfo?.discordLink || ''} onChange={(e) => updateJoinInfo('discordLink', e.target.value)} />
-              </div>
-            </div>
-            <button onClick={saveContent} className="btn">Save Join Info</button>
-          </div>
-        )}
-
-        {activeTab === 'changelog' && (
-          <div className="tab-content active">
-            <div className="section-card">
-              <h3>Changelog Entries</h3>
-              {content.changelog?.map((entry, index) => (
-                <div key={index} className="array-item">
-                  <button onClick={() => removeChangelog(index)} className="btn btn-danger remove-btn">Remove</button>
-                  <div className="form-group">
-                    <label>Version:</label>
-                    <input type="text" value={entry.version} onChange={(e) => updateChangelog(index, 'version', e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label>Date:</label>
-                    <input type="date" value={entry.date} onChange={(e) => updateChangelog(index, 'date', e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label>Features (one per line):</label>
-                    <textarea value={entry.changes.features?.join('\n') || ''} onChange={(e) => updateChangelogChanges(index, 'features', e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label>Improvements (one per line):</label>
-                    <textarea value={entry.changes.improvements?.join('\n') || ''} onChange={(e) => updateChangelogChanges(index, 'improvements', e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label>Fixes (one per line):</label>
-                    <textarea value={entry.changes.fixes?.join('\n') || ''} onChange={(e) => updateChangelogChanges(index, 'fixes', e.target.value)} />
-                  </div>
-                </div>
-              ))}
-              <button onClick={addChangelog} className="btn add-btn">Add Version</button>
-            </div>
-            <button onClick={saveContent} className="btn">Save Changelog</button>
-          </div>
-        )}
-
-        {activeTab === 'forum' && (
-          <div className="tab-content active">
-            <div className="section-card">
-              <h3>Forum Categories</h3>
-              {content.forumCategories?.map((category, index) => (
-                <div key={index} className="array-item">
-                  <button onClick={() => removeForumCategory(index)} className="btn btn-danger remove-btn">Remove</button>
-                  <div className="form-group">
-                    <label>Name:</label>
-                    <input type="text" value={category.name} onChange={(e) => updateForumCategory(index, 'name', e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label>Description:</label>
-                    <textarea value={category.description} onChange={(e) => updateForumCategory(index, 'description', e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label>Topics:</label>
-                    <input type="number" value={category.topics} onChange={(e) => updateForumCategory(index, 'topics', e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label>Posts:</label>
-                    <input type="number" value={category.posts} onChange={(e) => updateForumCategory(index, 'posts', e.target.value)} />
-                  </div>
-                </div>
-              ))}
-              <button onClick={addForumCategory} className="btn add-btn">Add Category</button>
-            </div>
-            <button onClick={saveContent} className="btn">Save Forum</button>
-          </div>
-        )}
       </div>
     </>
   );
