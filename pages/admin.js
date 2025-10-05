@@ -6,6 +6,7 @@ export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isDefaultPassword, setIsDefaultPassword] = useState(false);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [activeTab, setActiveTab] = useState('server');
@@ -17,9 +18,21 @@ export default function Admin() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
+  // User management
+  const [users, setUsers] = useState([]);
+  const [newUsername, setNewUsername] = useState('');
+  const [newUserPassword, setNewUserPassword] = useState('');
+  const [userError, setUserError] = useState('');
+
   useEffect(() => {
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'users' && isAuthenticated) {
+      loadUsers();
+    }
+  }, [activeTab, isAuthenticated]);
 
   const checkAuth = async () => {
     try {
@@ -44,7 +57,7 @@ export default function Admin() {
       const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ username, password })
       });
 
       const data = await res.json();
@@ -60,7 +73,7 @@ export default function Admin() {
 
         loadContent();
       } else {
-        setLoginError(data.error || 'Invalid password');
+        setLoginError(data.error || 'Invalid credentials');
       }
     } catch (error) {
       setLoginError('Login failed');
@@ -250,6 +263,103 @@ export default function Admin() {
     }));
   };
 
+  // User Management Functions
+  const loadUsers = async () => {
+    try {
+      const res = await fetch('/api/users');
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setUsers(data);
+      }
+    } catch (error) {
+      console.error('Load users error:', error);
+    }
+  };
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    setUserError('');
+
+    if (newUserPassword.length < 8) {
+      setUserError('Password must be at least 8 characters');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: newUsername, password: newUserPassword })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showMessage('success', `User "${newUsername}" created successfully!`);
+        setNewUsername('');
+        setNewUserPassword('');
+        loadUsers();
+      } else {
+        setUserError(data.error || 'Failed to create user');
+      }
+    } catch (error) {
+      setUserError('Failed to create user');
+    }
+  };
+
+  const handleDeleteUser = async (userId, username) => {
+    if (!confirm(`Are you sure you want to delete user "${username}"?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/users', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showMessage('success', `User "${username}" deleted successfully!`);
+        loadUsers();
+      } else {
+        showMessage('error', data.error || 'Failed to delete user');
+      }
+    } catch (error) {
+      showMessage('error', 'Failed to delete user');
+    }
+  };
+
+  const handleResetUserPassword = async (userId, username) => {
+    const newPass = prompt(`Enter new password for "${username}" (min 8 characters):`);
+    if (!newPass) return;
+
+    if (newPass.length < 8) {
+      showMessage('error', 'Password must be at least 8 characters');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/users', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, newPassword: newPass })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showMessage('success', `Password reset for "${username}" successfully!`);
+      } else {
+        showMessage('error', data.error || 'Failed to reset password');
+      }
+    } catch (error) {
+      showMessage('error', 'Failed to reset password');
+    }
+  };
+
   // Password Change Modal
   if (isAuthenticated && showPasswordChange) {
     return (
@@ -350,6 +460,18 @@ export default function Admin() {
             )}
             <form onSubmit={handleLogin}>
               <div className="form-group">
+                <label htmlFor="username">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  className="form-input"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter username"
+                  required
+                />
+              </div>
+              <div className="form-group">
                 <label htmlFor="password">Password</label>
                 <input
                   type="password"
@@ -357,7 +479,7 @@ export default function Admin() {
                   className="form-input"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter admin password"
+                  placeholder="Enter password"
                   required
                 />
               </div>
@@ -465,6 +587,12 @@ export default function Admin() {
                 onClick={() => setActiveTab('forum')}
               >
                 💬 Forum
+              </button>
+              <button
+                className={`admin-tab ${activeTab === 'users' ? 'active' : ''}`}
+                onClick={() => setActiveTab('users')}
+              >
+                👥 Users
               </button>
             </div>
 
@@ -779,6 +907,93 @@ export default function Admin() {
                 <button onClick={saveContent} className="btn-admin btn-admin-primary">
                   💾 Save Forum
                 </button>
+              </div>
+            )}
+
+            {activeTab === 'users' && (
+              <div className="admin-tab-content">
+                <div className="admin-card">
+                  <h3 className="admin-card-title">User Management</h3>
+
+                  {/* Create New User Form */}
+                  <div className="admin-item-card" style={{ marginBottom: '2rem' }}>
+                    <h4 style={{ color: 'var(--primary-color)', marginBottom: '1.5rem' }}>Create New User</h4>
+                    {userError && (
+                      <div className="alert alert-error" style={{ marginBottom: '1rem' }}>
+                        {userError}
+                      </div>
+                    )}
+                    <form onSubmit={handleCreateUser}>
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label>Username</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={newUsername}
+                            onChange={(e) => setNewUsername(e.target.value)}
+                            placeholder="Enter username"
+                            required
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Password</label>
+                          <input
+                            type="password"
+                            className="form-input"
+                            value={newUserPassword}
+                            onChange={(e) => setNewUserPassword(e.target.value)}
+                            placeholder="Minimum 8 characters"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <button type="submit" className="btn-admin btn-admin-primary">
+                        ➕ Create User
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Users List */}
+                  <h4 style={{ color: 'var(--primary-color)', marginBottom: '1.5rem' }}>All Users ({users.length})</h4>
+                  {users.map((user) => (
+                    <div key={user.id} className="admin-item-card">
+                      <div className="admin-item-header">
+                        <div>
+                          <h4>{user.username}</h4>
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '0.5rem 0 0 0' }}>
+                            Created: {new Date(user.created_at).toLocaleDateString()}
+                            {user.is_default_password && (
+                              <span style={{ color: 'var(--accent-color)', marginLeft: '1rem' }}>
+                                ⚠️ Default Password
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button
+                            onClick={() => handleResetUserPassword(user.id, user.username)}
+                            className="btn-admin btn-admin-secondary btn-admin-sm"
+                          >
+                            🔑 Reset Password
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(user.id, user.username)}
+                            className="btn-admin btn-admin-danger btn-admin-sm"
+                          >
+                            🗑️ Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {users.length === 0 && (
+                    <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>
+                      No users found. Create one above.
+                    </p>
+                  )}
+                </div>
               </div>
             )}
           </div>
