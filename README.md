@@ -31,7 +31,7 @@ npm run dev
 # You'll be prompted to change it immediately
 ```
 
-See [INSTALL.md](INSTALL.md) for detailed installation instructions.
+See [Installation Guide](docs/guides/installation.md) for detailed installation instructions.
 
 ## 📋 Pages
 
@@ -58,7 +58,7 @@ This website uses **enterprise-level security**:
 
 ⚠️ **You MUST change this password on first login!**
 
-See [DATABASE_README.md](DATABASE_README.md) for security details.
+See [Database Setup Guide](docs/database/setup-guide.md) for security details.
 
 ## 🎯 Admin Panel Features
 
@@ -124,10 +124,24 @@ Manage your entire website without touching code:
 
 ## 📖 Documentation
 
-- [INSTALL.md](INSTALL.md) - Local installation guide
-- [SUPABASE_DEPLOYMENT.md](SUPABASE_DEPLOYMENT.md) - **Deploy to Vercel with Supabase**
-- [DATABASE_README.md](DATABASE_README.md) - Security and authentication
-- [NEXTJS_README.md](NEXTJS_README.md) - Next.js features and development
+### Getting Started
+- [Installation Guide](docs/guides/installation.md) - Local setup and configuration
+- [Database Deployment](docs/database/deployment.md) - Deploy to Vercel with Supabase
+- [Admin Panel Guide](docs/guides/admin-panel.md) - Managing your website
+
+### Development
+- [Branching Strategy](docs/guides/branching.md) - Git workflow and branch protection
+- [Versioning Guide](docs/guides/versioning.md) - Semantic versioning and changelogs
+- [Next.js Info](docs/guides/nextjs-info.md) - Framework features and development
+
+### Database
+- [Setup Guide](docs/database/setup-guide.md) - Security and authentication
+- [Initial Setup SQL](docs/database/supabase-setup.sql) - Database schema
+- [Role Migration](docs/database/role-migration.sql) - User role system
+- [Dual-Server Migration](docs/database/dual-server-migration.sql) - Multi-server support
+
+### Migration Guides
+- [Dual-Server Migration](docs/guides/dual-server-migration.md) - Upgrading to multi-server support
 
 ## 🔧 Development
 
@@ -149,7 +163,7 @@ npm run lint
 
 ### Vercel + Supabase
 
-**📖 Complete Guide:** See [SUPABASE_DEPLOYMENT.md](SUPABASE_DEPLOYMENT.md)
+**📖 Complete Guide:** See [Database Deployment Guide](docs/database/deployment.md)
 
 **Quick Start:**
 1. Create Supabase project at [supabase.com](https://supabase.com)
@@ -197,7 +211,7 @@ const response = await fetch('YOUR_FIVEM_API');
 ## ❓ Troubleshooting
 
 **Installation fails?**
-- See [INSTALL.md](INSTALL.md) troubleshooting section
+- See [Installation Guide](docs/guides/installation.md) troubleshooting section
 
 **Forgot password?**
 - Delete the admin row from Supabase `admins` table
