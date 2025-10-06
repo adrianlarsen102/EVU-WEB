@@ -34,9 +34,11 @@ function parseChangelog(content) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
 
-    // Match version headers like "## [2.0.0] - 2025-10-06" or "### 2.0.1 (2025-10-06)"
-    // Version headers always have a version number followed by a date
-    const versionMatch = line.match(/^###?\s+\[?(\d+\.\d+\.\d+)\]?\s*[-–—(]*\s*(\d{4}-\d{2}-\d{2})/);
+    // Match version headers:
+    // - "## [2.0.0] - 2025-10-06"
+    // - "### 2.0.1 (2025-10-06)"
+    // - "### [2.1.1](https://github.com/...) (2025-10-06)"
+    const versionMatch = line.match(/^###?\s+\[?(\d+\.\d+\.\d+)\]?(?:\([^\)]*\))?\s*[-–—(]*\s*(\d{4}-\d{2}-\d{2})/);
 
     if (versionMatch) {
       // Save previous release
