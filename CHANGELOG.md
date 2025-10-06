@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.5.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.4.1...v2.5.0) (2025-10-06)
+
+
+### Features
+
+* add dual-server support to admin panel ([f3b0d55](https://github.com/adrianlarsen102/EVU-WEB/commit/f3b0d558b4041f7053e87b0decc7a952e8124174))
+
 ### [2.4.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.4.0...v2.4.1) (2025-10-06)
 
 
