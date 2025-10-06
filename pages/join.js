@@ -3,6 +3,7 @@ import Layout from '../components/Layout';
 
 export default function Join() {
   const [content, setContent] = useState(null);
+  const [activeServer, setActiveServer] = useState('minecraft');
 
   useEffect(() => {
     fetch('/api/content')
@@ -11,9 +12,18 @@ export default function Join() {
       .catch(err => console.error('Failed to load content:', err));
   }, []);
 
+  const hasServers = content?.servers && (content.servers.minecraft || content.servers.fivem);
+  const currentServer = hasServers ? content.servers[activeServer] : null;
+
   const copyToClipboard = () => {
-    if (content?.joinInfo?.serverIP) {
-      navigator.clipboard.writeText(content.joinInfo.serverIP).then(() => {
+    const serverIP = hasServers
+      ? (activeServer === 'minecraft'
+          ? `${currentServer?.serverIP}${currentServer?.port ? ':' + currentServer.port : ''}`
+          : currentServer?.serverIP)
+      : content?.joinInfo?.serverIP;
+
+    if (serverIP) {
+      navigator.clipboard.writeText(serverIP).then(() => {
         alert('Server IP copied to clipboard!');
       }).catch(() => {
         alert('Failed to copy. Please copy manually.');
@@ -25,23 +35,43 @@ export default function Join() {
     <Layout title="EVU - Join Server">
       <div className="hero">
         <div className="container">
-          <h1>Join EVU Server</h1>
-          <p>Connect to our FiveM server</p>
+          <h1>Join EVU Servers</h1>
+          <p>{hasServers ? 'Choose your adventure - Minecraft or FiveM' : 'Connect to our server'}</p>
         </div>
       </div>
 
       <div className="container main-content">
+        {/* Server Selector */}
+        {hasServers && (
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '3rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {content.servers.minecraft?.enabled && (
+              <button onClick={() => setActiveServer('minecraft')} style={{ padding: '1rem 2rem', background: activeServer === 'minecraft' ? 'linear-gradient(135deg, var(--primary-color), var(--accent-color))' : 'var(--card-bg)', border: activeServer === 'minecraft' ? 'none' : '2px solid var(--primary-color)', color: activeServer === 'minecraft' ? 'var(--dark-bg)' : 'var(--primary-color)', borderRadius: '10px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', minWidth: '200px' }}>⛏️ Minecraft</button>
+            )}
+            {content.servers.fivem?.enabled && (
+              <button onClick={() => setActiveServer('fivem')} style={{ padding: '1rem 2rem', background: activeServer === 'fivem' ? 'linear-gradient(135deg, var(--primary-color), var(--accent-color))' : 'var(--card-bg)', border: activeServer === 'fivem' ? 'none' : '2px solid var(--primary-color)', color: activeServer === 'fivem' ? 'var(--dark-bg)' : 'var(--primary-color)', borderRadius: '10px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', minWidth: '200px' }}>🚗 FiveM</button>
+            )}
+          </div>
+        )}
+
         <section className="join-section">
-          <h2>How to Connect</h2>
+          <h2>How to Connect{hasServers ? ` to ${currentServer?.name || activeServer.toUpperCase()}` : ''}</h2>
 
           <div className="connection-box">
             <h3>Direct Connect</h3>
             <div className="connect-info">
-              <p className="connect-ip">{content?.joinInfo?.serverIP || 'Loading...'}</p>
+              <p className="connect-ip">
+                {hasServers
+                  ? (activeServer === 'minecraft'
+                      ? `${currentServer?.serverIP || 'Loading...'}${currentServer?.port ? ':' + currentServer.port : ''}`
+                      : currentServer?.serverIP || 'Loading...')
+                  : content?.joinInfo?.serverIP || 'Loading...'}
+              </p>
               <button className="btn-primary" onClick={copyToClipboard}>Copy IP</button>
             </div>
             <p className="connect-note">
-              Press F8 in FiveM and type: <code>{content?.joinInfo?.serverIP || 'Loading...'}</code>
+              {hasServers && activeServer === 'minecraft'
+                ? <><strong>Java Edition:</strong> Add server in Multiplayer menu</>
+                : <>Press F8 in FiveM and type: <code>{hasServers ? currentServer?.serverIP : content?.joinInfo?.serverIP || 'Loading...'}</code></>}
             </p>
           </div>
 

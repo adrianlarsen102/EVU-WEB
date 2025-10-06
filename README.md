@@ -1,15 +1,20 @@
-# EVU FiveM Server Website
+# EVU Gaming Network Website
 
-A modern, secure, and easy-to-manage website for your FiveM server built with Next.js.
+A modern, secure, and easy-to-manage website for your gaming community built with Next.js. Supports both Minecraft and FiveM servers with seamless switching.
 
 ## ✨ Features
 
+- 🎮 **Dual Server Support**: Manage both Minecraft and FiveM servers from one website
+- 🔄 **Easy Server Switching**: Tab-based interface to switch between server information
 - 🎨 **Modern UI**: Clean, responsive design that works on all devices
 - 🔒 **Secure Admin Panel**: Database-backed authentication with bcrypt password hashing
 - ⚡ **Fast Performance**: Built with Next.js for optimal speed and SEO
 - 📝 **Easy Content Management**: Update everything through a simple web interface
 - 🔄 **Real-time Updates**: Changes appear instantly on the website
 - 📱 **Mobile Friendly**: Looks great on phones, tablets, and desktops
+- 👥 **User Profiles**: User login system with profile management
+- 🎯 **Role-Based Access**: Separate admin and user roles
+- 📊 **Automatic Versioning**: Git-based changelog generation
 
 ## 🚀 Quick Start
 
