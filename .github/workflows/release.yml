@@ -34,19 +34,28 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-      - name: Clean up existing tags
+      - name: Clean up existing tags and branches
         run: |
-          # Get next version without creating it
-          NEXT_VERSION=$(node -e "const pkg = require('./package.json'); const parts = pkg.version.split('.'); parts[2] = parseInt(parts[2]) + 1; console.log(parts.join('.'))")
-          TAG_NAME="v$NEXT_VERSION"
+          # Get current version
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
 
-          # Delete local tag if exists
-          git tag -d "$TAG_NAME" 2>/dev/null || true
+          # Calculate all possible next versions (patch, minor, major)
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
 
-          # Delete remote tag if exists
-          git push origin --delete "$TAG_NAME" 2>/dev/null || true
+          PATCH_VERSION="v${major}.${minor}.$((patch + 1))"
+          MINOR_VERSION="v${major}.$((minor + 1)).0"
+          MAJOR_VERSION="v$((major + 1)).0.0"
 
-          echo "Cleaned up tag: $TAG_NAME"
+          echo "Cleaning up potential tags: $PATCH_VERSION, $MINOR_VERSION, $MAJOR_VERSION"
+
+          # Delete all possible next version tags
+          for TAG_NAME in "$PATCH_VERSION" "$MINOR_VERSION" "$MAJOR_VERSION"; do
+            git tag -d "$TAG_NAME" 2>/dev/null || true
+            git push origin --delete "$TAG_NAME" 2>/dev/null || true
+            git push origin --delete "release/$TAG_NAME" 2>/dev/null || true
+          done
+
+          echo "Cleanup complete"
 
       - name: Run release
         run: npm run release
