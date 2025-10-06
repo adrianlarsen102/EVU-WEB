@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.2.1...v2.3.0) (2025-10-06)
+
+
+### Features
+
+* add dual-server support for Minecraft and FiveM ([359401f](https://github.com/adrianlarsen102/EVU-WEB/commit/359401f8bb21c8d15b8e526bb4ea3fb4577ed20a))
+
 ### [2.2.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.2.0...v2.2.1) (2025-10-06)
 
 
