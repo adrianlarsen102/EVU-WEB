@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.3.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.3.0...v2.3.1) (2025-10-06)
+
+
+### Bug Fixes
+
+* improve role-based auth fallback for backward compatibility ([cea0038](https://github.com/adrianlarsen102/EVU-WEB/commit/cea0038d36772dde3c0fce7ea1aeac8c17b0f2b4))
+
 ## [2.3.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.2.1...v2.3.0) (2025-10-06)
 
 
