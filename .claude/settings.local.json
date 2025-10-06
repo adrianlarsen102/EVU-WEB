@@ -10,7 +10,8 @@
       "Bash(curl:*)",
       "Bash(npm run release:*)",
       "Bash(python:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(git tag:*)"
     ],
     "deny": [],
     "ask": []
