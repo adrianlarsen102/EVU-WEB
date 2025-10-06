@@ -65,8 +65,8 @@ export default function Changelog() {
     <Layout title="EVU - Changelog">
       <div className="hero">
         <div className="container">
-          <h1>Server Changelog</h1>
-          <p>Track all updates and changes to EVU Server</p>
+          <h1>Changelog</h1>
+          <p>Track all updates and changes to EVU Gaming Network</p>
         </div>
       </div>
 
