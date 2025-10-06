@@ -34,6 +34,20 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
+      - name: Clean up existing tags
+        run: |
+          # Get next version without creating it
+          NEXT_VERSION=$(node -e "const pkg = require('./package.json'); const parts = pkg.version.split('.'); parts[2] = parseInt(parts[2]) + 1; console.log(parts.join('.'))")
+          TAG_NAME="v$NEXT_VERSION"
+
+          # Delete local tag if exists
+          git tag -d "$TAG_NAME" 2>/dev/null || true
+
+          # Delete remote tag if exists
+          git push origin --delete "$TAG_NAME" 2>/dev/null || true
+
+          echo "Cleaned up tag: $TAG_NAME"
+
       - name: Run release
         run: npm run release
         env:
