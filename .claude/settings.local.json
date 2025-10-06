@@ -11,7 +11,8 @@
       "Bash(npm run release:*)",
       "Bash(python:*)",
       "Bash(git checkout:*)",
-      "Bash(git tag:*)"
+      "Bash(git tag:*)",
+      "Bash(gh label create:*)"
     ],
     "deny": [],
     "ask": []
