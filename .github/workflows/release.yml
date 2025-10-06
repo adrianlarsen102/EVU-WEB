@@ -39,19 +39,37 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push changes
-        run: |
-          git push --follow-tags origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Get version
         id: version
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
+      - name: Create release branch
+        run: |
+          git checkout -b release/v${{ steps.version.outputs.version }}
+          git push origin release/v${{ steps.version.outputs.version }}
+          git push --tags
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: release/v${{ steps.version.outputs.version }}
+          base: main
+          title: "chore(release): v${{ steps.version.outputs.version }}"
+          body: |
+            ## Release v${{ steps.version.outputs.version }}
+
+            Automated release created by GitHub Actions.
+
+            ### Changes
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/release/v${{ steps.version.outputs.version }}/CHANGELOG.md) for details.
+          labels: |
+            release
+            automated
+          assignees: ${{ github.actor }}
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: Release v${{ steps.version.outputs.version }}
