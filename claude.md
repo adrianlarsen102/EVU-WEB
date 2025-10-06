@@ -792,6 +792,20 @@ git push -u origin feature/new-feature
 
 ## Deployment
 
+### Automated Release Workflow
+
+**How it works:**
+1. Push commits to `main` branch
+2. GitHub Actions runs release workflow
+3. Automatically bumps version and updates CHANGELOG
+4. Creates release branch (e.g., `release/v2.6.0`)
+5. Creates Pull Request automatically (requires `GH_TOKEN` secret)
+6. After merging PR, GitHub Release is created
+
+**Required Secret:**
+- `GH_TOKEN` - Personal Access Token with `repo` scope
+- Add at: https://github.com/adrianlarsen102/EVU-WEB/settings/secrets/actions
+
 ### Vercel Deployment
 
 **Automatic Deployment:**
