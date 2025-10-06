@@ -10,6 +10,7 @@ export default function Admin() {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [activeTab, setActiveTab] = useState('server');
+  const [activeServer, setActiveServer] = useState('minecraft');
   const [content, setContent] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
 
@@ -163,46 +164,138 @@ export default function Admin() {
     setTimeout(() => setMessage({ type: '', text: '' }), 3000);
   };
 
+  // Helper to check if content uses new dual-server structure
+  const isDualServerStructure = () => {
+    return content?.servers && (content.servers.minecraft || content.servers.fivem);
+  };
+
   const updateServerInfo = (field, value) => {
-    setContent(prev => ({
-      ...prev,
-      serverInfo: { ...prev.serverInfo, [field]: value }
-    }));
+    if (isDualServerStructure()) {
+      setContent(prev => ({
+        ...prev,
+        servers: {
+          ...prev.servers,
+          [activeServer]: {
+            ...prev.servers[activeServer],
+            [field]: value
+          }
+        }
+      }));
+    } else {
+      // Backward compatibility for old structure
+      setContent(prev => ({
+        ...prev,
+        serverInfo: { ...prev.serverInfo, [field]: value }
+      }));
+    }
   };
 
   const updateServerStatus = (field, value) => {
-    setContent(prev => ({
-      ...prev,
-      serverStatus: { ...prev.serverStatus, [field]: value }
-    }));
+    if (isDualServerStructure()) {
+      setContent(prev => ({
+        ...prev,
+        servers: {
+          ...prev.servers,
+          [activeServer]: {
+            ...prev.servers[activeServer],
+            [field]: value
+          }
+        }
+      }));
+    } else {
+      setContent(prev => ({
+        ...prev,
+        serverStatus: { ...prev.serverStatus, [field]: value }
+      }));
+    }
   };
 
   const updateJoinInfo = (field, value) => {
+    if (isDualServerStructure()) {
+      setContent(prev => ({
+        ...prev,
+        servers: {
+          ...prev.servers,
+          [activeServer]: {
+            ...prev.servers[activeServer],
+            [field]: value
+          }
+        }
+      }));
+    } else {
+      setContent(prev => ({
+        ...prev,
+        joinInfo: { ...prev.joinInfo, [field]: value }
+      }));
+    }
+  };
+
+  const updateGeneralInfo = (field, value) => {
     setContent(prev => ({
       ...prev,
-      joinInfo: { ...prev.joinInfo, [field]: value }
+      general: { ...prev.general, [field]: value }
     }));
   };
 
   const addFeature = () => {
-    setContent(prev => ({
-      ...prev,
-      features: [...(prev.features || []), { icon: '🎮', title: 'New Feature', description: 'Description' }]
-    }));
+    if (isDualServerStructure()) {
+      setContent(prev => ({
+        ...prev,
+        servers: {
+          ...prev.servers,
+          [activeServer]: {
+            ...prev.servers[activeServer],
+            features: [...(prev.servers[activeServer]?.features || []), 'New Feature']
+          }
+        }
+      }));
+    } else {
+      setContent(prev => ({
+        ...prev,
+        features: [...(prev.features || []), { icon: '🎮', title: 'New Feature', description: 'Description' }]
+      }));
+    }
   };
 
   const updateFeature = (index, field, value) => {
-    setContent(prev => ({
-      ...prev,
-      features: prev.features.map((f, i) => i === index ? { ...f, [field]: value } : f)
-    }));
+    if (isDualServerStructure()) {
+      // New structure uses string array
+      setContent(prev => ({
+        ...prev,
+        servers: {
+          ...prev.servers,
+          [activeServer]: {
+            ...prev.servers[activeServer],
+            features: prev.servers[activeServer].features.map((f, i) => i === index ? value : f)
+          }
+        }
+      }));
+    } else {
+      setContent(prev => ({
+        ...prev,
+        features: prev.features.map((f, i) => i === index ? { ...f, [field]: value } : f)
+      }));
+    }
   };
 
   const removeFeature = (index) => {
-    setContent(prev => ({
-      ...prev,
-      features: prev.features.filter((_, i) => i !== index)
-    }));
+    if (isDualServerStructure()) {
+      setContent(prev => ({
+        ...prev,
+        servers: {
+          ...prev.servers,
+          [activeServer]: {
+            ...prev.servers[activeServer],
+            features: prev.servers[activeServer].features.filter((_, i) => i !== index)
+          }
+        }
+      }));
+    } else {
+      setContent(prev => ({
+        ...prev,
+        features: prev.features.filter((_, i) => i !== index)
+      }));
+    }
   };
 
   const addChangelog = () => {
@@ -599,82 +692,180 @@ export default function Admin() {
             {/* Tab Contents */}
             {activeTab === 'server' && (
               <div className="admin-tab-content">
-                <div className="admin-card">
-                  <h3 className="admin-card-title">Server Information</h3>
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label>Server Name</label>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={content.serverInfo?.name || ''}
-                        onChange={(e) => updateServerInfo('name', e.target.value)}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Title</label>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={content.serverInfo?.title || ''}
-                        onChange={(e) => updateServerInfo('title', e.target.value)}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Subtitle</label>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={content.serverInfo?.subtitle || ''}
-                        onChange={(e) => updateServerInfo('subtitle', e.target.value)}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Version</label>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={content.serverInfo?.version || ''}
-                        onChange={(e) => updateServerInfo('version', e.target.value)}
-                      />
+                {isDualServerStructure() && (
+                  <div className="admin-card" style={{ marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                      <h3 className="admin-card-title" style={{ marginBottom: 0 }}>Select Server:</h3>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button
+                          onClick={() => setActiveServer('minecraft')}
+                          className={`btn-admin ${activeServer === 'minecraft' ? 'btn-admin-primary' : 'btn-admin-secondary'}`}
+                        >
+                          ⛏️ Minecraft
+                        </button>
+                        <button
+                          onClick={() => setActiveServer('fivem')}
+                          className={`btn-admin ${activeServer === 'fivem' ? 'btn-admin-primary' : 'btn-admin-secondary'}`}
+                        >
+                          🚗 FiveM
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
-                <div className="admin-card">
-                  <h3 className="admin-card-title">Server Status</h3>
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label>Status</label>
-                      <select
-                        className="form-input"
-                        value={content.serverStatus?.isOnline}
-                        onChange={(e) => updateServerStatus('isOnline', e.target.value === 'true')}
-                      >
-                        <option value="true">Online</option>
-                        <option value="false">Offline</option>
-                      </select>
+                {isDualServerStructure() ? (
+                  <>
+                    <div className="admin-card">
+                      <h3 className="admin-card-title">{activeServer === 'minecraft' ? '⛏️ Minecraft' : '🚗 FiveM'} Server Info</h3>
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label>Enabled</label>
+                          <select
+                            className="form-input"
+                            value={content.servers[activeServer]?.enabled}
+                            onChange={(e) => updateServerInfo('enabled', e.target.value === 'true')}
+                          >
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label>Server Name</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={content.servers[activeServer]?.name || ''}
+                            onChange={(e) => updateServerInfo('name', e.target.value)}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Server IP / Connect Command</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={content.servers[activeServer]?.serverIP || ''}
+                            onChange={(e) => updateServerInfo('serverIP', e.target.value)}
+                          />
+                        </div>
+                        {activeServer === 'minecraft' && (
+                          <div className="form-group">
+                            <label>Port</label>
+                            <input
+                              type="text"
+                              className="form-input"
+                              value={content.servers[activeServer]?.port || ''}
+                              onChange={(e) => updateServerInfo('port', e.target.value)}
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="form-group">
-                      <label>Max Players</label>
-                      <input
-                        type="number"
-                        className="form-input"
-                        value={content.serverStatus?.maxPlayers || 64}
-                        onChange={(e) => updateServerStatus('maxPlayers', parseInt(e.target.value))}
-                      />
+
+                    <div className="admin-card">
+                      <h3 className="admin-card-title">General Settings</h3>
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label>Website Title</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={content.general?.websiteTitle || ''}
+                            onChange={(e) => updateGeneralInfo('websiteTitle', e.target.value)}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Discord Link</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={content.general?.discordLink || ''}
+                            onChange={(e) => updateGeneralInfo('discordLink', e.target.value)}
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div className="form-group">
-                      <label>Uptime</label>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={content.serverStatus?.uptime || ''}
-                        onChange={(e) => updateServerStatus('uptime', e.target.value)}
-                      />
+                  </>
+                ) : (
+                  <>
+                    <div className="admin-card">
+                      <h3 className="admin-card-title">Server Information</h3>
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label>Server Name</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={content.serverInfo?.name || ''}
+                            onChange={(e) => updateServerInfo('name', e.target.value)}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Title</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={content.serverInfo?.title || ''}
+                            onChange={(e) => updateServerInfo('title', e.target.value)}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Subtitle</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={content.serverInfo?.subtitle || ''}
+                            onChange={(e) => updateServerInfo('subtitle', e.target.value)}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Version</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={content.serverInfo?.version || ''}
+                            onChange={(e) => updateServerInfo('version', e.target.value)}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+
+                    <div className="admin-card">
+                      <h3 className="admin-card-title">Server Status</h3>
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label>Status</label>
+                          <select
+                            className="form-input"
+                            value={content.serverStatus?.isOnline}
+                            onChange={(e) => updateServerStatus('isOnline', e.target.value === 'true')}
+                          >
+                            <option value="true">Online</option>
+                            <option value="false">Offline</option>
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label>Max Players</label>
+                          <input
+                            type="number"
+                            className="form-input"
+                            value={content.serverStatus?.maxPlayers || 64}
+                            onChange={(e) => updateServerStatus('maxPlayers', parseInt(e.target.value))}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Uptime</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={content.serverStatus?.uptime || ''}
+                            onChange={(e) => updateServerStatus('uptime', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 <button onClick={saveContent} className="btn-admin btn-admin-primary">
                   💾 Save Server Info
@@ -684,50 +875,107 @@ export default function Admin() {
 
             {activeTab === 'features' && (
               <div className="admin-tab-content">
-                <div className="admin-card">
-                  <h3 className="admin-card-title">Server Features</h3>
-                  {content.features?.map((feature, index) => (
-                    <div key={index} className="admin-item-card">
-                      <div className="admin-item-header">
-                        <h4>Feature #{index + 1}</h4>
+                {isDualServerStructure() && (
+                  <div className="admin-card" style={{ marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                      <h3 className="admin-card-title" style={{ marginBottom: 0 }}>Select Server:</h3>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
                         <button
-                          onClick={() => removeFeature(index)}
-                          className="btn-admin btn-admin-danger btn-admin-sm"
+                          onClick={() => setActiveServer('minecraft')}
+                          className={`btn-admin ${activeServer === 'minecraft' ? 'btn-admin-primary' : 'btn-admin-secondary'}`}
                         >
-                          🗑️ Remove
+                          ⛏️ Minecraft
+                        </button>
+                        <button
+                          onClick={() => setActiveServer('fivem')}
+                          className={`btn-admin ${activeServer === 'fivem' ? 'btn-admin-primary' : 'btn-admin-secondary'}`}
+                        >
+                          🚗 FiveM
                         </button>
                       </div>
-                      <div className="form-grid">
-                        <div className="form-group">
-                          <label>Icon (emoji)</label>
-                          <input
-                            type="text"
-                            className="form-input"
-                            value={feature.icon}
-                            onChange={(e) => updateFeature(index, 'icon', e.target.value)}
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label>Title</label>
-                          <input
-                            type="text"
-                            className="form-input"
-                            value={feature.title}
-                            onChange={(e) => updateFeature(index, 'title', e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      <div className="form-group">
-                        <label>Description</label>
-                        <textarea
-                          className="form-input"
-                          value={feature.description}
-                          onChange={(e) => updateFeature(index, 'description', e.target.value)}
-                          rows={3}
-                        />
-                      </div>
                     </div>
-                  ))}
+                  </div>
+                )}
+
+                <div className="admin-card">
+                  <h3 className="admin-card-title">
+                    {isDualServerStructure()
+                      ? `${activeServer === 'minecraft' ? '⛏️ Minecraft' : '🚗 FiveM'} Features`
+                      : 'Server Features'}
+                  </h3>
+
+                  {isDualServerStructure() ? (
+                    <>
+                      {content.servers[activeServer]?.features?.map((feature, index) => (
+                        <div key={index} className="admin-item-card">
+                          <div className="admin-item-header">
+                            <h4>Feature #{index + 1}</h4>
+                            <button
+                              onClick={() => removeFeature(index)}
+                              className="btn-admin btn-admin-danger btn-admin-sm"
+                            >
+                              🗑️ Remove
+                            </button>
+                          </div>
+                          <div className="form-group">
+                            <label>Feature Description</label>
+                            <input
+                              type="text"
+                              className="form-input"
+                              value={feature}
+                              onChange={(e) => updateFeature(index, null, e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      {content.features?.map((feature, index) => (
+                        <div key={index} className="admin-item-card">
+                          <div className="admin-item-header">
+                            <h4>Feature #{index + 1}</h4>
+                            <button
+                              onClick={() => removeFeature(index)}
+                              className="btn-admin btn-admin-danger btn-admin-sm"
+                            >
+                              🗑️ Remove
+                            </button>
+                          </div>
+                          <div className="form-grid">
+                            <div className="form-group">
+                              <label>Icon (emoji)</label>
+                              <input
+                                type="text"
+                                className="form-input"
+                                value={feature.icon}
+                                onChange={(e) => updateFeature(index, 'icon', e.target.value)}
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>Title</label>
+                              <input
+                                type="text"
+                                className="form-input"
+                                value={feature.title}
+                                onChange={(e) => updateFeature(index, 'title', e.target.value)}
+                              />
+                            </div>
+                          </div>
+                          <div className="form-group">
+                            <label>Description</label>
+                            <textarea
+                              className="form-input"
+                              value={feature.description}
+                              onChange={(e) => updateFeature(index, 'description', e.target.value)}
+                              rows={3}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  )}
+
                   <button onClick={addFeature} className="btn-admin btn-admin-secondary">
                     ➕ Add Feature
                   </button>
@@ -740,27 +988,92 @@ export default function Admin() {
 
             {activeTab === 'join' && (
               <div className="admin-tab-content">
-                <div className="admin-card">
-                  <h3 className="admin-card-title">Join Information</h3>
-                  <div className="form-group">
-                    <label>Server IP / Connect Command</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={content.joinInfo?.serverIP || ''}
-                      onChange={(e) => updateJoinInfo('serverIP', e.target.value)}
-                    />
+                {isDualServerStructure() ? (
+                  <>
+                    <div className="admin-card" style={{ marginBottom: '1.5rem' }}>
+                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        <h3 className="admin-card-title" style={{ marginBottom: 0 }}>Select Server:</h3>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button
+                            onClick={() => setActiveServer('minecraft')}
+                            className={`btn-admin ${activeServer === 'minecraft' ? 'btn-admin-primary' : 'btn-admin-secondary'}`}
+                          >
+                            ⛏️ Minecraft
+                          </button>
+                          <button
+                            onClick={() => setActiveServer('fivem')}
+                            className={`btn-admin ${activeServer === 'fivem' ? 'btn-admin-primary' : 'btn-admin-secondary'}`}
+                          >
+                            🚗 FiveM
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="admin-card">
+                      <h3 className="admin-card-title">
+                        {activeServer === 'minecraft' ? '⛏️ Minecraft' : '🚗 FiveM'} Join Information
+                      </h3>
+                      <div className="form-group">
+                        <label>Server IP / Connect Command</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={content.servers[activeServer]?.serverIP || ''}
+                          onChange={(e) => updateJoinInfo('serverIP', e.target.value)}
+                          placeholder={activeServer === 'minecraft' ? 'play.example.com' : 'connect cfx.re/join/xxxxx'}
+                        />
+                      </div>
+                      {activeServer === 'minecraft' && (
+                        <div className="form-group">
+                          <label>Port (optional)</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={content.servers[activeServer]?.port || ''}
+                            onChange={(e) => updateJoinInfo('port', e.target.value)}
+                            placeholder="25565"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="admin-card">
+                      <h3 className="admin-card-title">General Join Info</h3>
+                      <div className="form-group">
+                        <label>Discord Link</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={content.general?.discordLink || ''}
+                          onChange={(e) => updateGeneralInfo('discordLink', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="admin-card">
+                    <h3 className="admin-card-title">Join Information</h3>
+                    <div className="form-group">
+                      <label>Server IP / Connect Command</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={content.joinInfo?.serverIP || ''}
+                        onChange={(e) => updateJoinInfo('serverIP', e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Discord Link</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={content.joinInfo?.discordLink || ''}
+                        onChange={(e) => updateJoinInfo('discordLink', e.target.value)}
+                      />
+                    </div>
                   </div>
-                  <div className="form-group">
-                    <label>Discord Link</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={content.joinInfo?.discordLink || ''}
-                      onChange={(e) => updateJoinInfo('discordLink', e.target.value)}
-                    />
-                  </div>
-                </div>
+                )}
                 <button onClick={saveContent} className="btn-admin btn-admin-primary">
                   💾 Save Join Info
                 </button>
