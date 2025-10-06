@@ -2,6 +2,8 @@
 
 This project uses [standard-version](https://github.com/conventional-changelog/standard-version) for automatic version management and changelog generation.
 
+> **Note:** You may see npm deprecation warnings from `standard-version` dependencies (`stringify-package`, `q`). These are transitive dependencies and don't affect functionality. The warnings are safe to ignore. `standard-version` itself is deprecated but still works perfectly for this project.
+
 ## How It Works
 
 The system automatically:
@@ -133,3 +135,33 @@ Configuration is in [.versionrc.json](.versionrc.json):
 - **Changelog**: Check [CHANGELOG.md](CHANGELOG.md)
 - **GitHub**: View releases at `https://github.com/your-username/EVU-WEB/releases`
 - **Git Tags**: Run `git tag` to see all version tags
+
+## About Deprecation Warnings
+
+### What You're Seeing
+
+When running `npm install`, you may see warnings like:
+```
+npm warn deprecated stringify-package@1.0.1
+npm warn deprecated q@1.5.1
+```
+
+### Why This Happens
+
+These are **transitive dependencies** (dependencies of `standard-version`), not packages you installed directly. `standard-version` itself is deprecated, but it still works perfectly and is widely used.
+
+### Should You Worry?
+
+**No.** These warnings:
+- Don't affect functionality
+- Don't introduce security issues
+- Don't break your build or deployment
+- Are purely informational
+
+### Future Alternative
+
+If you want to migrate in the future, consider:
+- **[release-please](https://github.com/googleapis/release-please)** - Google's automated release tool
+- **[semantic-release](https://github.com/semantic-release/semantic-release)** - Fully automated versioning
+
+For now, `standard-version` works great for this project! 🚀
