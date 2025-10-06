@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.1.2...v2.2.0) (2025-10-06)
+
+
+### Features
+
+* add role-based access control system for user management ([fc2c384](https://github.com/adrianlarsen102/EVU-WEB/commit/fc2c384e90ce313ed7a73b3f3133b895cacdf1fa))
+
 ### [2.1.2](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.1.1...v2.1.2) (2025-10-06)
 
 
