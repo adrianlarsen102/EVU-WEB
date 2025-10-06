@@ -81,44 +81,95 @@ jobs:
           # Return to main branch for PR creation
           git checkout main
 
-      - name: Create Pull Request (Manual Instructions)
+      - name: Create Pull Request
         shell: bash
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           BRANCH="release/v${VERSION}"
           REPO="${{ github.repository }}"
 
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "🎉 Release v${VERSION} is ready!"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo ""
-          echo "📋 NEXT STEPS:"
-          echo ""
-          echo "1️⃣  Create Pull Request manually:"
-          echo "   👉 https://github.com/${REPO}/compare/main...${BRANCH}?expand=1"
-          echo ""
-          echo "2️⃣  PR Title:"
-          echo "   chore(release): v${VERSION}"
-          echo ""
-          echo "3️⃣  PR Description:"
-          echo "   ## Release v${VERSION}"
-          echo "   "
-          echo "   Automated release created by GitHub Actions."
-          echo "   "
-          echo "   ### Changes"
-          echo "   See [CHANGELOG.md](https://github.com/${REPO}/blob/${BRANCH}/CHANGELOG.md) for details."
-          echo ""
-          echo "4️⃣  After merging the PR, the GitHub Release will be created automatically."
-          echo ""
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo ""
-          echo "⚙️  ALTERNATIVE: To enable automatic PR creation, add a Personal Access Token:"
-          echo "   1. Go to: https://github.com/settings/tokens/new"
-          echo "   2. Create a token with 'repo' scope"
-          echo "   3. Add it as a secret named 'PAT' in your repository"
-          echo "   4. Update the workflow to use secrets.PAT instead of secrets.GITHUB_TOKEN"
-          echo ""
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          # Check if PAT is available
+          if [ -n "${{ secrets.GH_TOKEN }}" ]; then
+            echo "🔑 Using Personal Access Token for PR creation..."
+
+            # Check if PR already exists
+            EXISTING_PR=$(gh pr list --head "${BRANCH}" --base main --json number --jq '.[0].number' 2>/dev/null)
+
+            if [ -n "$EXISTING_PR" ] && [ "$EXISTING_PR" != "null" ]; then
+              echo "✅ Pull request #$EXISTING_PR already exists"
+              echo "PR URL: https://github.com/${REPO}/pull/$EXISTING_PR"
+            else
+              # Create PR
+              echo "Creating pull request..."
+              PR_URL=$(gh pr create \
+                --base main \
+                --head "${BRANCH}" \
+                --title "chore(release): v${VERSION}" \
+                --body "## Release v${VERSION}
+
+          Automated release created by GitHub Actions.
+
+          ### Changes
+          See [CHANGELOG.md](https://github.com/${REPO}/blob/${BRANCH}/CHANGELOG.md) for details.
+
+          ---
+          **Review and merge this PR to complete the release.**" \
+                --assignee "${{ github.actor }}" 2>&1)
+
+              if [ $? -eq 0 ]; then
+                echo "✅ Pull Request created: $PR_URL"
+
+                # Try to add labels (ignore if they don't exist)
+                PR_NUMBER=$(echo "$PR_URL" | grep -oP '\d+$' || echo "")
+                if [ -n "$PR_NUMBER" ]; then
+                  gh pr edit "$PR_NUMBER" --add-label "release" 2>/dev/null && echo "✅ Added 'release' label" || echo "⚠️ Could not add 'release' label"
+                  gh pr edit "$PR_NUMBER" --add-label "automated" 2>/dev/null && echo "✅ Added 'automated' label" || echo "⚠️ Could not add 'automated' label"
+                fi
+              else
+                echo "❌ Failed to create PR automatically"
+                echo "$PR_URL"
+                exit 1
+              fi
+            fi
+          else
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "🎉 Release v${VERSION} is ready!"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+            echo "ℹ️  No GH_TOKEN found - manual PR creation required"
+            echo ""
+            echo "📋 NEXT STEPS:"
+            echo ""
+            echo "1️⃣  Create Pull Request manually:"
+            echo "   👉 https://github.com/${REPO}/compare/main...${BRANCH}?expand=1"
+            echo ""
+            echo "2️⃣  PR Title:"
+            echo "   chore(release): v${VERSION}"
+            echo ""
+            echo "3️⃣  PR Description:"
+            echo "   ## Release v${VERSION}"
+            echo "   "
+            echo "   Automated release created by GitHub Actions."
+            echo "   "
+            echo "   ### Changes"
+            echo "   See [CHANGELOG.md](https://github.com/${REPO}/blob/${BRANCH}/CHANGELOG.md) for details."
+            echo ""
+            echo "4️⃣  After merging the PR, the GitHub Release will be created automatically."
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+            echo "⚙️  TO ENABLE AUTOMATIC PR CREATION:"
+            echo "   1. Go to: https://github.com/settings/tokens/new?scopes=repo&description=EVU-WEB-Release"
+            echo "   2. Click 'Generate token' and copy it"
+            echo "   3. Go to: https://github.com/${REPO}/settings/secrets/actions/new"
+            echo "   4. Name: GH_TOKEN"
+            echo "   5. Value: Paste your token"
+            echo "   6. Click 'Add secret'"
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
