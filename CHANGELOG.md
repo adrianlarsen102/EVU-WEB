@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.1.0...v2.1.1) (2025-10-06)
+
+
+### Documentation
+
+* add explanation for standard-version deprecation warnings ([042f36b](https://github.com/adrianlarsen102/EVU-WEB/commit/042f36bdc63a878c1a8957ffc7c696ac2cf6561b))
+
 ## [2.1.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.0.2...v2.1.0) (2025-10-06)
 
 
