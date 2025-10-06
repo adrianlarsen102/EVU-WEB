@@ -35,6 +35,11 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    // Only admins can update content
+    if (!session.isAdmin) {
+      return res.status(403).json({ error: 'Forbidden: Admin access required' });
+    }
+
     try {
       const content = req.body;
 

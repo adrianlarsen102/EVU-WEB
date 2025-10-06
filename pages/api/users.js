@@ -1,5 +1,5 @@
 import { validateSession, getSessionFromCookie } from '../../lib/auth';
-import { getAllAdmins, createAdmin, deleteAdmin, updateAdminPassword } from '../../lib/database';
+import { getAllAdmins, createAdmin, deleteAdmin, updateAdminPassword, updateAdminRole } from '../../lib/database';
 
 export default async function handler(req, res) {
   // Check authentication
@@ -8,6 +8,11 @@ export default async function handler(req, res) {
 
   if (!session) {
     return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // Check if user is admin for write operations
+  if (req.method !== 'GET' && !session.isAdmin) {
+    return res.status(403).json({ error: 'Forbidden: Admin access required' });
   }
 
   if (req.method === 'GET') {
@@ -31,7 +36,8 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Password must be at least 8 characters' });
       }
 
-      const result = await createAdmin(username, password, false);
+      const role = req.body.role || 'user';
+      const result = await createAdmin(username, password, false, role);
 
       if (result.success) {
         res.status(201).json({ success: true, admin: result.admin });
@@ -66,27 +72,37 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to delete user' });
     }
   } else if (req.method === 'PUT') {
-    // Update user password
+    // Update user password or role
     try {
-      const { userId, newPassword } = req.body;
+      const { userId, newPassword, role } = req.body;
 
-      if (!userId || !newPassword) {
-        return res.status(400).json({ error: 'User ID and new password required' });
+      if (!userId) {
+        return res.status(400).json({ error: 'User ID required' });
       }
 
-      if (newPassword.length < 8) {
-        return res.status(400).json({ error: 'Password must be at least 8 characters' });
+      // Update password if provided
+      if (newPassword) {
+        if (newPassword.length < 8) {
+          return res.status(400).json({ error: 'Password must be at least 8 characters' });
+        }
+
+        const result = await updateAdminPassword(userId, newPassword);
+        if (!result.success) {
+          return res.status(400).json({ error: result.error || 'Failed to update password' });
+        }
       }
 
-      const result = await updateAdminPassword(userId, newPassword);
-
-      if (result.success) {
-        res.status(200).json({ success: true });
-      } else {
-        res.status(400).json({ error: result.error || 'Failed to update password' });
+      // Update role if provided
+      if (role) {
+        const result = await updateAdminRole(userId, role);
+        if (!result.success) {
+          return res.status(400).json({ error: result.error || 'Failed to update role' });
+        }
       }
+
+      res.status(200).json({ success: true });
     } catch (error) {
-      res.status(500).json({ error: 'Failed to update password' });
+      res.status(500).json({ error: 'Failed to update user' });
     }
   } else {
     res.status(405).json({ error: 'Method not allowed' });
