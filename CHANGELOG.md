@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.4.0...v2.4.1) (2025-10-06)
+
+
+### Documentation
+
+* update changelog page branding and document admin panel dual-server requirements ([0d4f7d1](https://github.com/adrianlarsen102/EVU-WEB/commit/0d4f7d1dba1f001b302759107300a83ffe0b658f))
+
 ## [2.4.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.3.1...v2.4.0) (2025-10-06)
 
 
