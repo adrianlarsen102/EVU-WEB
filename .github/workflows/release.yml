@@ -69,26 +69,28 @@ jobs:
           git push origin "$BRANCH_NAME"
           git push --tags
 
+          # Return to main branch for PR creation
+          git checkout main
+
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore(release): v${{ steps.version.outputs.version }}"
-          branch: release/v${{ steps.version.outputs.version }}
-          delete-branch: false
-          title: "chore(release): v${{ steps.version.outputs.version }}"
-          body: |
-            ## Release v${{ steps.version.outputs.version }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "release/v${{ steps.version.outputs.version }}" \
+            --title "chore(release): v${{ steps.version.outputs.version }}" \
+            --body "## Release v${{ steps.version.outputs.version }}
 
-            Automated release created by GitHub Actions.
+          Automated release created by GitHub Actions.
 
-            ### Changes
-            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/release/v${{ steps.version.outputs.version }}/CHANGELOG.md) for details.
+          ### Changes
+          See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/release/v${{ steps.version.outputs.version }}/CHANGELOG.md) for details.
 
-            ---
-            **Auto-merge:** Please review and merge this PR to complete the release.
-          labels: release,automated
-          assignees: ${{ github.actor }}
+          ---
+          **Auto-merge:** Please review and merge this PR to complete the release." \
+            --label "release,automated" \
+            --assignee "${{ github.actor }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
