@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.6.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.5.2...v2.6.0) (2025-10-06)
+
+
+### Features
+
+* add Usercentrics CMP and fix release workflow ([d50e6b4](https://github.com/adrianlarsen102/EVU-WEB/commit/d50e6b46d4ae54a593f9f43ce46d3357119dc60a))
+* support both automatic and manual PR creation ([6ec84ea](https://github.com/adrianlarsen102/EVU-WEB/commit/6ec84ea17ad8e6364b403b10609ace59aefdfa19))
+
+
+### Bug Fixes
+
+* add tag cleanup to release workflow ([c6c6ae3](https://github.com/adrianlarsen102/EVU-WEB/commit/c6c6ae3ae5ad0abfe39e68ddedfa813a6142c8b4))
+* correct release workflow syntax and logic ([5abb094](https://github.com/adrianlarsen102/EVU-WEB/commit/5abb0949f44a50f94d8e1a24aa4e4e2e1e3493c8))
+* improve error handling in PR creation step ([26f7f35](https://github.com/adrianlarsen102/EVU-WEB/commit/26f7f3561010c972e6e85c5d79592e9b4c2338e2))
+* improve tag and branch cleanup in workflow ([153d445](https://github.com/adrianlarsen102/EVU-WEB/commit/153d44530473ca22d3e77d12757bcc6f135e321b))
+* make PR labels optional in release workflow ([2632644](https://github.com/adrianlarsen102/EVU-WEB/commit/26326440a90983601486be47230895739ec132c9))
+* provide manual PR instructions due to GitHub Actions restrictions ([265106b](https://github.com/adrianlarsen102/EVU-WEB/commit/265106b86ae790d2fa38d591d3472a412ea63a5f))
+* update release workflow to respect branch protection ([930da7b](https://github.com/adrianlarsen102/EVU-WEB/commit/930da7bd4a711797bb1ca077c7e1bea492033a8c))
+* use gh CLI for PR creation instead of action ([337fb63](https://github.com/adrianlarsen102/EVU-WEB/commit/337fb637fb428fd2e93f352777c5362046a37504))
+
+
+### Code Refactoring
+
+* reorganize documentation into structured folders ([5b3b3b7](https://github.com/adrianlarsen102/EVU-WEB/commit/5b3b3b72344ff634a02aaed58bb5df1e66ca2470))
+
+
+### Documentation
+
+* document automated release workflow with GH_TOKEN ([e29da20](https://github.com/adrianlarsen102/EVU-WEB/commit/e29da2047ec38f6c2d542d8d8b1cbbc904e1ec8f))
+
 ### [2.5.2](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.5.1...v2.5.2) (2025-10-06)
 
 ### [2.5.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.5.0...v2.5.1) (2025-10-06)
