@@ -10,6 +10,15 @@ export default function Layout({ children, title = 'EVU Gaming Network' }) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta charSet="UTF-8" />
         <meta name="description" content="EVU Gaming Network - Minecraft & FiveM Servers" />
+
+        {/* Usercentrics CMP */}
+        <script src="https://web.cmp.usercentrics.eu/modules/autoblocker.js" />
+        <script
+          id="usercentrics-cmp"
+          src="https://web.cmp.usercentrics.eu/ui/loader.js"
+          data-settings-id="WuiXESJD4K-Ga4"
+          async
+        />
       </Head>
 
       <nav className="navbar">

@@ -60,18 +60,24 @@ jobs:
       - name: Create release branch and push
         run: |
           BRANCH_NAME="release/v${{ steps.version.outputs.version }}"
+
+          # Delete remote branch if exists
+          git push origin --delete "$BRANCH_NAME" 2>/dev/null || true
+
+          # Create and push new branch
           git checkout -b "$BRANCH_NAME"
           git push origin "$BRANCH_NAME"
           git push --tags
 
       - name: Create Pull Request
-        uses: repo-sync/pull-request@v2
+        uses: peter-evans/create-pull-request@v6
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          source_branch: release/v${{ steps.version.outputs.version }}
-          destination_branch: main
-          pr_title: "chore(release): v${{ steps.version.outputs.version }}"
-          pr_body: |
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(release): v${{ steps.version.outputs.version }}"
+          branch: release/v${{ steps.version.outputs.version }}
+          delete-branch: false
+          title: "chore(release): v${{ steps.version.outputs.version }}"
+          body: |
             ## Release v${{ steps.version.outputs.version }}
 
             Automated release created by GitHub Actions.
@@ -81,8 +87,8 @@ jobs:
 
             ---
             **Auto-merge:** Please review and merge this PR to complete the release.
-          pr_label: "release,automated"
-          pr_assignee: ${{ github.actor }}
+          labels: release,automated
+          assignees: ${{ github.actor }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
