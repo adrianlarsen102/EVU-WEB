@@ -30,7 +30,7 @@
 ### Key Information
 - **Version**: 2.5.2
 - **Framework**: Next.js 15.5.4
-- **Runtime**: Node.js 20.x
+- **Runtime**: Node.js 22.x (LTS)
 - **Database**: Supabase (PostgreSQL)
 - **Deployment**: Vercel
 - **License**: ISC
@@ -814,7 +814,7 @@ vercel
 - **Build Command**: `next build`
 - **Output Directory**: `.next`
 - **Install Command**: `npm install`
-- **Node Version**: 20.x
+- **Node Version**: 22.x
 
 ### Supabase Setup
 
