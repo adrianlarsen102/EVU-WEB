@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.2](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.0.1...v2.0.2) (2025-10-06)
+
+
+### Bug Fixes
+
+* improve CHANGELOG.md parser to support standard-version format ([988fb50](https://github.com/adrianlarsen102/EVU-WEB/commit/988fb503a640c0c76e0d426465db0d9181835782))
+
 ### 2.0.1 (2025-10-06)
 
 
