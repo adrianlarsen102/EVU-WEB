@@ -12,7 +12,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, 'chore(release)')"
+    if: ${{ !contains(github.event.head_commit.message, 'chore(release):') && !startsWith(github.ref, 'refs/heads/release/') }}
 
     steps:
       - name: Checkout
@@ -43,30 +43,32 @@ jobs:
         id: version
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
-      - name: Create release branch
+      - name: Create release branch and push
         run: |
-          git checkout -b release/v${{ steps.version.outputs.version }}
-          git push origin release/v${{ steps.version.outputs.version }}
+          BRANCH_NAME="release/v${{ steps.version.outputs.version }}"
+          git checkout -b "$BRANCH_NAME"
+          git push origin "$BRANCH_NAME"
           git push --tags
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: repo-sync/pull-request@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: release/v${{ steps.version.outputs.version }}
-          base: main
-          title: "chore(release): v${{ steps.version.outputs.version }}"
-          body: |
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          source_branch: release/v${{ steps.version.outputs.version }}
+          destination_branch: main
+          pr_title: "chore(release): v${{ steps.version.outputs.version }}"
+          pr_body: |
             ## Release v${{ steps.version.outputs.version }}
 
             Automated release created by GitHub Actions.
 
             ### Changes
             See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/release/v${{ steps.version.outputs.version }}/CHANGELOG.md) for details.
-          labels: |
-            release
-            automated
-          assignees: ${{ github.actor }}
+
+            ---
+            **Auto-merge:** Please review and merge this PR to complete the release.
+          pr_label: "release,automated"
+          pr_assignee: ${{ github.actor }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
