@@ -1,6 +1,6 @@
 {
   "name": "evu-web",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "description": "EVU FiveM Server Website with Admin Panel - Next.js",
   "private": true,
   "scripts": {

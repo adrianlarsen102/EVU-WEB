@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.4.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.3.1...v2.4.0) (2025-10-06)
+
+
+### Features
+
+* update forum and layout for dual-server gaming network ([1f2e2a1](https://github.com/adrianlarsen102/EVU-WEB/commit/1f2e2a1c69be1b87d4aa39a0b3ed3ad255f36fce))
+
 ### [2.3.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.3.0...v2.3.1) (2025-10-06)
 
 
