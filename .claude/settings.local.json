@@ -6,7 +6,10 @@
       "Bash(git push:*)",
       "Bash(npm install)",
       "Bash(npm install:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(npm run release:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []
