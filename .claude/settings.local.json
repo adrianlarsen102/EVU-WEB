@@ -12,7 +12,8 @@
       "Bash(python:*)",
       "Bash(git checkout:*)",
       "Bash(git tag:*)",
-      "Bash(gh label create:*)"
+      "Bash(gh label create:*)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []
