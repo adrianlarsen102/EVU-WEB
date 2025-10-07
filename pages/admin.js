@@ -48,6 +48,9 @@ export default function Admin() {
     admin_email: ''
   });
   const [emailError, setEmailError] = useState('');
+  const [testEmail, setTestEmail] = useState('');
+  const [testEmailStatus, setTestEmailStatus] = useState('');
+  const [sendingTestEmail, setSendingTestEmail] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -584,6 +587,44 @@ export default function Admin() {
       }
     } catch (error) {
       setEmailError('Failed to save email settings');
+    }
+  };
+
+  const handleSendTestEmail = async () => {
+    setTestEmailStatus('');
+
+    // Validation
+    if (!testEmail || !testEmail.includes('@')) {
+      setTestEmailStatus('error:Please enter a valid email address');
+      return;
+    }
+
+    if (!emailSettings.enabled) {
+      setTestEmailStatus('error:Email notifications are disabled. Please enable them first.');
+      return;
+    }
+
+    setSendingTestEmail(true);
+
+    try {
+      const res = await fetch('/api/test-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: testEmail })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setTestEmailStatus('success:Test email sent successfully! Check your inbox.');
+        setTestEmail('');
+      } else {
+        setTestEmailStatus(`error:${data.error || 'Failed to send test email'}`);
+      }
+    } catch (error) {
+      setTestEmailStatus('error:Failed to send test email. Check your settings.');
+    } finally {
+      setSendingTestEmail(false);
     }
   };
 
@@ -1837,188 +1878,258 @@ export default function Admin() {
               <div className="admin-section">
                 <h2 style={{ marginBottom: '1.5rem', color: 'var(--primary-color)' }}>📧 Email Settings</h2>
 
-                <form onSubmit={handleSaveEmailSettings} style={{ maxWidth: '800px' }}>
+                <form onSubmit={handleSaveEmailSettings}>
                   {/* Enable/Disable */}
-                  <div style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--card-bg)', borderRadius: '8px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                  <div className="admin-card">
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
                       <input
                         type="checkbox"
+                        id="email-enabled"
                         checked={emailSettings.enabled}
                         onChange={(e) => setEmailSettings({ ...emailSettings, enabled: e.target.checked })}
-                        style={{ width: '20px', height: '20px', marginRight: '1rem' }}
+                        style={{ width: '20px', height: '20px', marginRight: '1rem', cursor: 'pointer' }}
                       />
-                      <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>Enable Email Notifications</span>
-                    </label>
-                    <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', marginLeft: '2.5rem' }}>
+                      <label htmlFor="email-enabled" style={{ fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', margin: 0 }}>
+                        Enable Email Notifications
+                      </label>
+                    </div>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginLeft: '2rem' }}>
                       Send welcome emails, ticket notifications, and status updates
                     </p>
                   </div>
 
                   {/* Provider Selection */}
-                  <div style={{ marginBottom: '2rem' }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                      Email Provider
-                    </label>
-                    <select
-                      value={emailSettings.provider}
-                      onChange={(e) => setEmailSettings({ ...emailSettings, provider: e.target.value })}
-                      style={{ width: '100%', padding: '0.75rem', background: 'var(--card-bg)', border: '2px solid rgba(0, 212, 255, 0.3)', borderRadius: '8px', color: 'var(--text-primary)' }}
-                    >
-                      <option value="resend">Resend API (Recommended)</option>
-                      <option value="smtp">SMTP (Gmail, Outlook, etc.)</option>
-                    </select>
+                  <div className="admin-card">
+                    <h3 className="admin-card-title">Provider Configuration</h3>
+                    <div className="form-group">
+                      <label>Email Provider</label>
+                      <select
+                        className="form-input"
+                        value={emailSettings.provider}
+                        onChange={(e) => setEmailSettings({ ...emailSettings, provider: e.target.value })}
+                      >
+                        <option value="resend">Resend API (Recommended)</option>
+                        <option value="smtp">SMTP (Gmail, Outlook, etc.)</option>
+                      </select>
+                    </div>
                   </div>
 
                   {/* Resend Settings */}
                   {emailSettings.provider === 'resend' && (
-                    <div style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--card-bg)', borderRadius: '8px' }}>
-                      <h3 style={{ marginBottom: '1rem', color: 'var(--primary-color)' }}>Resend API Configuration</h3>
-                      <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+                    <div className="admin-card">
+                      <h3 className="admin-card-title">Resend API Configuration</h3>
+                      <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
                         Sign up at <a href="https://resend.com" target="_blank" style={{ color: 'var(--primary-color)' }}>resend.com</a> - Free tier: 3,000 emails/month, 100/day
                       </p>
 
-                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                        Resend API Key
-                      </label>
-                      <input
-                        type="password"
-                        value={emailSettings.resend_api_key}
-                        onChange={(e) => setEmailSettings({ ...emailSettings, resend_api_key: e.target.value })}
-                        placeholder="re_xxxxxxxxxxxxxxxxxxxxxxxx"
-                        style={{ width: '100%', padding: '0.75rem', background: 'var(--card-bg)', border: '2px solid rgba(0, 212, 255, 0.3)', borderRadius: '8px', color: 'var(--text-primary)' }}
-                      />
+                      <div className="form-group">
+                        <label>Resend API Key</label>
+                        <input
+                          type="password"
+                          className="form-input"
+                          value={emailSettings.resend_api_key}
+                          onChange={(e) => setEmailSettings({ ...emailSettings, resend_api_key: e.target.value })}
+                          placeholder="re_xxxxxxxxxxxxxxxxxxxxxxxx"
+                        />
+                      </div>
                     </div>
                   )}
 
                   {/* SMTP Settings */}
                   {emailSettings.provider === 'smtp' && (
-                    <div style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--card-bg)', borderRadius: '8px' }}>
-                      <h3 style={{ marginBottom: '1rem', color: 'var(--primary-color)' }}>SMTP Configuration</h3>
+                    <div className="admin-card">
+                      <h3 className="admin-card-title">SMTP Configuration</h3>
 
-                      <div style={{ marginBottom: '1rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                          SMTP Host
-                        </label>
-                        <input
-                          type="text"
-                          value={emailSettings.smtp_host}
-                          onChange={(e) => setEmailSettings({ ...emailSettings, smtp_host: e.target.value })}
-                          placeholder="smtp.gmail.com"
-                          style={{ width: '100%', padding: '0.75rem', background: 'var(--card-bg)', border: '2px solid rgba(0, 212, 255, 0.3)', borderRadius: '8px', color: 'var(--text-primary)' }}
-                        />
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label>SMTP Host</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={emailSettings.smtp_host}
+                            onChange={(e) => setEmailSettings({ ...emailSettings, smtp_host: e.target.value })}
+                            placeholder="smtp.gmail.com"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label>SMTP Port</label>
+                          <input
+                            type="number"
+                            className="form-input"
+                            value={emailSettings.smtp_port}
+                            onChange={(e) => setEmailSettings({ ...emailSettings, smtp_port: parseInt(e.target.value) || 587 })}
+                            placeholder="587"
+                          />
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                            Common: 587 (TLS), 465 (SSL), 25 (Plain)
+                          </p>
+                        </div>
+
+                        <div className="form-group">
+                          <label>SMTP Username</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={emailSettings.smtp_user}
+                            onChange={(e) => setEmailSettings({ ...emailSettings, smtp_user: e.target.value })}
+                            placeholder="your-email@gmail.com"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label>SMTP Password</label>
+                          <input
+                            type="password"
+                            className="form-input"
+                            value={emailSettings.smtp_pass}
+                            onChange={(e) => setEmailSettings({ ...emailSettings, smtp_pass: e.target.value })}
+                            placeholder="App Password (for Gmail)"
+                          />
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                            Gmail users: Enable 2FA and create an App Password
+                          </p>
+                        </div>
                       </div>
 
-                      <div style={{ marginBottom: '1rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                          SMTP Port
+                      <div style={{ marginTop: '1rem' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={emailSettings.smtp_secure}
+                            onChange={(e) => setEmailSettings({ ...emailSettings, smtp_secure: e.target.checked })}
+                            style={{ width: '20px', height: '20px', marginRight: '0.75rem', cursor: 'pointer' }}
+                          />
+                          <span>Use SSL/TLS (check for port 465)</span>
                         </label>
-                        <input
-                          type="number"
-                          value={emailSettings.smtp_port}
-                          onChange={(e) => setEmailSettings({ ...emailSettings, smtp_port: parseInt(e.target.value) || 587 })}
-                          placeholder="587"
-                          style={{ width: '100%', padding: '0.75rem', background: 'var(--card-bg)', border: '2px solid rgba(0, 212, 255, 0.3)', borderRadius: '8px', color: 'var(--text-primary)' }}
-                        />
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
-                          Common: 587 (TLS), 465 (SSL), 25 (Plain)
-                        </p>
                       </div>
-
-                      <div style={{ marginBottom: '1rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                          SMTP Username
-                        </label>
-                        <input
-                          type="text"
-                          value={emailSettings.smtp_user}
-                          onChange={(e) => setEmailSettings({ ...emailSettings, smtp_user: e.target.value })}
-                          placeholder="your-email@gmail.com"
-                          style={{ width: '100%', padding: '0.75rem', background: 'var(--card-bg)', border: '2px solid rgba(0, 212, 255, 0.3)', borderRadius: '8px', color: 'var(--text-primary)' }}
-                        />
-                      </div>
-
-                      <div style={{ marginBottom: '1rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                          SMTP Password
-                        </label>
-                        <input
-                          type="password"
-                          value={emailSettings.smtp_pass}
-                          onChange={(e) => setEmailSettings({ ...emailSettings, smtp_pass: e.target.value })}
-                          placeholder="App Password (for Gmail)"
-                          style={{ width: '100%', padding: '0.75rem', background: 'var(--card-bg)', border: '2px solid rgba(0, 212, 255, 0.3)', borderRadius: '8px', color: 'var(--text-primary)' }}
-                        />
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
-                          Gmail users: Enable 2FA and create an App Password
-                        </p>
-                      </div>
-
-                      <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', marginTop: '1rem' }}>
-                        <input
-                          type="checkbox"
-                          checked={emailSettings.smtp_secure}
-                          onChange={(e) => setEmailSettings({ ...emailSettings, smtp_secure: e.target.checked })}
-                          style={{ width: '20px', height: '20px', marginRight: '0.75rem' }}
-                        />
-                        <span>Use SSL/TLS (check for port 465)</span>
-                      </label>
                     </div>
                   )}
 
                   {/* Shared Settings */}
-                  <div style={{ marginBottom: '2rem', padding: '1.5rem', background: 'var(--card-bg)', borderRadius: '8px' }}>
-                    <h3 style={{ marginBottom: '1rem', color: 'var(--primary-color)' }}>Email Addresses</h3>
+                  <div className="admin-card">
+                    <h3 className="admin-card-title">Email Addresses</h3>
 
-                    <div style={{ marginBottom: '1rem' }}>
-                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                        From Email Address
-                      </label>
-                      <input
-                        type="email"
-                        value={emailSettings.email_from}
-                        onChange={(e) => setEmailSettings({ ...emailSettings, email_from: e.target.value })}
-                        placeholder="noreply@yourdomain.com"
-                        style={{ width: '100%', padding: '0.75rem', background: 'var(--card-bg)', border: '2px solid rgba(0, 212, 255, 0.3)', borderRadius: '8px', color: 'var(--text-primary)' }}
-                      />
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
-                        Email address that will appear as sender
-                      </p>
-                    </div>
+                    <div className="form-grid">
+                      <div className="form-group">
+                        <label>From Email Address</label>
+                        <input
+                          type="email"
+                          className="form-input"
+                          value={emailSettings.email_from}
+                          onChange={(e) => setEmailSettings({ ...emailSettings, email_from: e.target.value })}
+                          placeholder="noreply@yourdomain.com"
+                        />
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                          Email address that will appear as sender
+                        </p>
+                      </div>
 
-                    <div style={{ marginBottom: '1rem' }}>
-                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                        Admin Email (Optional)
-                      </label>
-                      <input
-                        type="email"
-                        value={emailSettings.admin_email}
-                        onChange={(e) => setEmailSettings({ ...emailSettings, admin_email: e.target.value })}
-                        placeholder="admin@yourdomain.com"
-                        style={{ width: '100%', padding: '0.75rem', background: 'var(--card-bg)', border: '2px solid rgba(0, 212, 255, 0.3)', borderRadius: '8px', color: 'var(--text-primary)' }}
-                      />
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
-                        Receive notifications for new support tickets
-                      </p>
+                      <div className="form-group">
+                        <label>Admin Email (Optional)</label>
+                        <input
+                          type="email"
+                          className="form-input"
+                          value={emailSettings.admin_email}
+                          onChange={(e) => setEmailSettings({ ...emailSettings, admin_email: e.target.value })}
+                          placeholder="admin@yourdomain.com"
+                        />
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                          Receive notifications for new support tickets
+                        </p>
+                      </div>
                     </div>
                   </div>
 
                   {emailError && (
-                    <div style={{ padding: '1rem', background: 'rgba(255, 107, 107, 0.1)', border: '2px solid #ff6b6b', borderRadius: '8px', marginBottom: '1rem' }}>
+                    <div style={{ padding: '1rem', background: 'rgba(255, 107, 107, 0.1)', border: '2px solid #ff6b6b', borderRadius: '8px' }}>
                       <p style={{ color: '#ff6b6b', margin: 0 }}>{emailError}</p>
                     </div>
                   )}
 
                   <button
                     type="submit"
-                    style={{ padding: '1rem 2rem', background: 'linear-gradient(135deg, var(--primary-color), var(--accent-color))', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem' }}
+                    className="btn-admin btn-admin-primary"
+                    style={{ marginTop: emailError ? '1rem' : '0' }}
                   >
                     💾 Save Email Settings
                   </button>
                 </form>
 
+                {/* Test Email Section */}
+                <div className="admin-card">
+                  <h3 className="admin-card-title">🧪 Test Email Configuration</h3>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+                    Send a test email to verify your configuration is working correctly.
+                  </p>
+
+                  <div className="form-group">
+                    <label>Test Email Address</label>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                      <input
+                        type="email"
+                        className="form-input"
+                        value={testEmail}
+                        onChange={(e) => setTestEmail(e.target.value)}
+                        placeholder="Enter email address to test"
+                        disabled={!emailSettings.enabled}
+                        style={{
+                          flex: 1,
+                          opacity: emailSettings.enabled ? 1 : 0.5,
+                          cursor: emailSettings.enabled ? 'text' : 'not-allowed'
+                        }}
+                      />
+                      <button
+                        onClick={handleSendTestEmail}
+                        disabled={sendingTestEmail || !emailSettings.enabled}
+                        className="btn-admin"
+                        style={{
+                          background: sendingTestEmail || !emailSettings.enabled
+                            ? 'rgba(100, 100, 100, 0.3)'
+                            : 'linear-gradient(135deg, var(--primary-color), var(--accent-color))',
+                          cursor: sendingTestEmail || !emailSettings.enabled ? 'not-allowed' : 'pointer',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {sendingTestEmail ? '📤 Sending...' : '📧 Send Test'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {!emailSettings.enabled && (
+                    <div style={{ padding: '0.75rem 1rem', background: 'rgba(255, 170, 0, 0.1)', border: '2px solid #ffaa00', borderRadius: '8px' }}>
+                      <p style={{ color: '#ffaa00', margin: 0, fontSize: '0.9rem' }}>
+                        ⚠️ Email notifications are disabled. Enable them above to send test emails.
+                      </p>
+                    </div>
+                  )}
+
+                  {testEmailStatus && (
+                    <div
+                      style={{
+                        padding: '1rem',
+                        background: testEmailStatus.startsWith('success:')
+                          ? 'rgba(0, 255, 136, 0.1)'
+                          : 'rgba(255, 107, 107, 0.1)',
+                        border: `2px solid ${testEmailStatus.startsWith('success:') ? '#00ff88' : '#ff6b6b'}`,
+                        borderRadius: '8px'
+                      }}
+                    >
+                      <p
+                        style={{
+                          color: testEmailStatus.startsWith('success:') ? '#00ff88' : '#ff6b6b',
+                          margin: 0
+                        }}
+                      >
+                        {testEmailStatus.split(':')[1]}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 {/* Help Section */}
-                <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'var(--card-bg)', borderRadius: '8px', maxWidth: '800px' }}>
-                  <h3 style={{ marginBottom: '1rem', color: 'var(--primary-color)' }}>📚 Quick Setup Guides</h3>
+                <div className="admin-card">
+                  <h3 className="admin-card-title">📚 Quick Setup Guides</h3>
 
                   <div style={{ marginBottom: '1rem' }}>
                     <strong>Resend (Recommended):</strong>
