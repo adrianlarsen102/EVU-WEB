@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.8.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.7.0...v2.8.0) (2025-10-07)
+
+
+### Features
+
+* add admin panel email settings management ([1e8c0b8](https://github.com/adrianlarsen102/EVU-WEB/commit/1e8c0b88df5fa25182bb4d76e579c28dc983848d))
+* add email notification system with Resend integration ([fcd5994](https://github.com/adrianlarsen102/EVU-WEB/commit/fcd599419cc94ade4946ce6cc19051fc6228892f))
+* add SMTP support as alternative to Resend API ([f333d59](https://github.com/adrianlarsen102/EVU-WEB/commit/f333d59c4b37bbc345deb07c66b2ddf52ee2fa43))
+* add test email functionality and improve admin panel styling ([9f57812](https://github.com/adrianlarsen102/EVU-WEB/commit/9f57812c330a2d06e5dc4d9bd1fece13206e421d))
+* add user registration system with password strength validation ([047c10a](https://github.com/adrianlarsen102/EVU-WEB/commit/047c10a7fa9f0d0b5a0a716ba4b8870b389fb1d7))
+* complete support ticket system with admin panel (Phase 2) ([73cfe1e](https://github.com/adrianlarsen102/EVU-WEB/commit/73cfe1ee6f21fd3d96e8dc396e53738486a24f9c))
+* implement complete forum system with topics, comments, and moderation ([d735edf](https://github.com/adrianlarsen102/EVU-WEB/commit/d735edf3bb8fa5330bbf6e78335aed5773784374))
+* implement comprehensive support ticket system (Phase 1) ([151eac4](https://github.com/adrianlarsen102/EVU-WEB/commit/151eac4c45e73c7c1270a3a1d228fa965d0ea195))
+* implement dynamic Recent Activity feed on forum page ([5b3a9d6](https://github.com/adrianlarsen102/EVU-WEB/commit/5b3a9d62f679237be6cc429263d5faffa0993628))
+
+
+### Bug Fixes
+
+* add missing Link import in profile page ([41062aa](https://github.com/adrianlarsen102/EVU-WEB/commit/41062aa4244bacf825e2667fc96cc4eb88223265))
+* improve forum form layout and responsive scaling ([bb7bd61](https://github.com/adrianlarsen102/EVU-WEB/commit/bb7bd611f7a40765ee3b8e136b12c956818ad686))
+* resolve category ID validation and improve responsive scaling ([f3baa4b](https://github.com/adrianlarsen102/EVU-WEB/commit/f3baa4b1ed4eec547d132d7cffbf2657dd4277d8))
+
 ## [2.7.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.6.1...v2.7.0) (2025-10-06)
 
 
