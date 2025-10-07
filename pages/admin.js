@@ -25,6 +25,11 @@ export default function Admin() {
   const [newUserPassword, setNewUserPassword] = useState('');
   const [userError, setUserError] = useState('');
 
+  // Forum moderation
+  const [moderationTopics, setModerationTopics] = useState([]);
+  const [moderationComments, setModerationComments] = useState([]);
+  const [moderationView, setModerationView] = useState('topics'); // 'topics' or 'comments'
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -34,6 +39,12 @@ export default function Admin() {
       loadUsers();
     }
   }, [activeTab, isAuthenticated]);
+
+  useEffect(() => {
+    if (activeTab === 'moderation' && isAuthenticated) {
+      loadModerationData();
+    }
+  }, [activeTab, isAuthenticated, moderationView]);
 
   const checkAuth = async () => {
     try {
@@ -354,6 +365,69 @@ export default function Admin() {
       ...prev,
       forumCategories: prev.forumCategories.filter((_, i) => i !== index)
     }));
+  };
+
+  // Forum Moderation Functions
+  const loadModerationData = async () => {
+    try {
+      const res = await fetch(`/api/forum/moderation?type=${moderationView}`);
+      const data = await res.json();
+
+      if (moderationView === 'topics') {
+        setModerationTopics(data);
+      } else {
+        setModerationComments(data);
+      }
+    } catch (error) {
+      console.error('Load moderation data error:', error);
+    }
+  };
+
+  const handleModerateTopic = async (action, topicId, value = null) => {
+    try {
+      const res = await fetch('/api/forum/moderation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action,
+          targetType: 'topic',
+          targetId: topicId,
+          value
+        })
+      });
+
+      if (res.ok) {
+        showMessage('success', `Topic ${action}ed successfully!`);
+        loadModerationData();
+      } else {
+        showMessage('error', `Failed to ${action} topic`);
+      }
+    } catch (error) {
+      showMessage('error', `Failed to ${action} topic`);
+    }
+  };
+
+  const handleModerateComment = async (action, commentId) => {
+    try {
+      const res = await fetch('/api/forum/moderation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action,
+          targetType: 'comment',
+          targetId: commentId
+        })
+      });
+
+      if (res.ok) {
+        showMessage('success', `Comment ${action}ed successfully!`);
+        loadModerationData();
+      } else {
+        showMessage('error', `Failed to ${action} comment`);
+      }
+    } catch (error) {
+      showMessage('error', `Failed to ${action} comment`);
+    }
   };
 
   // User Management Functions
@@ -680,6 +754,12 @@ export default function Admin() {
                 onClick={() => setActiveTab('forum')}
               >
                 💬 Forum
+              </button>
+              <button
+                className={`admin-tab ${activeTab === 'moderation' ? 'active' : ''}`}
+                onClick={() => setActiveTab('moderation')}
+              >
+                🛡️ Moderation
               </button>
               <button
                 className={`admin-tab ${activeTab === 'users' ? 'active' : ''}`}
@@ -1220,6 +1300,158 @@ export default function Admin() {
                 <button onClick={saveContent} className="btn-admin btn-admin-primary">
                   💾 Save Forum
                 </button>
+              </div>
+            )}
+
+            {activeTab === 'moderation' && (
+              <div className="admin-tab-content">
+                <div className="admin-card">
+                  <h3 className="admin-card-title">Forum Moderation</h3>
+
+                  {/* View Toggle */}
+                  <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+                    <button
+                      onClick={() => setModerationView('topics')}
+                      className={`btn-admin ${moderationView === 'topics' ? 'btn-admin-primary' : 'btn-admin-secondary'}`}
+                    >
+                      📝 Topics
+                    </button>
+                    <button
+                      onClick={() => setModerationView('comments')}
+                      className={`btn-admin ${moderationView === 'comments' ? 'btn-admin-primary' : 'btn-admin-secondary'}`}
+                    >
+                      💬 Comments
+                    </button>
+                  </div>
+
+                  {/* Topics View */}
+                  {moderationView === 'topics' && (
+                    <div>
+                      <h4 style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>
+                        Manage all forum topics
+                      </h4>
+                      {moderationTopics.length === 0 ? (
+                        <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem' }}>
+                          No topics found
+                        </p>
+                      ) : (
+                        moderationTopics.map((topic) => (
+                          <div key={topic.id} className="admin-item-card" style={{ marginBottom: '1rem' }}>
+                            <div className="admin-item-header">
+                              <div>
+                                <h4>
+                                  {topic.is_pinned && <span style={{ color: 'var(--accent-color)', marginRight: '0.5rem' }}>📌</span>}
+                                  {topic.is_locked && <span style={{ color: 'var(--text-secondary)', marginRight: '0.5rem' }}>🔒</span>}
+                                  {topic.is_deleted && <span style={{ color: '#ff6b6b', marginRight: '0.5rem' }}>🗑️</span>}
+                                  {topic.title}
+                                </h4>
+                                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                                  By {topic.author_username} • {new Date(topic.created_at).toLocaleDateString()} • {topic.comment_count} comments
+                                </p>
+                              </div>
+                              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                {!topic.is_deleted && (
+                                  <>
+                                    <button
+                                      onClick={() => handleModerateTopic('pin', topic.id, !topic.is_pinned)}
+                                      className="btn-admin btn-admin-sm btn-admin-secondary"
+                                      title={topic.is_pinned ? 'Unpin' : 'Pin'}
+                                    >
+                                      {topic.is_pinned ? '📌 Unpin' : '📌 Pin'}
+                                    </button>
+                                    <button
+                                      onClick={() => handleModerateTopic('lock', topic.id, !topic.is_locked)}
+                                      className="btn-admin btn-admin-sm btn-admin-secondary"
+                                      title={topic.is_locked ? 'Unlock' : 'Lock'}
+                                    >
+                                      {topic.is_locked ? '🔓 Unlock' : '🔒 Lock'}
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        if (confirm(`Delete topic "${topic.title}"?`)) {
+                                          handleModerateTopic('delete', topic.id);
+                                        }
+                                      }}
+                                      className="btn-admin btn-admin-sm btn-admin-danger"
+                                    >
+                                      🗑️ Delete
+                                    </button>
+                                  </>
+                                )}
+                                {topic.is_deleted && (
+                                  <button
+                                    onClick={() => handleModerateTopic('restore', topic.id)}
+                                    className="btn-admin btn-admin-sm btn-admin-secondary"
+                                  >
+                                    ♻️ Restore
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                            <div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--dark-bg)', borderRadius: '6px', fontSize: '0.9rem', maxHeight: '100px', overflow: 'auto' }}>
+                              {topic.content}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+
+                  {/* Comments View */}
+                  {moderationView === 'comments' && (
+                    <div>
+                      <h4 style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>
+                        Manage all forum comments
+                      </h4>
+                      {moderationComments.length === 0 ? (
+                        <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem' }}>
+                          No comments found
+                        </p>
+                      ) : (
+                        moderationComments.map((comment) => (
+                          <div key={comment.id} className="admin-item-card" style={{ marginBottom: '1rem' }}>
+                            <div className="admin-item-header">
+                              <div>
+                                <h4>
+                                  {comment.is_deleted && <span style={{ color: '#ff6b6b', marginRight: '0.5rem' }}>🗑️</span>}
+                                  Comment on: {comment.topic?.title || 'Unknown Topic'}
+                                </h4>
+                                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                                  By {comment.author_username} • {new Date(comment.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                {!comment.is_deleted && (
+                                  <button
+                                    onClick={() => {
+                                      if (confirm('Delete this comment?')) {
+                                        handleModerateComment('delete', comment.id);
+                                      }
+                                    }}
+                                    className="btn-admin btn-admin-sm btn-admin-danger"
+                                  >
+                                    🗑️ Delete
+                                  </button>
+                                )}
+                                {comment.is_deleted && (
+                                  <button
+                                    onClick={() => handleModerateComment('restore', comment.id)}
+                                    className="btn-admin btn-admin-sm btn-admin-secondary"
+                                  >
+                                    ♻️ Restore
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                            <div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--dark-bg)', borderRadius: '6px', fontSize: '0.9rem', maxHeight: '100px', overflow: 'auto' }}>
+                              {comment.content}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

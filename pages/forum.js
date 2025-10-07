@@ -1,16 +1,36 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import Link from 'next/link';
 
 export default function Forum() {
   const [content, setContent] = useState(null);
   const [filter, setFilter] = useState('all'); // all, minecraft, fivem
+  const [recentTopics, setRecentTopics] = useState([]);
 
   useEffect(() => {
     fetch('/api/content')
       .then(res => res.json())
       .then(data => setContent(data))
       .catch(err => console.error('Failed to load content:', err));
+
+    // Fetch recent topics for activity feed
+    fetchRecentTopics();
   }, []);
+
+  const fetchRecentTopics = async () => {
+    try {
+      // Fetch topics from first category for recent activity
+      if (content?.forumCategories?.length > 0) {
+        const res = await fetch(`/api/forum/topics?categoryId=0`);
+        if (res.ok) {
+          const data = await res.json();
+          setRecentTopics(data.slice(0, 3));
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load recent topics:', err);
+    }
+  };
 
   const hasServers = content?.servers && (content.servers.minecraft || content.servers.fivem);
   const filteredCategories = content?.forumCategories?.filter(category => {
@@ -44,26 +64,32 @@ export default function Forum() {
         <section className="forum-section">
           <div className="forum-categories">
             {filteredCategories?.map((category, index) => (
-              <div key={index} className="forum-category">
-                <div className="category-icon">
-                  {category.serverType === 'minecraft' ? '⛏️' : category.serverType === 'fivem' ? '🚗' : '💬'}
-                </div>
-                <div className="category-info">
-                  <h3>
-                    {category.name}
-                    {hasServers && category.serverType && category.serverType !== 'all' && (
-                      <span style={{ marginLeft: '0.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 'normal' }}>
-                        ({category.serverType === 'minecraft' ? 'Minecraft' : 'FiveM'})
-                      </span>
-                    )}
-                  </h3>
-                  <p>{category.description}</p>
-                  <div className="category-stats">
-                    <span>{category.topics} Topics</span>
-                    <span>{category.posts} Posts</span>
+              <Link
+                key={index}
+                href={`/forum/${index}`}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <div className="forum-category" style={{ cursor: 'pointer', transition: 'transform 0.2s' }}>
+                  <div className="category-icon">
+                    {category.serverType === 'minecraft' ? '⛏️' : category.serverType === 'fivem' ? '🚗' : '💬'}
+                  </div>
+                  <div className="category-info">
+                    <h3>
+                      {category.name}
+                      {hasServers && category.serverType && category.serverType !== 'all' && (
+                        <span style={{ marginLeft: '0.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 'normal' }}>
+                          ({category.serverType === 'minecraft' ? 'Minecraft' : 'FiveM'})
+                        </span>
+                      )}
+                    </h3>
+                    <p>{category.description}</p>
+                    <div className="category-stats">
+                      <span>{category.topics} Topics</span>
+                      <span>{category.posts} Posts</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
 
