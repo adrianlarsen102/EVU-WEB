@@ -472,6 +472,11 @@ section h2 {
     padding: 1rem;
     background-color: var(--secondary-color);
     border-radius: 5px;
+    transition: background-color 0.2s ease;
+}
+
+.recent-post:hover {
+    background-color: var(--card-bg);
 }
 
 .post-avatar {

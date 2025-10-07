@@ -19,17 +19,33 @@ export default function Forum() {
 
   const fetchRecentTopics = async () => {
     try {
-      // Fetch topics from first category for recent activity
-      if (content?.forumCategories?.length > 0) {
-        const res = await fetch(`/api/forum/topics?categoryId=0`);
-        if (res.ok) {
-          const data = await res.json();
-          setRecentTopics(data.slice(0, 3));
-        }
+      const res = await fetch('/api/forum/recent?limit=5');
+      if (res.ok) {
+        const data = await res.json();
+        setRecentTopics(data);
       }
     } catch (err) {
       console.error('Failed to load recent topics:', err);
     }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now - date;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (days === 0) {
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      if (hours === 0) {
+        const minutes = Math.floor(diff / (1000 * 60));
+        return minutes <= 1 ? 'Just now' : `${minutes} minutes ago`;
+      }
+      return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
+    }
+    if (days === 1) return 'Yesterday';
+    if (days < 7) return `${days} days ago`;
+    return date.toLocaleDateString();
   };
 
   const hasServers = content?.servers && (content.servers.minecraft || content.servers.fivem);
@@ -96,27 +112,27 @@ export default function Forum() {
           <div className="forum-info">
             <h3>Recent Activity</h3>
             <div className="recent-posts">
-              <div className="recent-post">
-                <div className="post-avatar">👤</div>
-                <div className="post-content">
-                  <h4>New Update Coming Soon!</h4>
-                  <p className="post-meta">Posted by Admin • 2 hours ago</p>
-                </div>
-              </div>
-              <div className="recent-post">
-                <div className="post-avatar">👤</div>
-                <div className="post-content">
-                  <h4>{hasServers ? 'Looking for players!' : 'Looking for mechanics'}</h4>
-                  <p className="post-meta">Posted by Player123 • 5 hours ago</p>
-                </div>
-              </div>
-              <div className="recent-post">
-                <div className="post-avatar">👤</div>
-                <div className="post-content">
-                  <h4>Great session last night!</h4>
-                  <p className="post-meta">Posted by {hasServers ? 'Gamer' : 'RPFan'} • 1 day ago</p>
-                </div>
-              </div>
+              {recentTopics.length === 0 ? (
+                <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem 0' }}>
+                  No topics yet. Be the first to start a discussion!
+                </p>
+              ) : (
+                recentTopics.map((topic) => (
+                  <Link
+                    key={topic.id}
+                    href={`/forum/topic/${topic.id}`}
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    <div className="recent-post" style={{ cursor: 'pointer', transition: 'background-color 0.2s' }}>
+                      <div className="post-avatar">👤</div>
+                      <div className="post-content">
+                        <h4>{topic.title}</h4>
+                        <p className="post-meta">Posted by {topic.author_username} • {formatDate(topic.created_at)}</p>
+                      </div>
+                    </div>
+                  </Link>
+                ))
+              )}
             </div>
           </div>
         </section>
