@@ -819,6 +819,12 @@ export default function Admin() {
                 🛡️ Moderation
               </button>
               <button
+                className={`admin-tab ${activeTab === 'support' ? 'active' : ''}`}
+                onClick={() => setActiveTab('support')}
+              >
+                🎫 Support {openTicketCount > 0 && <span style={{ marginLeft: '0.5rem', padding: '0.2rem 0.5rem', background: 'var(--accent-color)', borderRadius: '12px', fontSize: '0.8rem' }}>{openTicketCount}</span>}
+              </button>
+              <button
                 className={`admin-tab ${activeTab === 'users' ? 'active' : ''}`}
                 onClick={() => setActiveTab('users')}
               >
@@ -1506,6 +1512,140 @@ export default function Admin() {
                           </div>
                         ))
                       )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'support' && (
+              <div className="admin-tab-content">
+                <div className="admin-card">
+                  <h3 className="admin-card-title">Support Tickets</h3>
+
+                  <div style={{ marginBottom: '2rem', padding: '1rem', background: 'rgba(0, 212, 255, 0.1)', borderRadius: '8px', border: '1px solid var(--primary-color)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                      <div>
+                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--success-color)' }}>
+                          {supportTickets.filter(t => t.status === 'open').length}
+                        </div>
+                        <div style={{ color: 'var(--text-secondary)' }}>Open</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--warning-color)' }}>
+                          {supportTickets.filter(t => t.status === 'in-progress').length}
+                        </div>
+                        <div style={{ color: 'var(--text-secondary)' }}>In Progress</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-secondary)' }}>
+                          {supportTickets.filter(t => t.status === 'closed').length}
+                        </div>
+                        <div style={{ color: 'var(--text-secondary)' }}>Closed</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>
+                          {supportTickets.length}
+                        </div>
+                        <div style={{ color: 'var(--text-secondary)' }}>Total</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {supportTickets.length === 0 ? (
+                    <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem' }}>
+                      No support tickets yet
+                    </p>
+                  ) : (
+                    <div>
+                      {supportTickets.map((ticket) => (
+                        <div key={ticket.id} className="admin-item-card" style={{ marginBottom: '1rem' }}>
+                          <div className="admin-item-header">
+                            <div>
+                              <h4>
+                                <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginRight: '0.5rem' }}>
+                                  #{ticket.ticket_number}
+                                </span>
+                                {ticket.subject}
+                              </h4>
+                              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                                By {ticket.author_username} • {new Date(ticket.created_at).toLocaleString()} • {ticket.category}
+                              </p>
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                              <span style={{
+                                padding: '0.25rem 0.75rem',
+                                borderRadius: '12px',
+                                fontSize: '0.85rem',
+                                fontWeight: 'bold',
+                                background: ticket.status === 'open' ? 'rgba(0, 255, 136, 0.2)' : ticket.status === 'in-progress' ? 'rgba(255, 170, 0, 0.2)' : 'rgba(255, 107, 107, 0.2)',
+                                color: ticket.status === 'open' ? '#00ff88' : ticket.status === 'in-progress' ? '#ffaa00' : '#ff6b6b'
+                              }}>
+                                {ticket.status.replace('-', ' ').toUpperCase()}
+                              </span>
+                              <span style={{
+                                padding: '0.25rem 0.75rem',
+                                borderRadius: '12px',
+                                fontSize: '0.85rem',
+                                background: 'rgba(0, 212, 255, 0.2)',
+                                color: 'var(--primary-color)'
+                              }}>
+                                {ticket.priority.toUpperCase()}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--dark-bg)', borderRadius: '6px', fontSize: '0.9rem' }}>
+                            <p style={{ whiteSpace: 'pre-wrap', marginBottom: '1rem' }}>{ticket.description}</p>
+
+                            {ticket.author_email && (
+                              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                📧 {ticket.author_email}
+                              </p>
+                            )}
+                          </div>
+
+                          <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            {ticket.status !== 'in-progress' && (
+                              <button
+                                onClick={() => handleUpdateTicketStatus(ticket.id, 'in-progress')}
+                                className="btn-admin btn-admin-sm btn-admin-secondary"
+                              >
+                                ▶️ Set In Progress
+                              </button>
+                            )}
+                            {ticket.status !== 'closed' && (
+                              <button
+                                onClick={() => {
+                                  if (confirm('Close this ticket?')) {
+                                    handleUpdateTicketStatus(ticket.id, 'closed');
+                                  }
+                                }}
+                                className="btn-admin btn-admin-sm btn-admin-primary"
+                              >
+                                ✅ Close Ticket
+                              </button>
+                            )}
+                            {ticket.status === 'closed' && (
+                              <button
+                                onClick={() => handleUpdateTicketStatus(ticket.id, 'open')}
+                                className="btn-admin btn-admin-sm btn-admin-secondary"
+                              >
+                                🔄 Reopen
+                              </button>
+                            )}
+                            <a
+                              href={`/support/${ticket.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn-admin btn-admin-sm btn-admin-secondary"
+                              style={{ textDecoration: 'none' }}
+                            >
+                              💬 View Details
+                            </a>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
