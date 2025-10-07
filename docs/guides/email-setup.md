@@ -4,21 +4,51 @@ This guide explains how to configure email notifications for the EVU Gaming Netw
 
 ## Overview
 
-The email system uses the **Resend API** to send email notifications for:
+The email system supports **two methods** for sending notifications:
+1. **Resend API** (Recommended) - Easy setup, free tier
+2. **SMTP** - Use any email provider (Gmail, Outlook, SendGrid, etc.)
+
+**Email notifications include:**
 - **Welcome emails** when users register
 - **Ticket creation** confirmations
 - **Ticket replies** notifications
 - **Ticket status changes** updates
 - **Admin notifications** for new support tickets
 
-## Free Tier Limits
+## Choose Your Email Provider
 
-Resend offers a generous free tier:
-- **3,000 emails per month**
-- **100 emails per day**
-- Perfect for small to medium gaming communities
+### Option 1: Resend API (Recommended)
+
+**Pros:**
+- ✅ Easy setup (just an API key)
+- ✅ Generous free tier (3,000/month, 100/day)
+- ✅ No email account needed
+- ✅ Built-in analytics
+- ✅ Better deliverability with domain verification
+
+**Cons:**
+- ❌ Requires internet API calls
+- ❌ Free tier limits may be insufficient for large communities
+
+### Option 2: SMTP
+
+**Pros:**
+- ✅ Works with any email provider
+- ✅ Use existing email accounts (Gmail, Outlook, etc.)
+- ✅ More control over sending
+- ✅ No third-party service dependency
+
+**Cons:**
+- ❌ More complex setup (host, port, credentials)
+- ❌ Gmail requires App Passwords (2FA)
+- ❌ May have stricter rate limits
+- ❌ Less deliverability without proper DNS setup
+
+---
 
 ## Setup Instructions
+
+### Option 1: Resend API Setup
 
 ### 1. Create Resend Account
 
@@ -55,7 +85,7 @@ For production use, verify your domain:
 - Emails sent from your custom domain (e.g., `noreply@yourdomain.com`)
 - Better deliverability and trust
 
-### 4. Configure Environment Variables
+### 4. Configure Environment Variables (Resend)
 
 #### Local Development
 
@@ -68,7 +98,10 @@ cp .env.local.example .env.local
 Edit `.env.local` and add:
 
 ```env
-# Required for email functionality
+# Choose Resend as email provider
+EMAIL_PROVIDER=resend
+
+# Resend API Configuration
 RESEND_API_KEY=re_your_api_key_here
 EMAIL_FROM=noreply@yourdomain.com
 ADMIN_EMAIL=admin@yourdomain.com
@@ -83,6 +116,7 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 | Variable | Value | Environment |
 |----------|-------|-------------|
+| `EMAIL_PROVIDER` | resend | Production, Preview, Development |
 | `RESEND_API_KEY` | Your Resend API key | Production, Preview, Development |
 | `EMAIL_FROM` | Your sender email | Production, Preview, Development |
 | `ADMIN_EMAIL` | Admin notification email | Production, Preview, Development |
@@ -90,27 +124,135 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 4. Redeploy your application
 
+---
+
+### Option 2: SMTP Setup
+
+Use any SMTP provider (Gmail, Outlook, SendGrid, Mailgun, etc.).
+
+#### Gmail Setup Example
+
+1. **Enable 2-Factor Authentication** on your Google account
+2. **Create App Password:**
+   - Go to Google Account → Security
+   - Under "2-Step Verification", find "App passwords"
+   - Select "Mail" and your device
+   - Copy the 16-character password
+
+3. **Configure Environment Variables:**
+
+```env
+# Choose SMTP as email provider
+EMAIL_PROVIDER=smtp
+
+# Gmail SMTP Configuration
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-16-char-app-password
+SMTP_SECURE=false
+
+# Shared settings
+EMAIL_FROM=your-email@gmail.com
+ADMIN_EMAIL=admin@yourdomain.com
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+#### Other SMTP Providers
+
+**Outlook/Hotmail:**
+```env
+SMTP_HOST=smtp-mail.outlook.com
+SMTP_PORT=587
+SMTP_USER=your-email@outlook.com
+SMTP_PASS=your-password
+SMTP_SECURE=false
+```
+
+**SendGrid:**
+```env
+SMTP_HOST=smtp.sendgrid.net
+SMTP_PORT=587
+SMTP_USER=apikey
+SMTP_PASS=your-sendgrid-api-key
+SMTP_SECURE=false
+```
+
+**Mailgun:**
+```env
+SMTP_HOST=smtp.mailgun.org
+SMTP_PORT=587
+SMTP_USER=postmaster@your-domain.mailgun.org
+SMTP_PASS=your-mailgun-smtp-password
+SMTP_SECURE=false
+```
+
+**Custom SMTP (port 465 with SSL):**
+```env
+SMTP_HOST=mail.yourdomain.com
+SMTP_PORT=465
+SMTP_USER=no-reply@yourdomain.com
+SMTP_PASS=your-password
+SMTP_SECURE=true
+```
+
+---
+
 ## Environment Variables Explained
 
-### `RESEND_API_KEY` (Optional)
+### `EMAIL_PROVIDER` (Optional)
+- **Purpose**: Choose between 'resend' or 'smtp'
+- **Options**: `resend` | `smtp`
+- **Default**: `resend`
+- **Note**: Determines which email service to use
+
+### Resend Variables
+
+#### `RESEND_API_KEY` (Required for Resend)
 - **Purpose**: Authenticate with Resend API
 - **Format**: `re_xxxxxxxxxxxxxxxxxxxxxxxx`
-- **Required**: Only if you want email notifications
 - **Security**: Keep this secret! Never commit to Git
 
-### `EMAIL_FROM` (Optional)
+### SMTP Variables
+
+#### `SMTP_HOST` (Required for SMTP)
+- **Purpose**: SMTP server hostname
+- **Examples**: `smtp.gmail.com`, `smtp-mail.outlook.com`
+
+#### `SMTP_PORT` (Required for SMTP)
+- **Purpose**: SMTP server port
+- **Common ports**: `587` (TLS), `465` (SSL), `25` (plain)
+- **Default**: `587`
+
+#### `SMTP_USER` (Required for SMTP)
+- **Purpose**: SMTP authentication username
+- **Usually**: Your email address
+
+#### `SMTP_PASS` (Required for SMTP)
+- **Purpose**: SMTP authentication password
+- **Note**: Use App Passwords for Gmail
+- **Security**: Keep this secret!
+
+#### `SMTP_SECURE` (Optional for SMTP)
+- **Purpose**: Use SSL/TLS encryption
+- **Values**: `true` (port 465) or `false` (port 587)
+- **Default**: `false`
+
+### Shared Variables (Both Resend and SMTP)
+
+#### `EMAIL_FROM` (Optional)
 - **Purpose**: Sender email address for all outgoing emails
 - **Format**: `noreply@yourdomain.com`
-- **Default**: `noreply@yourdomain.com` (uses Resend's domain)
-- **Recommendation**: Use your verified domain for better deliverability
+- **Default**: `noreply@yourdomain.com`
+- **Note**: Must match verified domain for Resend
 
-### `ADMIN_EMAIL` (Optional)
+#### `ADMIN_EMAIL` (Optional)
 - **Purpose**: Where to send admin notifications (new tickets)
 - **Format**: `admin@yourdomain.com`
 - **Example**: Your personal or team email
 - **Note**: Admin won't receive notifications if not set
 
-### `NEXT_PUBLIC_SITE_URL` (Optional)
+#### `NEXT_PUBLIC_SITE_URL` (Optional)
 - **Purpose**: Base URL for links in emails
 - **Format**: `https://yourdomain.com` (no trailing slash)
 - **Local**: `http://localhost:3000`
