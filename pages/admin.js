@@ -30,6 +30,10 @@ export default function Admin() {
   const [moderationComments, setModerationComments] = useState([]);
   const [moderationView, setModerationView] = useState('topics'); // 'topics' or 'comments'
 
+  // Support tickets
+  const [supportTickets, setSupportTickets] = useState([]);
+  const [openTicketCount, setOpenTicketCount] = useState(0);
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -45,6 +49,18 @@ export default function Admin() {
       loadModerationData();
     }
   }, [activeTab, isAuthenticated, moderationView]);
+
+  useEffect(() => {
+    if (activeTab === 'support' && isAuthenticated) {
+      loadSupportTickets();
+    }
+  }, [activeTab, isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadTicketNotifications();
+    }
+  }, [isAuthenticated]);
 
   const checkAuth = async () => {
     try {
@@ -427,6 +443,47 @@ export default function Admin() {
       }
     } catch (error) {
       showMessage('error', `Failed to ${action} comment`);
+    }
+  };
+
+  // Support Ticket Functions
+  const loadSupportTickets = async () => {
+    try {
+      const res = await fetch('/api/support/tickets');
+      const data = await res.json();
+      setSupportTickets(data);
+    } catch (error) {
+      console.error('Load support tickets error:', error);
+    }
+  };
+
+  const loadTicketNotifications = async () => {
+    try {
+      const res = await fetch('/api/support/notifications');
+      const data = await res.json();
+      setOpenTicketCount(data.openTickets || 0);
+    } catch (error) {
+      console.error('Load ticket notifications error:', error);
+    }
+  };
+
+  const handleUpdateTicketStatus = async (ticketId, status) => {
+    try {
+      const res = await fetch('/api/support/tickets', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticketId, status })
+      });
+
+      if (res.ok) {
+        showMessage('success', `Ticket status updated to ${status}!`);
+        loadSupportTickets();
+        loadTicketNotifications();
+      } else {
+        showMessage('error', 'Failed to update ticket status');
+      }
+    } catch (error) {
+      showMessage('error', 'Failed to update ticket status');
     }
   };
 
