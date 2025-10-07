@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import Link from 'next/link';
 
 export default function Profile() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
