@@ -39,7 +39,7 @@ export default async function handler(req, res) {
 
     const { categoryId, title, content } = req.body;
 
-    if (!categoryId || !title || !content) {
+    if (categoryId === undefined || categoryId === null || !title || !content) {
       return res.status(400).json({ error: 'Category ID, title, and content are required' });
     }
 

@@ -58,14 +58,19 @@ export default function CategoryTopics() {
       return;
     }
 
+    if (categoryId === undefined) {
+      alert('Invalid category');
+      return;
+    }
+
     try {
       const res = await fetch('/api/forum/topics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          categoryId: parseInt(categoryId),
-          title: newTopic.title,
-          content: newTopic.content
+          categoryId: parseInt(categoryId, 10),
+          title: newTopic.title.trim(),
+          content: newTopic.content.trim()
         })
       });
 
