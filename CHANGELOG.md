@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.8.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.7.0...v2.8.0) (2025-10-07)
+
+
+### Features
+
+* implement complete forum system with topics, comments, and moderation ([d735edf](https://github.com/adrianlarsen102/EVU-WEB/commit/d735edf3bb8fa5330bbf6e78335aed5773784374))
+
+
+### Bug Fixes
+
+* resolve category ID validation and improve responsive scaling ([f3baa4b](https://github.com/adrianlarsen102/EVU-WEB/commit/f3baa4b1ed4eec547d132d7cffbf2657dd4277d8))
+
 ## [2.7.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.6.1...v2.7.0) (2025-10-06)
 
 
