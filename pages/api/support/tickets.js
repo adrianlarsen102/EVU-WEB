@@ -87,17 +87,19 @@ export default async function handler(req, res) {
       }
 
       // Send notification to admin if configured
-      if (process.env.ADMIN_EMAIL) {
-        try {
+      try {
+        const { getEmailSettings } = require('../../../lib/database');
+        const settingsResult = await getEmailSettings();
+        if (settingsResult.success && settingsResult.settings.admin_email) {
           await sendAdminTicketNotification(
-            process.env.ADMIN_EMAIL,
+            settingsResult.settings.admin_email,
             ticket.ticket_number,
             ticket.subject,
             authorUsername
           );
-        } catch (emailError) {
-          console.error('Failed to send admin notification:', emailError);
         }
+      } catch (emailError) {
+        console.error('Failed to send admin notification:', emailError);
       }
 
       return res.status(201).json(ticket);
