@@ -6,6 +6,7 @@ import {
   getTicketsByUser,
   updateTicket
 } from '../../../lib/database';
+import { sendTicketCreatedEmail, sendAdminTicketNotification, sendTicketStatusEmail } from '../../../lib/email';
 
 export default async function handler(req, res) {
   // GET - Get all tickets (admin) or user's tickets
@@ -74,7 +75,32 @@ export default async function handler(req, res) {
     );
 
     if (result.success) {
-      return res.status(201).json(result.ticket);
+      const ticket = result.ticket;
+
+      // Send confirmation email to user if email provided
+      if (authorEmail) {
+        try {
+          await sendTicketCreatedEmail(authorEmail, ticket.ticket_number, ticket.subject);
+        } catch (emailError) {
+          console.error('Failed to send ticket created email:', emailError);
+        }
+      }
+
+      // Send notification to admin if configured
+      if (process.env.ADMIN_EMAIL) {
+        try {
+          await sendAdminTicketNotification(
+            process.env.ADMIN_EMAIL,
+            ticket.ticket_number,
+            ticket.subject,
+            authorUsername
+          );
+        } catch (emailError) {
+          console.error('Failed to send admin notification:', emailError);
+        }
+      }
+
+      return res.status(201).json(ticket);
     } else {
       return res.status(500).json({ error: result.error });
     }
@@ -108,6 +134,18 @@ export default async function handler(req, res) {
     const result = await updateTicket(ticketId, updates);
 
     if (result.success) {
+      // Send status change email if status changed and user has email
+      if (status !== undefined) {
+        try {
+          const ticket = await getTicketById(ticketId);
+          if (ticket && ticket.author_email) {
+            await sendTicketStatusEmail(ticket.author_email, ticket.ticket_number, status);
+          }
+        } catch (emailError) {
+          console.error('Failed to send status change email:', emailError);
+        }
+      }
+
       return res.status(200).json({ success: true });
     } else {
       return res.status(500).json({ error: result.error });

@@ -1,4 +1,5 @@
 import { createAdmin } from '../../lib/database';
+import { sendWelcomeEmail } from '../../lib/email';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -39,6 +40,16 @@ export default async function handler(req, res) {
     const result = await createAdmin(username, password, false, 'user');
 
     if (result.success) {
+      // Send welcome email if email provided
+      if (email) {
+        try {
+          await sendWelcomeEmail(email, username);
+        } catch (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+          // Don't fail registration if email fails
+        }
+      }
+
       return res.status(201).json({
         success: true,
         message: 'Account created successfully! Please log in.'

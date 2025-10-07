@@ -175,8 +175,15 @@ npm run lint
 **Environment Variables:**
 - `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
 - `SUPABASE_SERVICE_ROLE_KEY` - Service role key (keep secret!)
+- `RESEND_API_KEY` - (Optional) Resend API key for email notifications
+- `EMAIL_FROM` - (Optional) Sender email address
+- `ADMIN_EMAIL` - (Optional) Admin email for ticket notifications
+- `NEXT_PUBLIC_SITE_URL` - Your site URL for email links
 
 **Free Tier:** 500MB database, 1GB file storage, unlimited API requests
+
+**Email Setup (Optional):**
+Sign up at [resend.com](https://resend.com) for free email service (3,000 emails/month). Copy `.env.local.example` to `.env.local` and add your Resend API key.
 
 ### Alternative Platforms
 - **Railway** - Supports PostgreSQL

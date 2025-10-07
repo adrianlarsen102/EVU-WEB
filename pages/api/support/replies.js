@@ -1,5 +1,6 @@
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
-import { createTicketReply, getTicketReplies } from '../../../lib/database';
+import { createTicketReply, getTicketReplies, getTicketById } from '../../../lib/database';
+import { sendTicketReplyEmail } from '../../../lib/email';
 
 export default async function handler(req, res) {
   // GET - Get replies for a ticket
@@ -42,6 +43,24 @@ export default async function handler(req, res) {
     );
 
     if (result.success) {
+      // Send notification email to ticket author if they have an email
+      try {
+        const ticket = await getTicketById(ticketId);
+        if (ticket && ticket.author_email) {
+          // Only notify if the reply author is different from ticket author
+          if (ticket.author_id !== session.adminId) {
+            await sendTicketReplyEmail(
+              ticket.author_email,
+              ticket.ticket_number,
+              session.username,
+              session.isAdmin
+            );
+          }
+        }
+      } catch (emailError) {
+        console.error('Failed to send reply notification email:', emailError);
+      }
+
       return res.status(201).json(result.reply);
     } else {
       return res.status(500).json({ error: result.error });
