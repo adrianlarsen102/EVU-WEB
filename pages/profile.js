@@ -242,9 +242,14 @@ export default function Profile() {
                   Login
                 </button>
               </form>
-              <p style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                Don't have an account? Contact an administrator.
-              </p>
+              <div style={{ marginTop: '2rem', textAlign: 'center', paddingTop: '1.5rem', borderTop: '1px solid rgba(0, 212, 255, 0.2)' }}>
+                <p style={{ color: 'var(--text-secondary)' }}>
+                  Don't have an account?{' '}
+                  <Link href="/register" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>
+                    Create one here
+                  </Link>
+                </p>
+              </div>
             </div>
           </div>
         </div>
