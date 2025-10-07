@@ -152,55 +152,45 @@ export default function CategoryTopics() {
         )}
 
         {showCreateTopic && (
-          <div className="forum-category" style={{ marginBottom: '2rem' }}>
-            <h3>Create New Topic</h3>
-            <form onSubmit={handleCreateTopic} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="connection-box" style={{ marginBottom: '2rem', textAlign: 'left' }}>
+            <h3 style={{ color: 'var(--primary-color)', marginBottom: '1.5rem' }}>Create New Topic</h3>
+            <form onSubmit={handleCreateTopic} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
               <input
                 type="text"
                 placeholder="Topic Title"
                 value={newTopic.title}
                 onChange={(e) => setNewTopic({ ...newTopic, title: e.target.value })}
-                style={{
-                  padding: '0.75rem',
-                  background: 'var(--card-bg)',
-                  border: '2px solid var(--primary-color)',
-                  borderRadius: '8px',
-                  color: 'var(--text-primary)',
-                  fontSize: '1rem'
-                }}
+                className="form-input"
                 maxLength={200}
+                required
               />
               <textarea
                 placeholder="Topic Content"
                 value={newTopic.content}
                 onChange={(e) => setNewTopic({ ...newTopic, content: e.target.value })}
                 rows={8}
-                style={{
-                  padding: '0.75rem',
-                  background: 'var(--card-bg)',
-                  border: '2px solid var(--primary-color)',
-                  borderRadius: '8px',
-                  color: 'var(--text-primary)',
-                  fontSize: '1rem',
-                  resize: 'vertical'
-                }}
+                className="form-input"
+                style={{ resize: 'vertical', minHeight: '150px' }}
                 maxLength={10000}
+                required
               />
-              <button
-                type="submit"
-                style={{
-                  padding: '0.75rem',
-                  background: 'linear-gradient(135deg, var(--primary-color), var(--accent-color))',
-                  border: 'none',
-                  color: 'var(--dark-bg)',
-                  borderRadius: '8px',
-                  fontSize: '1rem',
-                  fontWeight: 'bold',
-                  cursor: 'pointer'
-                }}
-              >
-                Create Topic
-              </button>
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                <button
+                  type="submit"
+                  style={{
+                    padding: '0.75rem 2rem',
+                    background: 'linear-gradient(135deg, var(--primary-color), var(--accent-color))',
+                    border: 'none',
+                    color: 'var(--dark-bg)',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Create Topic
+                </button>
+              </div>
             </form>
           </div>
         )}

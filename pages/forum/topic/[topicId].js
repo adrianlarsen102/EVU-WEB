@@ -239,40 +239,36 @@ export default function TopicView() {
           )}
 
           {auth?.authenticated && !topic.is_locked && (
-            <div className="forum-category" style={{ marginBottom: '2rem' }}>
-              <form onSubmit={handlePostComment} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="connection-box" style={{ marginBottom: '2rem', textAlign: 'left' }}>
+              <h3 style={{ color: 'var(--primary-color)', marginBottom: '1rem' }}>Post a Comment</h3>
+              <form onSubmit={handlePostComment} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
                 <textarea
                   placeholder="Write a comment..."
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   rows={4}
-                  style={{
-                    padding: '0.75rem',
-                    background: 'var(--card-bg)',
-                    border: '2px solid var(--primary-color)',
-                    borderRadius: '8px',
-                    color: 'var(--text-primary)',
-                    fontSize: '1rem',
-                    resize: 'vertical'
-                  }}
+                  className="form-input"
+                  style={{ resize: 'vertical', minHeight: '100px' }}
                   maxLength={5000}
+                  required
                 />
-                <button
-                  type="submit"
-                  style={{
-                    padding: '0.75rem',
-                    background: 'linear-gradient(135deg, var(--primary-color), var(--accent-color))',
-                    border: 'none',
-                    color: 'var(--dark-bg)',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    alignSelf: 'flex-start'
-                  }}
-                >
-                  Post Comment
-                </button>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                  <button
+                    type="submit"
+                    style={{
+                      padding: '0.75rem 2rem',
+                      background: 'linear-gradient(135deg, var(--primary-color), var(--accent-color))',
+                      border: 'none',
+                      color: 'var(--dark-bg)',
+                      borderRadius: '8px',
+                      fontSize: '1rem',
+                      fontWeight: 'bold',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Post Comment
+                  </button>
+                </div>
               </form>
             </div>
           )}

@@ -490,6 +490,34 @@ section h2 {
     font-size: 0.9rem;
 }
 
+/* Form Inputs */
+.form-input {
+    width: 100%;
+    background-color: var(--card-bg);
+    border: 2px solid rgba(0, 212, 255, 0.3);
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+}
+
+.form-input::placeholder {
+    color: var(--text-secondary);
+}
+
+textarea.form-input {
+    resize: vertical;
+    min-height: 100px;
+}
+
 /* Rules Grid */
 .rules-grid {
     display: grid;
