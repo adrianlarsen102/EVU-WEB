@@ -4,7 +4,8 @@ import {
   getTopicsByCategory,
   getTopicById,
   updateTopic,
-  deleteTopicSoft
+  deleteTopicSoft,
+  incrementCategoryTopicCount
 } from '../../../lib/database';
 
 export default async function handler(req, res) {
@@ -60,6 +61,9 @@ export default async function handler(req, res) {
     );
 
     if (result.success) {
+      // Increment the category topic counter
+      await incrementCategoryTopicCount(categoryId);
+
       return res.status(201).json(result.topic);
     } else {
       return res.status(500).json({ error: result.error });

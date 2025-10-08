@@ -2,8 +2,10 @@ import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 import {
   createForumComment,
   getCommentsByTopic,
+  getTopicById,
   updateComment,
-  deleteCommentSoft
+  deleteCommentSoft,
+  incrementCategoryPostCount
 } from '../../../lib/database';
 
 export default async function handler(req, res) {
@@ -46,6 +48,13 @@ export default async function handler(req, res) {
     );
 
     if (result.success) {
+      // Get the topic to find the category ID
+      const topic = await getTopicById(topicId);
+      if (topic && topic.category_id !== undefined) {
+        // Increment the category post counter
+        await incrementCategoryPostCount(topic.category_id);
+      }
+
       return res.status(201).json(result.comment);
     } else {
       return res.status(500).json({ error: result.error });
