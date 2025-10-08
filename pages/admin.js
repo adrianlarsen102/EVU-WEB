@@ -387,7 +387,17 @@ export default function Admin() {
   const addForumCategory = () => {
     setContent(prev => ({
       ...prev,
-      forumCategories: [...(prev.forumCategories || []), { name: 'New Category', description: 'Description', topics: 0, posts: 0 }]
+      forumCategories: [...(prev.forumCategories || []), {
+        name: 'New Category',
+        description: 'Description',
+        icon: '💬',
+        topics: 0,
+        posts: 0,
+        serverType: 'all',
+        visibility: 'public',
+        permissions: 'all',
+        order: (prev.forumCategories?.length || 0)
+      }]
     }));
   };
 
@@ -395,16 +405,36 @@ export default function Admin() {
     setContent(prev => ({
       ...prev,
       forumCategories: prev.forumCategories.map((c, i) =>
-        i === index ? { ...c, [field]: field === 'topics' || field === 'posts' ? parseInt(value) || 0 : value } : c
+        i === index ? { ...c, [field]: field === 'topics' || field === 'posts' || field === 'order' ? parseInt(value) || 0 : value } : c
       )
     }));
   };
 
   const removeForumCategory = (index) => {
-    setContent(prev => ({
-      ...prev,
-      forumCategories: prev.forumCategories.filter((_, i) => i !== index)
-    }));
+    if (confirm('Are you sure you want to delete this category? This cannot be undone.')) {
+      setContent(prev => ({
+        ...prev,
+        forumCategories: prev.forumCategories.filter((_, i) => i !== index)
+      }));
+    }
+  };
+
+  const moveCategoryUp = (index) => {
+    if (index === 0) return;
+    setContent(prev => {
+      const categories = [...prev.forumCategories];
+      [categories[index - 1], categories[index]] = [categories[index], categories[index - 1]];
+      return { ...prev, forumCategories: categories };
+    });
+  };
+
+  const moveCategoryDown = (index) => {
+    setContent(prev => {
+      if (index === prev.forumCategories.length - 1) return prev;
+      const categories = [...prev.forumCategories];
+      [categories[index], categories[index + 1]] = [categories[index + 1], categories[index]];
+      return { ...prev, forumCategories: categories };
+    });
   };
 
   // Forum Moderation Functions
@@ -1437,65 +1467,237 @@ export default function Admin() {
               <div className="admin-tab-content">
                 <div className="admin-card">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                    <h3 className="admin-card-title" style={{ marginBottom: 0 }}>Forum Categories</h3>
+                    <div>
+                      <h3 className="admin-card-title" style={{ marginBottom: '0.5rem' }}>Forum Categories</h3>
+                      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                        Manage forum categories with icons, permissions, and visibility
+                      </p>
+                    </div>
                     <button onClick={addForumCategory} className="btn-admin btn-admin-secondary">
                       ➕ Add Category
                     </button>
                   </div>
-                  {content.forumCategories?.map((category, index) => (
-                    <div key={index} className="admin-item-card">
-                      <div className="admin-item-header">
-                        <h4>{category.name}</h4>
-                        <button
-                          onClick={() => removeForumCategory(index)}
-                          className="btn-admin btn-admin-danger btn-admin-sm"
-                        >
-                          🗑️ Remove
-                        </button>
-                      </div>
-                      <div className="form-grid">
-                        <div className="form-group">
-                          <label>Name</label>
-                          <input
-                            type="text"
-                            className="form-input"
-                            value={category.name}
-                            onChange={(e) => updateForumCategory(index, 'name', e.target.value)}
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label>Topics</label>
-                          <input
-                            type="number"
-                            className="form-input"
-                            value={category.topics}
-                            onChange={(e) => updateForumCategory(index, 'topics', e.target.value)}
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label>Posts</label>
-                          <input
-                            type="number"
-                            className="form-input"
-                            value={category.posts}
-                            onChange={(e) => updateForumCategory(index, 'posts', e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      <div className="form-group">
-                        <label>Description</label>
-                        <textarea
-                          className="form-input"
-                          value={category.description}
-                          onChange={(e) => updateForumCategory(index, 'description', e.target.value)}
-                          rows={2}
-                        />
-                      </div>
+
+                  {content.forumCategories?.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+                      <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>📁 No categories yet</p>
+                      <p>Click "Add Category" to create your first forum category</p>
                     </div>
-                  ))}
+                  ) : (
+                    content.forumCategories?.map((category, index) => (
+                      <div key={index} className="admin-item-card" style={{
+                        borderLeft: `4px solid ${
+                          category.serverType === 'minecraft' ? '#00d4ff' :
+                          category.serverType === 'fivem' ? '#ff006e' :
+                          'var(--primary-color)'
+                        }`
+                      }}>
+                        <div className="admin-item-header">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <span style={{ fontSize: '2rem' }}>{category.icon || '💬'}</span>
+                            <div>
+                              <h4>{category.name}</h4>
+                              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.3rem', flexWrap: 'wrap' }}>
+                                <span style={{
+                                  fontSize: '0.75rem',
+                                  padding: '0.2rem 0.5rem',
+                                  background: 'var(--dark-bg)',
+                                  borderRadius: '4px',
+                                  color: 'var(--text-secondary)'
+                                }}>
+                                  {category.serverType === 'all' ? '🌐 All Servers' :
+                                   category.serverType === 'minecraft' ? '⛏️ Minecraft' :
+                                   '🚗 FiveM'}
+                                </span>
+                                <span style={{
+                                  fontSize: '0.75rem',
+                                  padding: '0.2rem 0.5rem',
+                                  background: category.visibility === 'public' ? 'rgba(0, 255, 136, 0.2)' :
+                                             category.visibility === 'private' ? 'rgba(255, 170, 0, 0.2)' :
+                                             'rgba(255, 0, 110, 0.2)',
+                                  borderRadius: '4px',
+                                  color: category.visibility === 'public' ? 'var(--success-color)' :
+                                         category.visibility === 'private' ? 'var(--warning-color)' :
+                                         'var(--accent-color)'
+                                }}>
+                                  {category.visibility === 'public' ? '👁️ Public' :
+                                   category.visibility === 'private' ? '🔒 Private' :
+                                   '🛡️ Admin Only'}
+                                </span>
+                                <span style={{
+                                  fontSize: '0.75rem',
+                                  padding: '0.2rem 0.5rem',
+                                  background: 'var(--dark-bg)',
+                                  borderRadius: '4px',
+                                  color: 'var(--text-secondary)'
+                                }}>
+                                  {category.permissions === 'all' ? '📝 All Can Post' :
+                                   category.permissions === 'registered' ? '👤 Registered Users' :
+                                   '🛡️ Admin Only'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                            <button
+                              onClick={() => moveCategoryUp(index)}
+                              className="btn-admin btn-admin-sm btn-admin-secondary"
+                              disabled={index === 0}
+                              style={{ opacity: index === 0 ? 0.5 : 1 }}
+                              title="Move Up"
+                            >
+                              ⬆️
+                            </button>
+                            <button
+                              onClick={() => moveCategoryDown(index)}
+                              className="btn-admin btn-admin-sm btn-admin-secondary"
+                              disabled={index === content.forumCategories.length - 1}
+                              style={{ opacity: index === content.forumCategories.length - 1 ? 0.5 : 1 }}
+                              title="Move Down"
+                            >
+                              ⬇️
+                            </button>
+                            <button
+                              onClick={() => removeForumCategory(index)}
+                              className="btn-admin btn-admin-danger btn-admin-sm"
+                            >
+                              🗑️ Delete
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="form-grid" style={{ marginTop: '1.5rem' }}>
+                          <div className="form-group">
+                            <label>Category Icon</label>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                              <input
+                                type="text"
+                                className="form-input"
+                                value={category.icon || '💬'}
+                                onChange={(e) => updateForumCategory(index, 'icon', e.target.value)}
+                                style={{ width: '80px', textAlign: 'center', fontSize: '1.5rem' }}
+                                maxLength={2}
+                              />
+                              <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', flex: 1 }}>
+                                {['💬', '📢', '🎮', '🏆', '📝', '🔧', '💡', '❓', '📰', '🎯', '🔥', '⚡'].map(emoji => (
+                                  <button
+                                    key={emoji}
+                                    onClick={() => updateForumCategory(index, 'icon', emoji)}
+                                    className="btn-admin btn-admin-sm btn-admin-secondary"
+                                    style={{
+                                      padding: '0.3rem 0.6rem',
+                                      fontSize: '1.2rem',
+                                      background: category.icon === emoji ? 'var(--primary-color)' : undefined
+                                    }}
+                                  >
+                                    {emoji}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="form-group">
+                            <label>Category Name</label>
+                            <input
+                              type="text"
+                              className="form-input"
+                              value={category.name}
+                              onChange={(e) => updateForumCategory(index, 'name', e.target.value)}
+                              placeholder="e.g., General Discussion"
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Server Type</label>
+                            <select
+                              className="form-input"
+                              value={category.serverType || 'all'}
+                              onChange={(e) => updateForumCategory(index, 'serverType', e.target.value)}
+                            >
+                              <option value="all">🌐 All Servers</option>
+                              <option value="minecraft">⛏️ Minecraft Only</option>
+                              <option value="fivem">🚗 FiveM Only</option>
+                            </select>
+                          </div>
+
+                          <div className="form-group">
+                            <label>Visibility</label>
+                            <select
+                              className="form-input"
+                              value={category.visibility || 'public'}
+                              onChange={(e) => updateForumCategory(index, 'visibility', e.target.value)}
+                            >
+                              <option value="public">👁️ Public (Everyone can see)</option>
+                              <option value="private">🔒 Private (Registered users only)</option>
+                              <option value="admin">🛡️ Admin Only</option>
+                            </select>
+                          </div>
+
+                          <div className="form-group">
+                            <label>Post Permissions</label>
+                            <select
+                              className="form-input"
+                              value={category.permissions || 'all'}
+                              onChange={(e) => updateForumCategory(index, 'permissions', e.target.value)}
+                            >
+                              <option value="all">📝 All Can Post</option>
+                              <option value="registered">👤 Registered Users</option>
+                              <option value="admin">🛡️ Admin Only</option>
+                            </select>
+                          </div>
+
+                          <div className="form-group">
+                            <label>Display Order</label>
+                            <input
+                              type="number"
+                              className="form-input"
+                              value={category.order || index}
+                              onChange={(e) => updateForumCategory(index, 'order', e.target.value)}
+                              min="0"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="form-group" style={{ marginTop: '1rem' }}>
+                          <label>Description</label>
+                          <textarea
+                            className="form-input"
+                            value={category.description}
+                            onChange={(e) => updateForumCategory(index, 'description', e.target.value)}
+                            rows={3}
+                            placeholder="Brief description of what this category is for..."
+                          />
+                        </div>
+
+                        <div className="form-grid" style={{ marginTop: '1rem' }}>
+                          <div className="form-group">
+                            <label>Topics Count</label>
+                            <input
+                              type="number"
+                              className="form-input"
+                              value={category.topics || 0}
+                              onChange={(e) => updateForumCategory(index, 'topics', e.target.value)}
+                              min="0"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Posts Count</label>
+                            <input
+                              type="number"
+                              className="form-input"
+                              value={category.posts || 0}
+                              onChange={(e) => updateForumCategory(index, 'posts', e.target.value)}
+                              min="0"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
                 <button onClick={saveContent} className="btn-admin btn-admin-primary">
-                  💾 Save Forum
+                  💾 Save Forum Categories
                 </button>
               </div>
             )}
