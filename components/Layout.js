@@ -1,8 +1,14 @@
+import { memo, useMemo } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import CookieConsent from './CookieConsent';
 
-export default function Layout({ children, title = 'EVU Gaming Network' }) {
+const Layout = memo(function Layout({ children, title = 'EVU Gaming Network' }) {
+  const loginStyle = useMemo(() => ({
+    backgroundColor: 'rgba(0, 212, 255, 0.1)',
+    borderRadius: '5px'
+  }), []);
+
   return (
     <>
       <Head>
@@ -30,7 +36,7 @@ export default function Layout({ children, title = 'EVU Gaming Network' }) {
             <li><Link href="/forum">Forum</Link></li>
             <li><Link href="/support">Support</Link></li>
             <li><Link href="/changelog">Changelog</Link></li>
-            <li><Link href="/profile" style={{ backgroundColor: 'rgba(0, 212, 255, 0.1)', borderRadius: '5px' }}>👤 Login</Link></li>
+            <li><Link href="/profile" style={loginStyle}>👤 Login</Link></li>
           </ul>
         </div>
       </nav>
@@ -46,4 +52,6 @@ export default function Layout({ children, title = 'EVU Gaming Network' }) {
       <CookieConsent />
     </>
   );
-}
+});
+
+export default Layout;

@@ -8,8 +8,11 @@ const supabase = createClient(
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
-    // Read content from Supabase
+    // Read content from Supabase with caching
     try {
+      // Set cache headers for public content
+      res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+
       const { data, error } = await supabase
         .from('site_content')
         .select('content')
@@ -21,10 +24,10 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Failed to read content' });
       }
 
-      res.status(200).json(data.content);
+      return res.status(200).json(data.content);
     } catch (error) {
       console.error('Content read error:', error);
-      res.status(500).json({ error: 'Failed to read content' });
+      return res.status(500).json({ error: 'Failed to read content' });
     }
   } else if (req.method === 'POST') {
     // Update content (requires authentication)
@@ -56,12 +59,13 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Failed to save content' });
       }
 
-      res.status(200).json({ success: true });
+      return res.status(200).json({ success: true });
     } catch (error) {
       console.error('Content save error:', error);
-      res.status(500).json({ error: 'Failed to save content' });
+      return res.status(500).json({ error: 'Failed to save content' });
     }
   } else {
-    res.status(405).json({ error: 'Method not allowed' });
+    res.setHeader('Allow', ['GET', 'POST']);
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 }

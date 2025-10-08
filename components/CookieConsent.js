@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 
-export default function CookieConsent() {
+const CookieConsent = memo(function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
@@ -12,15 +12,18 @@ export default function CookieConsent() {
     }
   }, []);
 
-  const acceptCookies = () => {
+  const acceptCookies = useCallback(() => {
     localStorage.setItem('cookieConsent', 'accepted');
     setShowBanner(false);
-  };
+  }, []);
 
-  const declineCookies = () => {
+  const declineCookies = useCallback(() => {
     localStorage.setItem('cookieConsent', 'declined');
     setShowBanner(false);
-  };
+  }, []);
+
+  const toggleTerms = useCallback(() => setShowTerms(prev => !prev), []);
+  const togglePrivacy = useCallback(() => setShowPrivacy(prev => !prev), []);
 
   if (!showBanner) return null;
 
@@ -36,11 +39,11 @@ export default function CookieConsent() {
               By using this website, you agree to our use of cookies and data processing practices.
             </p>
             <div className="cookie-consent-links">
-              <button onClick={() => setShowPrivacy(true)} className="link-button">
+              <button onClick={togglePrivacy} className="link-button">
                 Privacy Policy
               </button>
               <span>•</span>
-              <button onClick={() => setShowTerms(true)} className="link-button">
+              <button onClick={toggleTerms} className="link-button">
                 Terms of Service
               </button>
             </div>
@@ -58,11 +61,11 @@ export default function CookieConsent() {
 
       {/* Privacy Policy Modal */}
       {showPrivacy && (
-        <div className="modal-overlay" onClick={() => setShowPrivacy(false)}>
+        <div className="modal-overlay" onClick={togglePrivacy}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Privacy Policy & GDPR Notice</h2>
-              <button onClick={() => setShowPrivacy(false)} className="modal-close">×</button>
+              <button onClick={togglePrivacy} className="modal-close">×</button>
             </div>
             <div className="modal-body">
               <h3>1. Data Controller</h3>
@@ -133,7 +136,7 @@ export default function CookieConsent() {
               <p><small>Last updated: January 2025</small></p>
             </div>
             <div className="modal-footer">
-              <button onClick={() => setShowPrivacy(false)} className="btn-cookie btn-cookie-accept">
+              <button onClick={togglePrivacy} className="btn-cookie btn-cookie-accept">
                 Close
               </button>
             </div>
@@ -143,11 +146,11 @@ export default function CookieConsent() {
 
       {/* Terms of Service Modal */}
       {showTerms && (
-        <div className="modal-overlay" onClick={() => setShowTerms(false)}>
+        <div className="modal-overlay" onClick={toggleTerms}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Terms of Service</h2>
-              <button onClick={() => setShowTerms(false)} className="modal-close">×</button>
+              <button onClick={toggleTerms} className="modal-close">×</button>
             </div>
             <div className="modal-body">
               <h3>1. Acceptance of Terms</h3>
@@ -191,7 +194,7 @@ export default function CookieConsent() {
               <p><small>Last updated: January 2025</small></p>
             </div>
             <div className="modal-footer">
-              <button onClick={() => setShowTerms(false)} className="btn-cookie btn-cookie-accept">
+              <button onClick={toggleTerms} className="btn-cookie btn-cookie-accept">
                 Close
               </button>
             </div>
@@ -457,4 +460,6 @@ export default function CookieConsent() {
       `}</style>
     </>
   );
-}
+});
+
+export default CookieConsent;

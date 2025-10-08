@@ -13,7 +13,9 @@
       "Bash(git checkout:*)",
       "Bash(git tag:*)",
       "Bash(gh label create:*)",
-      "Bash(git log:*)"
+      "Bash(npm run build:*)",
+      "Bash(git pull:*)",
+      "Bash(git rebase:*)"
     ],
     "deny": [],
     "ask": []
