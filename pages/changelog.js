@@ -1,23 +1,27 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import { SkeletonChangelog } from '../components/LoadingSkeleton';
 
 export default function Changelog() {
   const [content, setContent] = useState(null);
   const [autoChangelog, setAutoChangelog] = useState(null);
   const [activeTab, setActiveTab] = useState('auto'); // 'auto' or 'manual'
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load manual changelog from database
-    fetch('/api/content')
-      .then(res => res.json())
-      .then(data => setContent(data))
-      .catch(err => console.error('Failed to load content:', err));
+    Promise.all([
+      // Load manual changelog from database
+      fetch('/api/content')
+        .then(res => res.json())
+        .then(data => setContent(data))
+        .catch(err => console.error('Failed to load content:', err)),
 
-    // Load auto-generated changelog from CHANGELOG.md
-    fetch('/api/changelog-md')
-      .then(res => res.json())
-      .then(data => setAutoChangelog(data))
-      .catch(err => console.error('Failed to load auto changelog:', err));
+      // Load auto-generated changelog from CHANGELOG.md
+      fetch('/api/changelog-md')
+        .then(res => res.json())
+        .then(data => setAutoChangelog(data))
+        .catch(err => console.error('Failed to load auto changelog:', err))
+    ]).finally(() => setLoading(false));
   }, []);
 
   const renderChangelogEntry = (entry, index, isAuto = false) => {
@@ -130,7 +134,9 @@ export default function Changelog() {
               </p>
             </div>
 
-            {autoChangelog?.releases?.length > 0 ? (
+            {loading ? (
+              <SkeletonChangelog count={3} />
+            ) : autoChangelog?.releases?.length > 0 ? (
               autoChangelog.releases.map((entry, index) => renderChangelogEntry(entry, index, true))
             ) : (
               <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
@@ -155,7 +161,9 @@ export default function Changelog() {
               </p>
             </div>
 
-            {content?.changelog?.length > 0 ? (
+            {loading ? (
+              <SkeletonChangelog count={2} />
+            ) : content?.changelog?.length > 0 ? (
               content.changelog.map((entry, index) => renderChangelogEntry(entry, index, false))
             ) : (
               <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>

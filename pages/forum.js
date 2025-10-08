@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import Link from 'next/link';
+import { SkeletonCard, SkeletonList } from '../components/LoadingSkeleton';
 
 export default function Forum() {
   const [content, setContent] = useState(null);
   const [filter, setFilter] = useState('all'); // all, minecraft, fivem
   const [recentTopics, setRecentTopics] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingRecent, setLoadingRecent] = useState(true);
 
   useEffect(() => {
     fetch('/api/content')
       .then(res => res.json())
       .then(data => setContent(data))
-      .catch(err => console.error('Failed to load content:', err));
+      .catch(err => console.error('Failed to load content:', err))
+      .finally(() => setLoading(false));
 
     // Fetch recent topics for activity feed
     fetchRecentTopics();
@@ -26,6 +30,8 @@ export default function Forum() {
       }
     } catch (err) {
       console.error('Failed to load recent topics:', err);
+    } finally {
+      setLoadingRecent(false);
     }
   };
 
@@ -79,40 +85,46 @@ export default function Forum() {
 
         <section className="forum-section">
           <div className="forum-categories">
-            {filteredCategories?.map((category, index) => (
-              <Link
-                key={index}
-                href={`/forum/${index}`}
-                style={{ textDecoration: 'none', color: 'inherit' }}
-              >
-                <div className="forum-category" style={{ cursor: 'pointer', transition: 'transform 0.2s' }}>
-                  <div className="category-icon">
-                    {category.serverType === 'minecraft' ? '⛏️' : category.serverType === 'fivem' ? '🚗' : '💬'}
-                  </div>
-                  <div className="category-info">
-                    <h3>
-                      {category.name}
-                      {hasServers && category.serverType && category.serverType !== 'all' && (
-                        <span style={{ marginLeft: '0.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 'normal' }}>
-                          ({category.serverType === 'minecraft' ? 'Minecraft' : 'FiveM'})
-                        </span>
-                      )}
-                    </h3>
-                    <p>{category.description}</p>
-                    <div className="category-stats">
-                      <span>{category.topics} Topics</span>
-                      <span>{category.posts} Posts</span>
+            {loading ? (
+              <SkeletonCard count={4} />
+            ) : (
+              filteredCategories?.map((category, index) => (
+                <Link
+                  key={index}
+                  href={`/forum/${index}`}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <div className="forum-category" style={{ cursor: 'pointer', transition: 'transform 0.2s' }}>
+                    <div className="category-icon">
+                      {category.serverType === 'minecraft' ? '⛏️' : category.serverType === 'fivem' ? '🚗' : '💬'}
+                    </div>
+                    <div className="category-info">
+                      <h3>
+                        {category.name}
+                        {hasServers && category.serverType && category.serverType !== 'all' && (
+                          <span style={{ marginLeft: '0.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 'normal' }}>
+                            ({category.serverType === 'minecraft' ? 'Minecraft' : 'FiveM'})
+                          </span>
+                        )}
+                      </h3>
+                      <p>{category.description}</p>
+                      <div className="category-stats">
+                        <span>{category.topics} Topics</span>
+                        <span>{category.posts} Posts</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))
+            )}
           </div>
 
           <div className="forum-info">
             <h3>Recent Activity</h3>
             <div className="recent-posts">
-              {recentTopics.length === 0 ? (
+              {loadingRecent ? (
+                <SkeletonList count={5} />
+              ) : recentTopics.length === 0 ? (
                 <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem 0' }}>
                   No topics yet. Be the first to start a discussion!
                 </p>

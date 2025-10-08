@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import Link from 'next/link';
+import { SkeletonTable } from '../components/LoadingSkeleton';
 
 export default function Support() {
   const [auth, setAuth] = useState(null);
@@ -239,7 +240,7 @@ export default function Support() {
           <>
             <h3 style={{ marginBottom: '1rem', color: 'var(--primary-color)' }}>Your Support Tickets</h3>
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '2rem' }}>Loading tickets...</div>
+              <SkeletonTable rows={3} />
             ) : tickets.length === 0 ? (
               <div className="connection-box">
                 <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
