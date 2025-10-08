@@ -105,8 +105,11 @@ CREATE INDEX IF NOT EXISTS idx_forum_comments_topic ON forum_comments(topic_id);
 CREATE INDEX IF NOT EXISTS idx_forum_comments_author ON forum_comments(author_id);
 CREATE INDEX IF NOT EXISTS idx_forum_comments_created ON forum_comments(created_at);
 
+-- Drop and recreate function to avoid return type conflicts
+DROP FUNCTION IF EXISTS increment_view_count(INTEGER);
+
 -- Function to increment view count (for performance)
-CREATE OR REPLACE FUNCTION increment_view_count(topic_id INTEGER)
+CREATE FUNCTION increment_view_count(topic_id INTEGER)
 RETURNS VOID AS $$
 BEGIN
   UPDATE forum_topics
@@ -162,8 +165,11 @@ CREATE INDEX IF NOT EXISTS idx_ticket_replies_created ON support_ticket_replies(
 -- Sequence for ticket numbers
 CREATE SEQUENCE IF NOT EXISTS ticket_number_seq START 1000;
 
+-- Drop existing function if it exists with wrong return type
+DROP FUNCTION IF EXISTS generate_ticket_number();
+
 -- Function to generate ticket numbers
-CREATE OR REPLACE FUNCTION generate_ticket_number()
+CREATE FUNCTION generate_ticket_number()
 RETURNS INTEGER AS $$
 BEGIN
   RETURN nextval('ticket_number_seq');
@@ -220,8 +226,11 @@ ALTER TABLE email_settings ENABLE ROW LEVEL SECURITY;
 -- 8. FUNCTIONS AND TRIGGERS
 -- ============================================
 
+-- Drop and recreate function to avoid conflicts
+DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
+
 -- Auto-update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
+CREATE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
@@ -280,8 +289,11 @@ ON CONFLICT (username) DO NOTHING;
 -- 10. CLEANUP AND MAINTENANCE
 -- ============================================
 
+-- Drop and recreate cleanup function
+DROP FUNCTION IF EXISTS cleanup_expired_sessions();
+
 -- Function to cleanup expired sessions (run periodically)
-CREATE OR REPLACE FUNCTION cleanup_expired_sessions()
+CREATE FUNCTION cleanup_expired_sessions()
 RETURNS INTEGER AS $$
 DECLARE
   deleted_count INTEGER;
