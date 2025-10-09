@@ -254,4 +254,4 @@ This is a template for your FiveM server. Feel free to customize it however you 
 
 ---
 
-**Made for EVU Server** | Powered by Next.js + Supabase | Deployed on Vercel
+**Made for EVU Team** | Powered by Next.js + Supabase | Deployed on Vercel
