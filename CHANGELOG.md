@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.11.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.10.0...v2.11.0) (2025-10-09)
+
+
+### Features
+
+* add GDPR-compliant data management system ([a92c999](https://github.com/adrianlarsen102/EVU-WEB/commit/a92c999583a12a9ebf9bf51d9c6c3720fc13728a))
+
 ## [2.10.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.9.1...v2.10.0) (2025-10-09)
 
 
