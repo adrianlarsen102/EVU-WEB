@@ -14,6 +14,7 @@ export default function Profile() {
   const [email, setEmail] = useState('');
   const [bio, setBio] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Password change
   const [showPasswordChange, setShowPasswordChange] = useState(false);
@@ -146,6 +147,50 @@ export default function Profile() {
       }
     } catch (error) {
       setPasswordError('Failed to change password');
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      showMessage('error', 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showMessage('error', 'File too large. Maximum size is 5MB.');
+      return;
+    }
+
+    setUploadingImage(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const res = await fetch('/api/profile/upload-avatar', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setAvatarUrl(data.avatarUrl);
+        showMessage('success', 'Avatar uploaded successfully!');
+        loadProfile();
+      } else {
+        showMessage('error', data.error || 'Failed to upload avatar');
+      }
+    } catch (error) {
+      showMessage('error', 'Failed to upload avatar');
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -286,7 +331,7 @@ export default function Profile() {
         {/* User Info Card */}
         <div className="info-card" style={{ marginBottom: '2rem' }}>
           <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div>
+            <div style={{ position: 'relative' }}>
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
@@ -314,6 +359,39 @@ export default function Profile() {
                   👤
                 </div>
               )}
+              <label
+                htmlFor="avatar-upload"
+                style={{
+                  position: 'absolute',
+                  bottom: '0',
+                  right: '0',
+                  backgroundColor: 'var(--primary-color)',
+                  color: 'var(--dark-bg)',
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: uploadingImage ? 'not-allowed' : 'pointer',
+                  border: '2px solid var(--dark-bg)',
+                  fontSize: '1.2rem',
+                  transition: 'transform 0.2s ease',
+                  opacity: uploadingImage ? 0.6 : 1
+                }}
+                onMouseOver={(e) => !uploadingImage && (e.target.style.transform = 'scale(1.1)')}
+                onMouseOut={(e) => !uploadingImage && (e.target.style.transform = 'scale(1)')}
+              >
+                {uploadingImage ? '⏳' : '📷'}
+              </label>
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                onChange={handleImageUpload}
+                disabled={uploadingImage}
+                style={{ display: 'none' }}
+              />
             </div>
             <div style={{ flex: 1 }}>
               <h2 style={{ color: 'var(--primary-color)', marginBottom: '0.5rem', fontSize: '2rem' }}>
@@ -373,7 +451,47 @@ export default function Profile() {
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your@email.com" style={{ width: '100%', padding: '0.75rem', backgroundColor: 'var(--secondary-color)', border: '2px solid var(--dark-bg)', borderRadius: '5px', color: 'var(--text-primary)' }} />
               </div>
               <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Avatar URL</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Avatar Image</label>
+                <div style={{
+                  padding: '1rem',
+                  backgroundColor: 'var(--secondary-color)',
+                  border: '2px dashed var(--primary-color)',
+                  borderRadius: '5px',
+                  textAlign: 'center'
+                }}>
+                  <label
+                    htmlFor="avatar-upload-form"
+                    style={{
+                      display: 'inline-block',
+                      padding: '0.75rem 1.5rem',
+                      backgroundColor: 'var(--primary-color)',
+                      color: 'var(--dark-bg)',
+                      borderRadius: '5px',
+                      cursor: uploadingImage ? 'not-allowed' : 'pointer',
+                      fontWeight: 'bold',
+                      opacity: uploadingImage ? 0.6 : 1,
+                      transition: 'transform 0.2s ease'
+                    }}
+                    onMouseOver={(e) => !uploadingImage && (e.target.style.transform = 'scale(1.05)')}
+                    onMouseOut={(e) => !uploadingImage && (e.target.style.transform = 'scale(1)')}
+                  >
+                    {uploadingImage ? '⏳ Uploading...' : '📷 Upload Avatar'}
+                  </label>
+                  <input
+                    id="avatar-upload-form"
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    onChange={handleImageUpload}
+                    disabled={uploadingImage}
+                    style={{ display: 'none' }}
+                  />
+                  <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                    Max size: 5MB | JPEG, PNG, GIF, WebP
+                  </p>
+                </div>
+              </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Or Avatar URL</label>
                 <input type="url" value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} placeholder="https://example.com/avatar.jpg" style={{ width: '100%', padding: '0.75rem', backgroundColor: 'var(--secondary-color)', border: '2px solid var(--dark-bg)', borderRadius: '5px', color: 'var(--text-primary)' }} />
               </div>
               <div style={{ marginBottom: '1.5rem' }}>
