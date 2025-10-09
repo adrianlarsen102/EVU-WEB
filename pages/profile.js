@@ -23,6 +23,12 @@ export default function Profile() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
+  // Account deletion
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteUsername, setDeleteUsername] = useState('');
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+
   const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
@@ -191,6 +197,64 @@ export default function Profile() {
       showMessage('error', 'Failed to upload avatar');
     } finally {
       setUploadingImage(false);
+    }
+  };
+
+  const handleExportData = async () => {
+    try {
+      const res = await fetch('/api/profile/export-data');
+
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `my-data-${user.username}-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        showMessage('success', 'Data exported successfully!');
+      } else {
+        const data = await res.json();
+        showMessage('error', data.error || 'Failed to export data');
+      }
+    } catch (error) {
+      showMessage('error', 'Failed to export data');
+    }
+  };
+
+  const handleDeleteAccount = async (e) => {
+    e.preventDefault();
+    setDeleteError('');
+
+    if (deleteUsername !== user?.username) {
+      setDeleteError('Username does not match');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/profile/delete-account', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          confirmUsername: deleteUsername,
+          confirmPassword: deletePassword
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showMessage('success', 'Account deleted successfully. Redirecting...');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+      } else {
+        setDeleteError(data.error || 'Failed to delete account');
+      }
+    } catch (error) {
+      setDeleteError('Failed to delete account');
     }
   };
 
@@ -536,7 +600,207 @@ export default function Profile() {
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textAlign: 'center' }}>Account created: {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}</p>
             </div>
           </div>
+
+          {/* Privacy & Data Card */}
+          <div className="info-card">
+            <h3>Privacy & Data</h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
+              In compliance with GDPR, you have the right to access and delete your personal data.
+            </p>
+
+            <button
+              onClick={handleExportData}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                backgroundColor: 'var(--secondary-color)',
+                color: 'var(--primary-color)',
+                border: '2px solid var(--primary-color)',
+                borderRadius: '5px',
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                marginBottom: '1rem'
+              }}
+            >
+              📥 Download My Data
+            </button>
+
+            <div style={{
+              padding: '1rem',
+              backgroundColor: 'rgba(255, 0, 110, 0.05)',
+              border: '1px solid var(--accent-color)',
+              borderRadius: '5px',
+              marginBottom: '1rem'
+            }}>
+              <h4 style={{ color: 'var(--accent-color)', marginBottom: '0.5rem', fontSize: '1rem' }}>
+                ⚠️ Danger Zone
+              </h4>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                Once you delete your account, there is no going back. This action is permanent.
+              </p>
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  backgroundColor: 'var(--accent-color)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '5px',
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer'
+                }}
+              >
+                🗑️ Delete Account
+              </button>
+            </div>
+
+            <div style={{ padding: '1rem', backgroundColor: 'var(--secondary-color)', borderRadius: '5px', fontSize: '0.85rem' }}>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+                <strong>Your Rights (GDPR):</strong>
+              </p>
+              <ul style={{ color: 'var(--text-secondary)', marginLeft: '1.5rem' }}>
+                <li>Right to access your data</li>
+                <li>Right to rectify your data</li>
+                <li>Right to erasure (delete)</li>
+                <li>Right to data portability</li>
+              </ul>
+            </div>
+          </div>
         </div>
+
+        {/* Delete Account Modal */}
+        {showDeleteModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '1rem'
+          }}>
+            <div style={{
+              backgroundColor: 'var(--card-bg)',
+              borderRadius: '10px',
+              padding: '2rem',
+              maxWidth: '500px',
+              width: '100%',
+              border: '2px solid var(--accent-color)',
+              boxShadow: '0 10px 40px rgba(255, 0, 110, 0.3)'
+            }}>
+              <h2 style={{ color: 'var(--accent-color)', marginBottom: '1rem', fontSize: '1.5rem' }}>
+                ⚠️ Delete Account
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                This action is <strong style={{ color: 'var(--accent-color)' }}>permanent and irreversible</strong>.
+                All your data, including your profile, sessions, and uploaded images, will be permanently deleted.
+              </p>
+
+              {deleteError && (
+                <div style={{
+                  backgroundColor: 'rgba(255, 0, 110, 0.1)',
+                  border: '1px solid var(--accent-color)',
+                  padding: '1rem',
+                  borderRadius: '5px',
+                  marginBottom: '1rem',
+                  color: 'var(--accent-color)'
+                }}>
+                  {deleteError}
+                </div>
+              )}
+
+              <form onSubmit={handleDeleteAccount}>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                    Type your username to confirm: <strong>{user?.username}</strong>
+                  </label>
+                  <input
+                    type="text"
+                    value={deleteUsername}
+                    onChange={(e) => setDeleteUsername(e.target.value)}
+                    placeholder="Enter your username"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      backgroundColor: 'var(--secondary-color)',
+                      border: '2px solid var(--dark-bg)',
+                      borderRadius: '5px',
+                      color: 'var(--text-primary)'
+                    }}
+                  />
+                </div>
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                    Enter your password
+                  </label>
+                  <input
+                    type="password"
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    placeholder="Enter your password"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      backgroundColor: 'var(--secondary-color)',
+                      border: '2px solid var(--dark-bg)',
+                      borderRadius: '5px',
+                      color: 'var(--text-primary)'
+                    }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowDeleteModal(false);
+                      setDeleteUsername('');
+                      setDeletePassword('');
+                      setDeleteError('');
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: '0.75rem',
+                      backgroundColor: 'var(--secondary-color)',
+                      color: 'var(--text-primary)',
+                      border: '2px solid var(--card-bg)',
+                      borderRadius: '5px',
+                      fontSize: '1rem',
+                      fontWeight: 'bold',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      flex: 1,
+                      padding: '0.75rem',
+                      backgroundColor: 'var(--accent-color)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '5px',
+                      fontSize: '1rem',
+                      fontWeight: 'bold',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Delete Forever
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );
