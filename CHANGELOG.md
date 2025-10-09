@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.10.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.9.1...v2.10.0) (2025-10-09)
+
+
+### Features
+
+* add image upload functionality for user profiles ([04ac1fc](https://github.com/adrianlarsen102/EVU-WEB/commit/04ac1fccdb6310ac23b3f9c09d0ae09341a25681))
+
 ### [2.9.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.9.0...v2.9.1) (2025-10-08)
 
 ## [2.9.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.8.0...v2.9.0) (2025-10-08)
