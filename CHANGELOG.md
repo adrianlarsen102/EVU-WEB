@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.11.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.11.0...v2.11.1) (2025-10-09)
+
+
+### Bug Fixes
+
+* disable overly strict referer check causing registration failures ([1abdd36](https://github.com/adrianlarsen102/EVU-WEB/commit/1abdd3663a0baa26cdd15a30e0d221164376b687))
+
 ## [2.11.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.10.0...v2.11.0) (2025-10-09)
 
 
