@@ -13,11 +13,18 @@ export default async function handler(req, res) {
       // Set cache headers for public content
       res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
 
-      const { data, error } = await supabase
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Database query timeout')), 8000)
+      );
+
+      const queryPromise = supabase
         .from('site_content')
         .select('content')
         .eq('id', 1)
         .single();
+
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
 
       if (error) {
         console.error('Supabase error:', error);

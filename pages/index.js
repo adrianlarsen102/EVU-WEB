@@ -6,10 +6,40 @@ export default function Home() {
   const [activeServer, setActiveServer] = useState('minecraft'); // Default to Minecraft
 
   useEffect(() => {
-    fetch('/api/content')
-      .then(res => res.json())
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+    fetch('/api/content', { signal: controller.signal })
+      .then(res => {
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error('Failed to fetch');
+        return res.json();
+      })
       .then(data => setContent(data))
-      .catch(err => console.error('Failed to load content:', err));
+      .catch(err => {
+        clearTimeout(timeoutId);
+        console.error('Failed to load content:', err);
+        // Set fallback content so page doesn't hang forever
+        setContent({
+          general: {
+            websiteTitle: 'EVU Gaming Network',
+            welcomeMessage: 'Your Home for Gaming'
+          },
+          servers: {
+            minecraft: {
+              enabled: false
+            },
+            fivem: {
+              enabled: false
+            }
+          }
+        });
+      });
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, []);
 
   if (!content) {

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import Link from 'next/link';
 import { SkeletonCard, SkeletonList } from '../components/LoadingSkeleton';
+import { fetchWithTimeout } from '../lib/fetchWithTimeout';
 
 export default function Forum() {
   const [content, setContent] = useState(null);
@@ -11,10 +12,14 @@ export default function Forum() {
   const [loadingRecent, setLoadingRecent] = useState(true);
 
   useEffect(() => {
-    fetch('/api/content')
+    fetchWithTimeout('/api/content', {}, 10000)
       .then(res => res.json())
       .then(data => setContent(data))
-      .catch(err => console.error('Failed to load content:', err))
+      .catch(err => {
+        console.error('Failed to load content:', err);
+        // Set minimal fallback content
+        setContent({ forumCategories: [] });
+      })
       .finally(() => setLoading(false));
 
     // Fetch recent topics for activity feed
@@ -23,7 +28,7 @@ export default function Forum() {
 
   const fetchRecentTopics = async () => {
     try {
-      const res = await fetch('/api/forum/recent?limit=5');
+      const res = await fetchWithTimeout('/api/forum/recent?limit=5', {}, 8000);
       if (res.ok) {
         const data = await res.json();
         setRecentTopics(data);
