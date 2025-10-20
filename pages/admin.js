@@ -56,6 +56,8 @@ export default function Admin() {
   // Dashboard stats
   const [dashboardStats, setDashboardStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(false);
+  const [metricsHistory, setMetricsHistory] = useState([]);
+  const [historyRange, setHistoryRange] = useState('7d');
 
   useEffect(() => {
     checkAuth();
@@ -64,8 +66,15 @@ export default function Admin() {
   useEffect(() => {
     if (activeTab === 'dashboard' && isAuthenticated) {
       loadDashboardStats();
+      loadMetricsHistory(historyRange);
     }
   }, [activeTab, isAuthenticated]);
+
+  useEffect(() => {
+    if (activeTab === 'dashboard' && isAuthenticated && historyRange) {
+      loadMetricsHistory(historyRange);
+    }
+  }, [historyRange]);
 
   useEffect(() => {
     if (activeTab === 'users' && isAuthenticated) {
@@ -242,6 +251,18 @@ export default function Admin() {
       showMessage('error', 'Failed to load dashboard statistics');
     } finally {
       setStatsLoading(false);
+    }
+  };
+
+  const loadMetricsHistory = async (range = '7d') => {
+    try {
+      const res = await fetchWithTimeout(`/api/admin/metrics-history?range=${range}`, {}, 10000);
+      const data = await res.json();
+      if (res.ok) {
+        setMetricsHistory(data.metrics || []);
+      }
+    } catch (error) {
+      console.error('Metrics history error:', error);
     }
   };
 
@@ -1171,6 +1192,110 @@ export default function Admin() {
                           )}
                         </div>
                       </div>
+                    </div>
+
+                    {/* Historical Metrics */}
+                    <div className="admin-card" style={{ marginTop: '2rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                        <h3 className="admin-card-title" style={{ marginBottom: 0 }}>📈 Historical Metrics</h3>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          {['24h', '7d', '30d', '90d'].map(range => (
+                            <button
+                              key={range}
+                              onClick={() => setHistoryRange(range)}
+                              className="btn-admin"
+                              style={{
+                                padding: '0.5rem 1rem',
+                                backgroundColor: historyRange === range ? 'var(--primary-color)' : 'var(--secondary-color)',
+                                color: historyRange === range ? 'white' : 'var(--text-primary)',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontSize: '0.85rem'
+                              }}
+                            >
+                              {range}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {metricsHistory.length > 0 ? (
+                        <>
+                          {/* Simple Text-Based Chart */}
+                          <div style={{ marginBottom: '2rem' }}>
+                            <h4 style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>Total Users Over Time</h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                              {metricsHistory.map((metric, index) => {
+                                const maxValue = Math.max(...metricsHistory.map(m => m.total_users));
+                                const percentage = (metric.total_users / maxValue) * 100;
+                                return (
+                                  <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <div style={{ minWidth: '120px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                      {new Date(metric.recorded_at).toLocaleDateString()}
+                                    </div>
+                                    <div style={{ flex: 1, height: '24px', background: 'var(--secondary-color)', borderRadius: '4px', position: 'relative', overflow: 'hidden' }}>
+                                      <div style={{
+                                        width: `${percentage}%`,
+                                        height: '100%',
+                                        background: 'linear-gradient(90deg, var(--primary-color), var(--accent-color))',
+                                        borderRadius: '4px',
+                                        transition: 'width 0.3s ease'
+                                      }} />
+                                    </div>
+                                    <div style={{ minWidth: '50px', textAlign: 'right', fontWeight: 'bold' }}>
+                                      {metric.total_users}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Metrics Summary Table */}
+                          <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                              <thead>
+                                <tr style={{ backgroundColor: 'var(--secondary-color)' }}>
+                                  <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid var(--primary-color)' }}>Date</th>
+                                  <th style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '2px solid var(--primary-color)' }}>Users</th>
+                                  <th style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '2px solid var(--primary-color)' }}>Sessions</th>
+                                  <th style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '2px solid var(--primary-color)' }}>Topics</th>
+                                  <th style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '2px solid var(--primary-color)' }}>Tickets</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {metricsHistory.slice().reverse().map((metric, index) => (
+                                  <tr key={index} style={{ borderBottom: '1px solid var(--secondary-color)' }}>
+                                    <td style={{ padding: '0.75rem', fontSize: '0.9rem' }}>
+                                      {new Date(metric.recorded_at).toLocaleString()}
+                                    </td>
+                                    <td style={{ padding: '0.75rem', textAlign: 'center', fontWeight: 'bold' }}>
+                                      {metric.total_users}
+                                    </td>
+                                    <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                                      {metric.active_sessions}
+                                    </td>
+                                    <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                                      {metric.total_forum_topics}
+                                    </td>
+                                    <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                                      {metric.open_tickets}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </>
+                      ) : (
+                        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
+                          <p>No historical data available yet.</p>
+                          <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                            Metrics are recorded hourly by the automated system.
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {/* Refresh Button */}

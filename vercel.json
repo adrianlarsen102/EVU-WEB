@@ -39,6 +39,12 @@
       ]
     }
   ],
+  "crons": [
+    {
+      "path": "/api/cron/record-metrics",
+      "schedule": "0 * * * *"
+    }
+  ],
   "regions": ["iad1"],
   "functions": {
     "pages/api/**/*.js": {

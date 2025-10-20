@@ -53,6 +53,98 @@
     background: linear-gradient(135deg, #0099cc 0%, #0077aa 100%);
 }
 
+/* Purple Theme */
+[data-theme='purple'] {
+    --primary-color: #a855f7;
+    --secondary-color: #1e1b2e;
+    --dark-bg: #0d0b14;
+    --card-bg: #1a1625;
+    --text-primary: #f3e8ff;
+    --text-secondary: #c4b5fd;
+    --accent-color: #ec4899;
+    --success-color: #a78bfa;
+    --warning-color: #fbbf24;
+}
+
+[data-theme='purple'] body {
+    background: linear-gradient(180deg, #0d0b14 0%, #1a0f2e 100%);
+}
+
+[data-theme='purple'] .hero {
+    background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+}
+
+[data-theme='purple'] .navbar {
+    background: rgba(26, 22, 37, 0.95);
+    border-bottom: 2px solid #a855f7;
+}
+
+/* Ocean Theme */
+[data-theme='ocean'] {
+    --primary-color: #06b6d4;
+    --secondary-color: #0c2d48;
+    --dark-bg: #021526;
+    --card-bg: #03396c;
+    --text-primary: #e0f4f7;
+    --text-secondary: #67e8f9;
+    --accent-color: #0ea5e9;
+    --success-color: #22d3ee;
+    --warning-color: #fbbf24;
+}
+
+[data-theme='ocean'] body {
+    background: linear-gradient(180deg, #021526 0%, #03396c 100%);
+}
+
+[data-theme='ocean'] .hero {
+    background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+}
+
+[data-theme='ocean'] .navbar {
+    background: rgba(3, 57, 108, 0.95);
+    border-bottom: 2px solid #06b6d4;
+}
+
+[data-theme='ocean'] .info-card,
+[data-theme='ocean'] .status-card,
+[data-theme='ocean'] .connection-box {
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.1);
+}
+
+/* Forest Theme */
+[data-theme='forest'] {
+    --primary-color: #10b981;
+    --secondary-color: #1a2e1a;
+    --dark-bg: #0a1f0a;
+    --card-bg: #14331c;
+    --text-primary: #d1fae5;
+    --text-secondary: #86efac;
+    --accent-color: #34d399;
+    --success-color: #22c55e;
+    --warning-color: #fbbf24;
+}
+
+[data-theme='forest'] body {
+    background: linear-gradient(180deg, #0a1f0a 0%, #1a2e1a 100%);
+}
+
+[data-theme='forest'] .hero {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+[data-theme='forest'] .navbar {
+    background: rgba(20, 51, 28, 0.95);
+    border-bottom: 2px solid #10b981;
+}
+
+[data-theme='forest'] .info-card,
+[data-theme='forest'] .status-card,
+[data-theme='forest'] .connection-box {
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--dark-bg);
