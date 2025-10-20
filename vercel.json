@@ -42,7 +42,7 @@
   "crons": [
     {
       "path": "/api/cron/record-metrics",
-      "schedule": "0 * * * *"
+      "schedule": "0 0 * * *"
     }
   ],
   "regions": ["iad1"],

@@ -1292,7 +1292,7 @@ export default function Admin() {
                         <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
                           <p>No historical data available yet.</p>
                           <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                            Metrics are recorded hourly by the automated system.
+                            Metrics are recorded daily at midnight UTC by the automated system.
                           </p>
                         </div>
                       )}
