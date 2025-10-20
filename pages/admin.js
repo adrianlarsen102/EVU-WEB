@@ -53,9 +53,19 @@ export default function Admin() {
   const [testEmailStatus, setTestEmailStatus] = useState('');
   const [sendingTestEmail, setSendingTestEmail] = useState(false);
 
+  // Dashboard stats
+  const [dashboardStats, setDashboardStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+
   useEffect(() => {
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'dashboard' && isAuthenticated) {
+      loadDashboardStats();
+    }
+  }, [activeTab, isAuthenticated]);
 
   useEffect(() => {
     if (activeTab === 'users' && isAuthenticated) {
@@ -215,6 +225,24 @@ export default function Admin() {
   const showMessage = (type, text) => {
     setMessage({ type, text });
     setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+  };
+
+  const loadDashboardStats = async () => {
+    setStatsLoading(true);
+    try {
+      const res = await fetchWithTimeout('/api/admin/dashboard', {}, 10000);
+      const data = await res.json();
+      if (res.ok) {
+        setDashboardStats(data);
+      } else {
+        showMessage('error', 'Failed to load dashboard statistics');
+      }
+    } catch (error) {
+      console.error('Dashboard stats error:', error);
+      showMessage('error', 'Failed to load dashboard statistics');
+    } finally {
+      setStatsLoading(false);
+    }
   };
 
   // Helper to check if content uses new dual-server structure
@@ -943,6 +971,12 @@ export default function Admin() {
             {/* Tabs */}
             <div className="admin-tabs">
               <button
+                className={`admin-tab ${activeTab === 'dashboard' ? 'active' : ''}`}
+                onClick={() => setActiveTab('dashboard')}
+              >
+                📊 Dashboard
+              </button>
+              <button
                 className={`admin-tab ${activeTab === 'server' ? 'active' : ''}`}
                 onClick={() => setActiveTab('server')}
               >
@@ -999,6 +1033,169 @@ export default function Admin() {
             </div>
 
             {/* Tab Contents */}
+            {activeTab === 'dashboard' && (
+              <div className="admin-tab-content">
+                {statsLoading ? (
+                  <div style={{ textAlign: 'center', padding: '3rem' }}>
+                    <p>Loading statistics...</p>
+                  </div>
+                ) : dashboardStats ? (
+                  <>
+                    {/* Overview Cards */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+                      <div className="admin-card" style={{ background: 'linear-gradient(135deg, var(--primary-color) 0%, #0099cc 100%)', color: 'white' }}>
+                        <h3 style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>{dashboardStats.users.total}</h3>
+                        <p style={{ fontSize: '1.1rem', opacity: 0.9 }}>👥 Total Users</p>
+                        <div style={{ marginTop: '1rem', fontSize: '0.9rem', opacity: 0.8 }}>
+                          {dashboardStats.users.admins} admins • {dashboardStats.users.regular} regular
+                        </div>
+                      </div>
+
+                      <div className="admin-card" style={{ background: 'linear-gradient(135deg, var(--success-color) 0%, #10b981 100%)', color: 'white' }}>
+                        <h3 style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>{dashboardStats.sessions.active}</h3>
+                        <p style={{ fontSize: '1.1rem', opacity: 0.9 }}>🔐 Active Sessions</p>
+                        <div style={{ marginTop: '1rem', fontSize: '0.9rem', opacity: 0.8 }}>
+                          Users currently logged in
+                        </div>
+                      </div>
+
+                      <div className="admin-card" style={{ background: 'linear-gradient(135deg, var(--accent-color) 0%, #e91e63 100%)', color: 'white' }}>
+                        <h3 style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>{dashboardStats.forum.topics}</h3>
+                        <p style={{ fontSize: '1.1rem', opacity: 0.9 }}>💬 Forum Topics</p>
+                        <div style={{ marginTop: '1rem', fontSize: '0.9rem', opacity: 0.8 }}>
+                          {dashboardStats.forum.comments} comments • {dashboardStats.forum.totalViews} views
+                        </div>
+                      </div>
+
+                      <div className="admin-card" style={{ background: 'linear-gradient(135deg, var(--warning-color) 0%, #f59e0b 100%)', color: 'white' }}>
+                        <h3 style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>{dashboardStats.support.open}</h3>
+                        <p style={{ fontSize: '1.1rem', opacity: 0.9 }}>🎫 Open Tickets</p>
+                        <div style={{ marginTop: '1rem', fontSize: '0.9rem', opacity: 0.8 }}>
+                          {dashboardStats.support.inProgress} in progress • {dashboardStats.support.closed} closed
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Detailed Stats */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.5rem' }}>
+                      {/* User Activity */}
+                      <div className="admin-card">
+                        <h3 className="admin-card-title">👥 User Activity</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                            <span>Total Users:</span>
+                            <strong>{dashboardStats.users.total}</strong>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                            <span>Administrators:</span>
+                            <strong>{dashboardStats.users.admins}</strong>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                            <span>Regular Users:</span>
+                            <strong>{dashboardStats.users.regular}</strong>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--success-color)', color: 'white', borderRadius: '8px' }}>
+                            <span>New (Last 7 Days):</span>
+                            <strong>{dashboardStats.users.recentRegistrations}</strong>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Forum Stats */}
+                      <div className="admin-card">
+                        <h3 className="admin-card-title">💬 Forum Statistics</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                            <span>Total Topics:</span>
+                            <strong>{dashboardStats.forum.topics}</strong>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                            <span>Total Comments:</span>
+                            <strong>{dashboardStats.forum.comments}</strong>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                            <span>Total Views:</span>
+                            <strong>{dashboardStats.forum.totalViews.toLocaleString()}</strong>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--success-color)', color: 'white', borderRadius: '8px' }}>
+                            <span>Active (24h):</span>
+                            <strong>{dashboardStats.forum.recentActivity}</strong>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Support Stats */}
+                      <div className="admin-card">
+                        <h3 className="admin-card-title">🎫 Support Tickets</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                            <span>Total Tickets:</span>
+                            <strong>{dashboardStats.support.total}</strong>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--accent-color)', color: 'white', borderRadius: '8px' }}>
+                            <span>Open:</span>
+                            <strong>{dashboardStats.support.open}</strong>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--warning-color)', color: 'white', borderRadius: '8px' }}>
+                            <span>In Progress:</span>
+                            <strong>{dashboardStats.support.inProgress}</strong>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--success-color)', color: 'white', borderRadius: '8px' }}>
+                            <span>Closed:</span>
+                            <strong>{dashboardStats.support.closed}</strong>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* System Health */}
+                      <div className="admin-card">
+                        <h3 className="admin-card-title">⚡ System Health</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                            <span>Database:</span>
+                            <strong style={{ color: 'var(--success-color)' }}>✓ Connected</strong>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                            <span>Uptime:</span>
+                            <strong>{dashboardStats.system.uptime}</strong>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                            <span>Server Time:</span>
+                            <strong>{new Date(dashboardStats.system.serverTime).toLocaleTimeString()}</strong>
+                          </div>
+                          {dashboardStats.system.lastContentUpdate && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                              <span>Last Update:</span>
+                              <strong>{new Date(dashboardStats.system.lastContentUpdate).toLocaleString()}</strong>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Refresh Button */}
+                    <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+                      <button
+                        onClick={loadDashboardStats}
+                        disabled={statsLoading}
+                        className="btn-admin btn-admin-primary"
+                        style={{ minWidth: '200px' }}
+                      >
+                        {statsLoading ? 'Refreshing...' : '🔄 Refresh Stats'}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '3rem' }}>
+                    <p>Failed to load dashboard statistics</p>
+                    <button onClick={loadDashboardStats} className="btn-admin btn-admin-primary" style={{ marginTop: '1rem' }}>
+                      Try Again
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
             {activeTab === 'server' && (
               <div className="admin-tab-content">
                 {isDualServerStructure() && (
