@@ -15,7 +15,10 @@
       "Bash(gh label create:*)",
       "Bash(npm run build:*)",
       "Bash(git pull:*)",
-      "Bash(git rebase:*)"
+      "Bash(git rebase:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm outdated)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

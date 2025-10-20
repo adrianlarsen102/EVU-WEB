@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { fetchWithTimeout } from '../lib/fetchWithTimeout';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -88,7 +89,7 @@ export default function Admin() {
 
   const checkAuth = async () => {
     try {
-      const res = await fetch('/api/auth/check');
+      const res = await fetchWithTimeout('/api/auth/check', {}, 8000);
       const data = await res.json();
       if (data.authenticated) {
         setIsAuthenticated(true);
@@ -184,11 +185,12 @@ export default function Admin() {
 
   const loadContent = async () => {
     try {
-      const res = await fetch('/api/content');
+      const res = await fetchWithTimeout('/api/content', {}, 10000);
       const data = await res.json();
       setContent(data);
     } catch (error) {
       console.error('Load error:', error);
+      showMessage('error', 'Failed to load content. Please refresh the page.');
     }
   };
 
