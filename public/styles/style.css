@@ -16,6 +16,43 @@
     --warning-color: #ffaa00;
 }
 
+/* Light Mode Theme */
+[data-theme='light'] {
+    --primary-color: #0099cc;
+    --secondary-color: #f0f4f8;
+    --dark-bg: #ffffff;
+    --card-bg: #f8f9fa;
+    --text-primary: #1a202c;
+    --text-secondary: #4a5568;
+    --accent-color: #e91e63;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+}
+
+[data-theme='light'] body {
+    background-color: #f5f7fa;
+}
+
+[data-theme='light'] .navbar {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='light'] .info-card,
+[data-theme='light'] .status-card,
+[data-theme='light'] .connection-box {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='light'] input,
+[data-theme='light'] textarea,
+[data-theme='light'] select {
+    border-color: #e2e8f0;
+}
+
+[data-theme='light'] .hero {
+    background: linear-gradient(135deg, #0099cc 0%, #0077aa 100%);
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--dark-bg);

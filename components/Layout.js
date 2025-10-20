@@ -2,6 +2,7 @@ import { memo, useMemo } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import CookieConsent from './CookieConsent';
+import ThemeToggle from './ThemeToggle';
 
 const Layout = memo(function Layout({ children, title = 'EVU Gaming Network' }) {
   const loginStyle = useMemo(() => ({
@@ -30,15 +31,18 @@ const Layout = memo(function Layout({ children, title = 'EVU Gaming Network' }) 
       <nav className="navbar">
         <div className="container">
           <div className="logo">EVU Gaming</div>
-          <ul className="nav-links">
-            <li><Link href="/">Servers</Link></li>
-            <li><Link href="/join">Join</Link></li>
-            <li><Link href="/forum">Forum</Link></li>
-            <li><Link href="/support">Support</Link></li>
-            <li><Link href="/changelog">Changelog</Link></li>
-            <li><Link href="/search">🔍 Search</Link></li>
-            <li><Link href="/profile" style={loginStyle}>👤 Login</Link></li>
-          </ul>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+            <ul className="nav-links">
+              <li><Link href="/">Servers</Link></li>
+              <li><Link href="/join">Join</Link></li>
+              <li><Link href="/forum">Forum</Link></li>
+              <li><Link href="/support">Support</Link></li>
+              <li><Link href="/changelog">Changelog</Link></li>
+              <li><Link href="/search">🔍 Search</Link></li>
+              <li><Link href="/profile" style={loginStyle}>👤 Login</Link></li>
+            </ul>
+            <ThemeToggle />
+          </div>
         </div>
       </nav>
 
