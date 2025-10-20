@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.11.2](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.11.1...v2.11.2) (2025-10-20)
+
+
+### Bug Fixes
+
+* add request timeouts to prevent website loading hang ([9471ced](https://github.com/adrianlarsen102/EVU-WEB/commit/9471ced98f3cf55a6e161a897f7caa6eb19647f6))
+
 ### [2.11.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.11.0...v2.11.1) (2025-10-09)
 
 
