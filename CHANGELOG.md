@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.12.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.11.1...v2.12.0) (2025-10-20)
+
+
+### Features
+
+* implement dark/light theme system (phase 2) ([0bfa66b](https://github.com/adrianlarsen102/EVU-WEB/commit/0bfa66b89fd95d6a98fd40032d00f3e49ef1ab88)), closes [#0099](https://github.com/adrianlarsen102/EVU-WEB/issues/0099) [#f8f9](https://github.com/adrianlarsen102/EVU-WEB/issues/f8f9) [#1a202](https://github.com/adrianlarsen102/EVU-WEB/issues/1a202) [#e91e63](https://github.com/adrianlarsen102/EVU-WEB/issues/e91e63) [#10b981](https://github.com/adrianlarsen102/EVU-WEB/issues/10b981) [#00d4](https://github.com/adrianlarsen102/EVU-WEB/issues/00d4) [#0f1419](https://github.com/adrianlarsen102/EVU-WEB/issues/0f1419) [#1a1f2](https://github.com/adrianlarsen102/EVU-WEB/issues/1a1f2) [#ff006](https://github.com/adrianlarsen102/EVU-WEB/issues/ff006) [#00ff88](https://github.com/adrianlarsen102/EVU-WEB/issues/00ff88)
+* implement major platform improvements (phase 1) ([78e4733](https://github.com/adrianlarsen102/EVU-WEB/commit/78e4733c4f2f2eb62bfa971388889020e455ebc2))
+
+
+### Bug Fixes
+
+* add request timeouts to prevent website loading hang ([9471ced](https://github.com/adrianlarsen102/EVU-WEB/commit/9471ced98f3cf55a6e161a897f7caa6eb19647f6))
+
+
+### Documentation
+
+* comprehensive code audit and improvements documentation ([0e7e2a3](https://github.com/adrianlarsen102/EVU-WEB/commit/0e7e2a3031321d38243717e12c0d657fca6cb46d))
+
 ### [2.11.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.11.0...v2.11.1) (2025-10-09)
 
 
