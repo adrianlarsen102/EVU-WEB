@@ -1,5 +1,6 @@
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 import { createClient } from '@supabase/supabase-js';
+import { rateLimiters } from '../../../lib/rateLimit';
 import formidable from 'formidable';
 import fs from 'fs';
 import path from 'path';
@@ -26,6 +27,12 @@ export default async function handler(req, res) {
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Apply rate limiting for file uploads
+  const rateLimitResult = await rateLimiters.upload(req, res, null);
+  if (rateLimitResult !== true) {
+    return; // Rate limit response already sent
   }
 
   try {

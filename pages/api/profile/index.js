@@ -1,5 +1,6 @@
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 import { createClient } from '@supabase/supabase-js';
+import { rateLimiters } from '../../../lib/rateLimit';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -32,6 +33,12 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to load profile' });
     }
   } else if (req.method === 'PUT') {
+    // Apply rate limiting for profile updates
+    const rateLimitResult = await rateLimiters.profile(req, res, null);
+    if (rateLimitResult !== true) {
+      return; // Rate limit response already sent
+    }
+
     // Update user profile
     try {
       const { display_name, email, avatar_url, bio } = req.body;

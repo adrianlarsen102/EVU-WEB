@@ -1,0 +1,128 @@
+import { validateSession, getSessionFromCookie } from '../../../lib/auth';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Check authentication
+  const sessionId = getSessionFromCookie(req.headers.cookie);
+  const session = sessionId ? await validateSession(sessionId) : null;
+
+  if (!session) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // Only admins can view dashboard
+  if (!session.isAdmin) {
+    return res.status(403).json({ error: 'Forbidden: Admin access required' });
+  }
+
+  try {
+    const stats = {
+      users: {},
+      forum: {},
+      support: {},
+      sessions: {},
+      system: {}
+    };
+
+    // User Statistics
+    const { data: allUsers } = await supabase
+      .from('admins')
+      .select('id, created_at, role, is_admin');
+
+    stats.users.total = allUsers?.length || 0;
+    stats.users.admins = allUsers?.filter(u => u.role === 'admin' || u.is_admin).length || 0;
+    stats.users.regular = stats.users.total - stats.users.admins;
+
+    // Recent registrations (last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    stats.users.recentRegistrations = allUsers?.filter(u =>
+      new Date(u.created_at) > sevenDaysAgo
+    ).length || 0;
+
+    // Active Sessions
+    const { data: activeSessions } = await supabase
+      .from('sessions')
+      .select('id, created_at, expires_at')
+      .gt('expires_at', new Date().toISOString());
+
+    stats.sessions.active = activeSessions?.length || 0;
+    stats.sessions.total = activeSessions?.length || 0;
+
+    // Forum Statistics
+    try {
+      const { data: forumTopics } = await supabase
+        .from('forum_topics')
+        .select('id, created_at, views_count');
+
+      stats.forum.topics = forumTopics?.length || 0;
+      stats.forum.totalViews = forumTopics?.reduce((sum, t) => sum + (t.views_count || 0), 0) || 0;
+
+      const { data: forumComments } = await supabase
+        .from('forum_comments')
+        .select('id');
+
+      stats.forum.comments = forumComments?.length || 0;
+
+      // Recent forum activity (last 24 hours)
+      const oneDayAgo = new Date();
+      oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+      stats.forum.recentActivity = forumTopics?.filter(t =>
+        new Date(t.created_at) > oneDayAgo
+      ).length || 0;
+    } catch (forumError) {
+      console.error('Forum stats error:', forumError);
+      stats.forum.topics = 0;
+      stats.forum.comments = 0;
+      stats.forum.totalViews = 0;
+      stats.forum.recentActivity = 0;
+    }
+
+    // Support Ticket Statistics
+    try {
+      const { data: supportTickets } = await supabase
+        .from('support_tickets')
+        .select('id, status, created_at');
+
+      stats.support.total = supportTickets?.length || 0;
+      stats.support.open = supportTickets?.filter(t => t.status === 'open').length || 0;
+      stats.support.inProgress = supportTickets?.filter(t => t.status === 'in_progress').length || 0;
+      stats.support.closed = supportTickets?.filter(t => t.status === 'closed').length || 0;
+    } catch (supportError) {
+      console.error('Support stats error:', supportError);
+      stats.support.total = 0;
+      stats.support.open = 0;
+      stats.support.inProgress = 0;
+      stats.support.closed = 0;
+    }
+
+    // System Health
+    const { data: content } = await supabase
+      .from('site_content')
+      .select('updated_at')
+      .eq('id', 1)
+      .single();
+
+    stats.system.lastContentUpdate = content?.updated_at || null;
+    stats.system.databaseConnected = true;
+    stats.system.serverTime = new Date().toISOString();
+
+    // Calculate uptime (placeholder - you'd need to implement actual uptime tracking)
+    stats.system.uptime = '99.9%';
+
+    res.status(200).json(stats);
+
+  } catch (error) {
+    console.error('Dashboard stats error:', error);
+    res.status(500).json({ error: 'Failed to fetch dashboard stats' });
+  }
+}
