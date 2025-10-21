@@ -53,6 +53,12 @@
     background: linear-gradient(135deg, #0099cc 0%, #0077aa 100%);
 }
 
+[data-theme='light'] .hero h1,
+[data-theme='light'] .hero p {
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 /* Purple Theme */
 [data-theme='purple'] {
     --primary-color: #a855f7;
@@ -72,6 +78,12 @@
 
 [data-theme='purple'] .hero {
     background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+}
+
+[data-theme='purple'] .hero h1,
+[data-theme='purple'] .hero p {
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme='purple'] .navbar {
@@ -98,6 +110,12 @@
 
 [data-theme='ocean'] .hero {
     background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+}
+
+[data-theme='ocean'] .hero h1,
+[data-theme='ocean'] .hero p {
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme='ocean'] .navbar {
@@ -131,6 +149,12 @@
 
 [data-theme='forest'] .hero {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+[data-theme='forest'] .hero h1,
+[data-theme='forest'] .hero p {
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme='forest'] .navbar {
