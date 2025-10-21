@@ -3,9 +3,12 @@
 -- Database Setup for EVU-WEB
 -- ========================================
 
--- 1. Create user_roles table
+-- 1. Enable UUID extension (if not already enabled)
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- 2. Create user_roles table
 CREATE TABLE IF NOT EXISTS user_roles (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL UNIQUE,
   description TEXT,
   permissions JSONB NOT NULL DEFAULT '[]'::jsonb,
