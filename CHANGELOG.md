@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.13.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.13.0...v2.13.1) (2025-10-21)
+
+
+### Bug Fixes
+
+* add favicon and resolve website loading issues ([802e9fa](https://github.com/adrianlarsen102/EVU-WEB/commit/802e9fa5588813daad3e46c57e530fd3011f0621))
+
 ## [2.13.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.12.0...v2.13.0) (2025-10-21)
 
 
