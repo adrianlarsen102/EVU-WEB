@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.13.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.12.0...v2.13.0) (2025-10-21)
+
+
+### Features
+
+* implement comprehensive RBAC system with custom roles and permissions ([96f99cb](https://github.com/adrianlarsen102/EVU-WEB/commit/96f99cb175de2402b9a93f0125672953bba16d39))
+
+
+### Bug Fixes
+
+* update RBAC SQL schema to use uuid-ossp extension ([b53308f](https://github.com/adrianlarsen102/EVU-WEB/commit/b53308f8e2bbca05be81fc0081245680a5d7401d))
+
 ## [2.12.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.11.1...v2.12.0) (2025-10-20)
 
 
