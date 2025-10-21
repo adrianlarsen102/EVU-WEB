@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.14.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.13.1...v2.14.0) (2025-10-21)
+
+
+### Features
+
+* optimize profile page and add admin panel quick access ([a47ffdc](https://github.com/adrianlarsen102/EVU-WEB/commit/a47ffdc8de9bc38e8eca9668dd4b996a2625185e))
+
 ### [2.13.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.13.0...v2.13.1) (2025-10-21)
 
 
