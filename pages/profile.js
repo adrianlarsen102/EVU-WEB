@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Layout from '../components/Layout';
 import Link from 'next/link';
+import { fetchWithTimeout } from '../lib/fetchWithTimeout';
 
 export default function Profile() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -31,26 +32,9 @@ export default function Profile() {
 
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const loadProfile = useCallback(async () => {
     try {
-      const res = await fetch('/api/auth/check');
-      const data = await res.json();
-      if (data.authenticated) {
-        setIsAuthenticated(true);
-        loadProfile();
-      }
-    } catch (error) {
-      console.error('Auth check error:', error);
-    }
-  };
-
-  const loadProfile = async () => {
-    try {
-      const res = await fetch('/api/profile');
+      const res = await fetchWithTimeout('/api/profile', {}, 8000);
       const data = await res.json();
       if (res.ok) {
         setUser(data);
@@ -62,7 +46,24 @@ export default function Profile() {
     } catch (error) {
       console.error('Load profile error:', error);
     }
-  };
+  }, []);
+
+  const checkAuth = useCallback(async () => {
+    try {
+      const res = await fetchWithTimeout('/api/auth/check', {}, 8000);
+      const data = await res.json();
+      if (data.authenticated) {
+        setIsAuthenticated(true);
+        loadProfile();
+      }
+    } catch (error) {
+      console.error('Auth check error:', error);
+    }
+  }, [loadProfile]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -258,10 +259,10 @@ export default function Profile() {
     }
   };
 
-  const showMessage = (type, text) => {
+  const showMessage = useCallback((type, text) => {
     setMessage({ type, text });
     setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-  };
+  }, []);
 
   if (!isAuthenticated) {
     return (
@@ -464,7 +465,7 @@ export default function Profile() {
               <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginBottom: '1rem' }}>
                 @{user?.username}
               </p>
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
                 {user?.is_admin && (
                   <span style={{
                     backgroundColor: 'var(--primary-color)',
@@ -477,6 +478,34 @@ export default function Profile() {
                     ⚡ ADMIN
                   </span>
                 )}
+                {user?.is_admin && (
+                  <Link href="/admin">
+                    <button
+                      style={{
+                        background: 'linear-gradient(135deg, var(--primary-color), var(--accent-color))',
+                        color: 'white',
+                        padding: '0.5rem 1.25rem',
+                        borderRadius: '5px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        fontSize: '0.95rem',
+                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                        boxShadow: '0 2px 8px rgba(107, 70, 193, 0.3)'
+                      }}
+                      onMouseOver={(e) => {
+                        e.target.style.transform = 'scale(1.05)';
+                        e.target.style.boxShadow = '0 4px 12px rgba(107, 70, 193, 0.5)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.target.style.transform = 'scale(1)';
+                        e.target.style.boxShadow = '0 2px 8px rgba(107, 70, 193, 0.3)';
+                      }}
+                    >
+                      🛠️ Admin Panel
+                    </button>
+                  </Link>
+                )}
                 <button
                   onClick={handleLogout}
                   style={{
@@ -486,10 +515,13 @@ export default function Profile() {
                     borderRadius: '5px',
                     border: 'none',
                     cursor: 'pointer',
-                    fontWeight: '500'
+                    fontWeight: '500',
+                    transition: 'opacity 0.2s ease'
                   }}
+                  onMouseOver={(e) => e.target.style.opacity = '0.9'}
+                  onMouseOut={(e) => e.target.style.opacity = '1'}
                 >
-                  Logout
+                  🚪 Logout
                 </button>
               </div>
             </div>
