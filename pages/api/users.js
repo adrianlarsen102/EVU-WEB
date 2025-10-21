@@ -36,8 +36,9 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Password must be at least 8 characters' });
       }
 
-      const role = req.body.role || 'user';
-      const result = await createAdmin(username, password, false, role);
+      const roleId = req.body.roleId; // Use roleId from request
+      const role = req.body.role || 'user'; // Fallback for backward compatibility
+      const result = await createAdmin(username, password, false, role, roleId);
 
       if (result.success) {
         res.status(201).json({ success: true, admin: result.admin });

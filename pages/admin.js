@@ -24,6 +24,7 @@ export default function Admin() {
   const [users, setUsers] = useState([]);
   const [newUsername, setNewUsername] = useState('');
   const [newUserPassword, setNewUserPassword] = useState('');
+  const [newUserRole, setNewUserRole] = useState('');
   const [userError, setUserError] = useState('');
 
   // Forum moderation
@@ -59,6 +60,15 @@ export default function Admin() {
   const [metricsHistory, setMetricsHistory] = useState([]);
   const [historyRange, setHistoryRange] = useState('7d');
 
+  // Roles & Permissions
+  const [roles, setRoles] = useState([]);
+  const [availablePermissions, setAvailablePermissions] = useState({});
+  const [newRoleName, setNewRoleName] = useState('');
+  const [newRoleDescription, setNewRoleDescription] = useState('');
+  const [newRolePermissions, setNewRolePermissions] = useState([]);
+  const [editingRole, setEditingRole] = useState(null);
+  const [roleError, setRoleError] = useState('');
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -79,6 +89,7 @@ export default function Admin() {
   useEffect(() => {
     if (activeTab === 'users' && isAuthenticated) {
       loadUsers();
+      loadRoles(); // Also load roles for the dropdown
     }
   }, [activeTab, isAuthenticated]);
 
@@ -97,6 +108,12 @@ export default function Admin() {
   useEffect(() => {
     if (activeTab === 'email' && isAuthenticated) {
       loadEmailSettings();
+    }
+  }, [activeTab, isAuthenticated]);
+
+  useEffect(() => {
+    if (activeTab === 'roles' && isAuthenticated) {
+      loadRoles();
     }
   }, [activeTab, isAuthenticated]);
 
@@ -709,6 +726,142 @@ export default function Admin() {
     }
   };
 
+  // Role Management Functions
+  const loadRoles = async () => {
+    try {
+      const res = await fetchWithTimeout('/api/roles', {}, 10000);
+      const data = await res.json();
+      if (res.ok) {
+        setRoles(data.roles || []);
+        setAvailablePermissions(data.availablePermissions || {});
+      }
+    } catch (error) {
+      console.error('Load roles error:', error);
+    }
+  };
+
+  const handleCreateRole = async (e) => {
+    e.preventDefault();
+    setRoleError('');
+
+    if (!newRoleName.trim()) {
+      setRoleError('Role name is required');
+      return;
+    }
+
+    if (newRolePermissions.length === 0) {
+      setRoleError('Please select at least one permission');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/roles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newRoleName,
+          description: newRoleDescription,
+          permissions: newRolePermissions
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showMessage('success', `Role "${newRoleName}" created successfully!`);
+        setNewRoleName('');
+        setNewRoleDescription('');
+        setNewRolePermissions([]);
+        loadRoles();
+      } else {
+        setRoleError(data.error || 'Failed to create role');
+      }
+    } catch (error) {
+      setRoleError('Failed to create role');
+    }
+  };
+
+  const handleUpdateRole = async (roleId) => {
+    setRoleError('');
+
+    if (!editingRole) return;
+
+    try {
+      const res = await fetch('/api/roles', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roleId,
+          name: editingRole.name,
+          description: editingRole.description,
+          permissions: editingRole.permissions
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showMessage('success', 'Role updated successfully!');
+        setEditingRole(null);
+        loadRoles();
+      } else {
+        setRoleError(data.error || 'Failed to update role');
+      }
+    } catch (error) {
+      setRoleError('Failed to update role');
+    }
+  };
+
+  const handleDeleteRole = async (roleId, roleName) => {
+    if (!confirm(`Are you sure you want to delete the role "${roleName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/roles', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roleId })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showMessage('success', `Role "${roleName}" deleted successfully!`);
+        loadRoles();
+      } else {
+        setRoleError(data.error || 'Failed to delete role');
+      }
+    } catch (error) {
+      setRoleError('Failed to delete role');
+    }
+  };
+
+  const togglePermission = (permission) => {
+    if (newRolePermissions.includes(permission)) {
+      setNewRolePermissions(newRolePermissions.filter(p => p !== permission));
+    } else {
+      setNewRolePermissions([...newRolePermissions, permission]);
+    }
+  };
+
+  const toggleEditPermission = (permission) => {
+    if (!editingRole) return;
+
+    const currentPerms = editingRole.permissions || [];
+    if (currentPerms.includes(permission)) {
+      setEditingRole({
+        ...editingRole,
+        permissions: currentPerms.filter(p => p !== permission)
+      });
+    } else {
+      setEditingRole({
+        ...editingRole,
+        permissions: [...currentPerms, permission]
+      });
+    }
+  };
+
   const handleCreateUser = async (e) => {
     e.preventDefault();
     setUserError('');
@@ -718,11 +871,20 @@ export default function Admin() {
       return;
     }
 
+    if (!newUserRole) {
+      setUserError('Please select a role for the user');
+      return;
+    }
+
     try {
       const res = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: newUsername, password: newUserPassword })
+        body: JSON.stringify({
+          username: newUsername,
+          password: newUserPassword,
+          roleId: newUserRole
+        })
       });
 
       const data = await res.json();
@@ -731,6 +893,7 @@ export default function Admin() {
         showMessage('success', `User "${newUsername}" created successfully!`);
         setNewUsername('');
         setNewUserPassword('');
+        setNewUserRole('');
         loadUsers();
       } else {
         setUserError(data.error || 'Failed to create user');
@@ -1050,6 +1213,12 @@ export default function Admin() {
                 onClick={() => setActiveTab('email')}
               >
                 📧 Email Settings
+              </button>
+              <button
+                className={`admin-tab ${activeTab === 'roles' ? 'active' : ''}`}
+                onClick={() => setActiveTab('roles')}
+              >
+                🔐 Roles & Permissions
               </button>
             </div>
 
@@ -2349,6 +2518,28 @@ export default function Admin() {
                             required
                           />
                         </div>
+                        <div className="form-group">
+                          <label>Role</label>
+                          <select
+                            className="form-input"
+                            value={newUserRole}
+                            onChange={(e) => setNewUserRole(e.target.value)}
+                            required
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <option value="">Select a role...</option>
+                            {roles.map((role) => (
+                              <option key={role.id} value={role.id}>
+                                {role.name} {role.is_system && '(System)'}
+                              </option>
+                            ))}
+                          </select>
+                          {newUserRole && roles.find(r => r.id === newUserRole)?.description && (
+                            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                              {roles.find(r => r.id === newUserRole)?.description}
+                            </p>
+                          )}
+                        </div>
                       </div>
                       <button type="submit" className="btn-admin btn-admin-primary">
                         ➕ Create User
@@ -2674,6 +2865,350 @@ export default function Admin() {
                       <li>Create app password for "Mail"</li>
                       <li>Use: smtp.gmail.com, port 587, your email, and app password</li>
                     </ol>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Roles & Permissions Tab */}
+            {activeTab === 'roles' && (
+              <div className="admin-tab-content">
+                <div className="admin-card">
+                  <h3 className="admin-card-title">🔐 Roles & Permissions Management</h3>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                    Create custom roles with specific permissions to control what users can do in the system.
+                  </p>
+
+                  {roleError && (
+                    <div className="alert alert-error" style={{ marginBottom: '1.5rem' }}>
+                      {roleError}
+                    </div>
+                  )}
+
+                  {/* Create New Role Form */}
+                  <form onSubmit={handleCreateRole} style={{ marginBottom: '2rem', padding: '1.5rem', backgroundColor: 'var(--secondary-color)', borderRadius: '12px' }}>
+                    <h4 style={{ marginBottom: '1rem', color: 'var(--primary-color)' }}>➕ Create New Role</h4>
+
+                    <div className="form-group">
+                      <label htmlFor="roleName">Role Name *</label>
+                      <input
+                        type="text"
+                        id="roleName"
+                        className="form-input"
+                        value={newRoleName}
+                        onChange={(e) => setNewRoleName(e.target.value)}
+                        placeholder="e.g., Content Editor, Support Agent"
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="roleDescription">Description</label>
+                      <textarea
+                        id="roleDescription"
+                        className="form-input"
+                        value={newRoleDescription}
+                        onChange={(e) => setNewRoleDescription(e.target.value)}
+                        placeholder="Brief description of this role's purpose"
+                        rows={2}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Permissions * (Select at least one)</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0.75rem', marginTop: '0.5rem' }}>
+                        {Object.entries(availablePermissions).map(([perm, description]) => (
+                          <label
+                            key={perm}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'flex-start',
+                              gap: '0.75rem',
+                              padding: '0.75rem',
+                              backgroundColor: newRolePermissions.includes(perm) ? 'rgba(107, 70, 193, 0.2)' : 'var(--card-bg)',
+                              border: `2px solid ${newRolePermissions.includes(perm) ? 'var(--primary-color)' : 'transparent'}`,
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!newRolePermissions.includes(perm)) {
+                                e.currentTarget.style.backgroundColor = 'rgba(107, 70, 193, 0.1)';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!newRolePermissions.includes(perm)) {
+                                e.currentTarget.style.backgroundColor = 'var(--card-bg)';
+                              }
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={newRolePermissions.includes(perm)}
+                              onChange={() => togglePermission(perm)}
+                              style={{ marginTop: '0.25rem', cursor: 'pointer' }}
+                            />
+                            <div>
+                              <div style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>{perm}</div>
+                              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>{description}</div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                        {newRolePermissions.length} permission{newRolePermissions.length !== 1 ? 's' : ''} selected
+                      </p>
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="btn-admin btn-admin-primary"
+                      style={{ width: '100%' }}
+                    >
+                      ➕ Create Role
+                    </button>
+                  </form>
+
+                  {/* Existing Roles List */}
+                  <h4 style={{ marginBottom: '1rem', color: 'var(--primary-color)' }}>📋 Existing Roles</h4>
+                  {roles.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {roles.map((role) => (
+                        <div
+                          key={role.id}
+                          className="admin-card"
+                          style={{
+                            backgroundColor: role.is_system ? 'rgba(0, 212, 255, 0.05)' : 'var(--card-bg)',
+                            border: role.is_system ? '2px solid rgba(0, 212, 255, 0.3)' : '1px solid var(--secondary-color)'
+                          }}
+                        >
+                          {editingRole?.id === role.id ? (
+                            // Edit Mode
+                            <div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                <h4 style={{ color: 'var(--primary-color)' }}>Editing: {role.name}</h4>
+                                <button
+                                  onClick={() => setEditingRole(null)}
+                                  className="btn-admin btn-admin-secondary"
+                                  style={{ fontSize: '0.9rem', padding: '0.5rem 1rem' }}
+                                >
+                                  ✖️ Cancel
+                                </button>
+                              </div>
+
+                              <div className="form-group">
+                                <label>Role Name</label>
+                                <input
+                                  type="text"
+                                  className="form-input"
+                                  value={editingRole.name}
+                                  onChange={(e) => setEditingRole({ ...editingRole, name: e.target.value })}
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label>Description</label>
+                                <textarea
+                                  className="form-input"
+                                  value={editingRole.description || ''}
+                                  onChange={(e) => setEditingRole({ ...editingRole, description: e.target.value })}
+                                  rows={2}
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label>Permissions</label>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0.5rem' }}>
+                                  {Object.entries(availablePermissions).map(([perm, description]) => (
+                                    <label
+                                      key={perm}
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        gap: '0.5rem',
+                                        padding: '0.5rem',
+                                        backgroundColor: editingRole.permissions?.includes(perm) ? 'rgba(107, 70, 193, 0.2)' : 'var(--secondary-color)',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer',
+                                        fontSize: '0.85rem'
+                                      }}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={editingRole.permissions?.includes(perm) || false}
+                                        onChange={() => toggleEditPermission(perm)}
+                                        style={{ marginTop: '0.2rem' }}
+                                      />
+                                      <div>
+                                        <div style={{ fontWeight: 'bold' }}>{perm}</div>
+                                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{description}</div>
+                                      </div>
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <button
+                                onClick={() => handleUpdateRole(role.id)}
+                                className="btn-admin btn-admin-primary"
+                                style={{ width: '100%' }}
+                              >
+                                💾 Save Changes
+                              </button>
+                            </div>
+                          ) : (
+                            // View Mode
+                            <div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                                <div>
+                                  <h4 style={{ color: 'var(--primary-color)', marginBottom: '0.5rem' }}>
+                                    {role.name}
+                                    {role.is_system && (
+                                      <span style={{
+                                        marginLeft: '0.75rem',
+                                        padding: '0.25rem 0.75rem',
+                                        fontSize: '0.75rem',
+                                        background: 'rgba(0, 212, 255, 0.2)',
+                                        color: 'var(--primary-color)',
+                                        borderRadius: '12px',
+                                        fontWeight: 'normal'
+                                      }}>
+                                        SYSTEM
+                                      </span>
+                                    )}
+                                  </h4>
+                                  {role.description && (
+                                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                                      {role.description}
+                                    </p>
+                                  )}
+                                </div>
+                                {!role.is_system && (
+                                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button
+                                      onClick={() => setEditingRole(role)}
+                                      className="btn-admin btn-admin-secondary"
+                                      style={{ fontSize: '0.85rem', padding: '0.5rem 1rem' }}
+                                    >
+                                      ✏️ Edit
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteRole(role.id, role.name)}
+                                      className="btn-admin btn-admin-danger"
+                                      style={{ fontSize: '0.85rem', padding: '0.5rem 1rem' }}
+                                    >
+                                      🗑️ Delete
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div>
+                                <strong style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                                  Permissions ({role.permissions?.length || 0}):
+                                </strong>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
+                                  {role.permissions && role.permissions.length > 0 ? (
+                                    role.permissions.map((perm) => (
+                                      <span
+                                        key={perm}
+                                        style={{
+                                          padding: '0.4rem 0.8rem',
+                                          fontSize: '0.8rem',
+                                          backgroundColor: 'var(--secondary-color)',
+                                          color: 'var(--text-primary)',
+                                          borderRadius: '6px',
+                                          border: '1px solid var(--primary-color)'
+                                        }}
+                                        title={availablePermissions[perm]}
+                                      >
+                                        {perm}
+                                      </span>
+                                    ))
+                                  ) : (
+                                    <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                                      No permissions assigned
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {role.is_system && (
+                                <p style={{
+                                  marginTop: '1rem',
+                                  padding: '0.75rem',
+                                  backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                                  borderRadius: '6px',
+                                  fontSize: '0.85rem',
+                                  color: 'var(--text-secondary)'
+                                }}>
+                                  ℹ️ System roles cannot be edited or deleted. They provide default permission templates.
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem' }}>
+                      No roles found. Create one above to get started.
+                    </p>
+                  )}
+                </div>
+
+                {/* Permission Categories Info */}
+                <div className="admin-card" style={{ marginTop: '1.5rem' }}>
+                  <h4 className="admin-card-title">📚 Permission Categories</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+                    <div>
+                      <strong>Content Management</strong>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
+                        View and edit website content, server settings
+                      </p>
+                    </div>
+                    <div>
+                      <strong>User Management</strong>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
+                        Create, edit, view, and delete user accounts
+                      </p>
+                    </div>
+                    <div>
+                      <strong>Role Management</strong>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
+                        Manage roles and permissions for other users
+                      </p>
+                    </div>
+                    <div>
+                      <strong>Forum Management</strong>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
+                        Post, edit, delete, and moderate forum content
+                      </p>
+                    </div>
+                    <div>
+                      <strong>Support Tickets</strong>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
+                        View, create, respond to, and manage support tickets
+                      </p>
+                    </div>
+                    <div>
+                      <strong>Dashboard & Analytics</strong>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
+                        Access admin dashboard and view analytics data
+                      </p>
+                    </div>
+                    <div>
+                      <strong>System Settings</strong>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
+                        View and modify system-wide settings
+                      </p>
+                    </div>
+                    <div>
+                      <strong>Email Management</strong>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
+                        Configure email settings and send emails
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
