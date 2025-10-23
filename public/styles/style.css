@@ -169,6 +169,84 @@
     box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
 }
 
+/* Sunset Theme */
+[data-theme='sunset'] {
+    --primary-color: #f97316;
+    --secondary-color: #451a03;
+    --dark-bg: #1c0a00;
+    --card-bg: #3d1a07;
+    --text-primary: #fff7ed;
+    --text-secondary: #fed7aa;
+    --accent-color: #fb923c;
+    --success-color: #fbbf24;
+    --warning-color: #dc2626;
+}
+
+[data-theme='sunset'] body {
+    background: linear-gradient(180deg, #1c0a00 0%, #451a03 100%);
+}
+
+[data-theme='sunset'] .hero {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+}
+
+[data-theme='sunset'] .hero h1,
+[data-theme='sunset'] .hero p {
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='sunset'] .navbar {
+    background: rgba(61, 26, 7, 0.95);
+    border-bottom: 2px solid #f97316;
+}
+
+[data-theme='sunset'] .info-card,
+[data-theme='sunset'] .status-card,
+[data-theme='sunset'] .connection-box {
+    border: 1px solid rgba(249, 115, 22, 0.3);
+    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.1);
+}
+
+/* Midnight Theme */
+[data-theme='midnight'] {
+    --primary-color: #6366f1;
+    --secondary-color: #1e1b4b;
+    --dark-bg: #0f0a1e;
+    --card-bg: #1e1b3b;
+    --text-primary: #e0e7ff;
+    --text-secondary: #a5b4fc;
+    --accent-color: #818cf8;
+    --success-color: #60a5fa;
+    --warning-color: #fbbf24;
+}
+
+[data-theme='midnight'] body {
+    background: linear-gradient(180deg, #0f0a1e 0%, #1e1b4b 100%);
+}
+
+[data-theme='midnight'] .hero {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+}
+
+[data-theme='midnight'] .hero h1,
+[data-theme='midnight'] .hero p {
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='midnight'] .navbar {
+    background: rgba(30, 27, 59, 0.95);
+    border-bottom: 2px solid #6366f1;
+}
+
+[data-theme='midnight'] .info-card,
+[data-theme='midnight'] .status-card,
+[data-theme='midnight'] .connection-box {
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1);
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--dark-bg);

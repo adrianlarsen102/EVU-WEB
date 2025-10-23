@@ -5,7 +5,9 @@ const themes = [
   { name: 'light', icon: '☀️', label: 'Light' },
   { name: 'purple', icon: '💜', label: 'Purple' },
   { name: 'ocean', icon: '🌊', label: 'Ocean' },
-  { name: 'forest', icon: '🌲', label: 'Forest' }
+  { name: 'forest', icon: '🌲', label: 'Forest' },
+  { name: 'sunset', icon: '🌅', label: 'Sunset' },
+  { name: 'midnight', icon: '🌃', label: 'Midnight' }
 ];
 
 export default function ThemeToggle() {

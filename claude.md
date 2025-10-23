@@ -28,7 +28,7 @@
 **EVU-WEB** is a full-stack gaming community website built with Next.js, designed specifically for managing both Minecraft and FiveM gaming servers from a single unified platform.
 
 ### Key Information
-- **Version**: 2.5.2
+- **Version**: 2.14.0
 - **Framework**: Next.js 15.5.4
 - **Runtime**: Node.js 22.x (LTS)
 - **Database**: Supabase (PostgreSQL)
@@ -37,12 +37,16 @@
 
 ### Primary Features
 - **Dual-server support** for Minecraft and FiveM
-- **Admin panel** with comprehensive CMS
-- **User authentication** and profile management
-- **Role-based access control** (Admin/User)
+- **Admin panel** with comprehensive CMS and quick access from profile
+- **User authentication** and profile management with avatar uploads
+- **Advanced RBAC system** with custom roles and granular permissions
+- **Multi-theme system** with 5 themes (Dark, Light, Purple, Ocean, Forest)
+- **Complete forum system** with topics, comments, and moderation
+- **Support ticket system** with email notifications
 - **Automated changelog** generation from Git commits
-- **GDPR-compliant** cookie consent system
-- **Real-time content** updates
+- **GDPR-compliant** data management with export/delete
+- **Performance metrics** tracking and analytics
+- **Email notification system** (Resend/SMTP)
 
 ---
 
@@ -56,7 +60,10 @@
   "react-dom": "^18.3.1",               // React DOM rendering
   "@supabase/supabase-js": "^2.39.0",  // Database client
   "bcrypt": "^6.0.0",                   // Password hashing
-  "@vercel/speed-insights": "^1.2.0"   // Performance monitoring
+  "@vercel/speed-insights": "^1.2.0",  // Performance monitoring
+  "@vercel/analytics": "^1.5.0",       // Analytics tracking
+  "formidable": "^3.5.4",              // File upload handling
+  "nodemailer": "^7.0.9"               // Email sending (SMTP)
 }
 ```
 
@@ -72,11 +79,13 @@
 ```
 
 ### Key Technologies
-- **Next.js 15** - React framework with App Router
+- **Next.js 15** - React framework with Pages Router
 - **Supabase** - PostgreSQL database with real-time capabilities
 - **Bcrypt** - Industry-standard password hashing (10 salt rounds)
-- **Vercel** - Serverless deployment platform
+- **Vercel** - Serverless deployment platform with Analytics
 - **Standard Version** - Automated versioning and CHANGELOG generation
+- **Nodemailer** - Email sending via SMTP
+- **Formidable** - Multipart form data parsing for file uploads
 
 ---
 
@@ -169,26 +178,70 @@ EVU-WEB/
 - Category descriptions
 
 **Users Tab**
-- Create new users (admin/user roles)
+- Create new users with role assignment
+- Assign custom roles with specific permissions
 - Delete users (with confirmation)
 - Reset user passwords
 - View user creation dates
 - Default password warnings
+
+**Roles Tab** (RBAC System)
+- View all custom and system roles
+- Create new custom roles
+- Edit role permissions (52+ granular permissions)
+- Delete custom roles (system roles protected)
+- Permission categories:
+  - Content Management (view, edit)
+  - User Management (view, create, edit, delete)
+  - Role Management (view, create, edit, delete)
+  - Forum (view, post, edit, delete, moderate)
+  - Support Tickets (view, create, respond, manage)
+  - Dashboard & Analytics (view)
+  - Settings (view, edit)
+  - Email (view, edit, send)
+
+**Support Tab**
+- View all support tickets
+- Filter by status (open, in_progress, closed)
+- Filter by priority (low, medium, high)
+- Reply to tickets
+- Change ticket status
+- Email notifications for replies
+
+**Email Settings Tab**
+- Configure email provider (Resend or SMTP)
+- Set SMTP credentials
+- Configure from email/name
+- Test email functionality
+- View email delivery status
+
+**Dashboard Tab**
+- User statistics (total, new, active)
+- Ticket metrics (open, closed, avg response time)
+- Forum activity (topics, comments)
+- Performance metrics history
+- Quick access to recent activity
 
 **Security Features**
 - Forced password change on first login
 - Password complexity requirements (min 8 chars)
 - Real-time status indicators
 - Session-based authentication
+- Permission-based access control
 
 ### 2. **User Profiles** (`/profile`)
 
 - Username/password authentication
 - Profile customization (display name, email, bio, avatar)
+- Avatar image upload (with file size validation)
 - Password change functionality
-- Role badges (Admin indicator)
+- Role badges with permission display
 - Account creation date tracking
-- GDPR-compliant data management
+- Quick access to admin panel (if permitted)
+- GDPR-compliant data management:
+  - Export all personal data (JSON format)
+  - Delete account (with password confirmation)
+  - Data portability compliance
 
 ### 3. **Content Pages**
 
@@ -210,11 +263,26 @@ EVU-WEB/
 - Discord community integration
 
 **Forum Page** (`/forum`)
+- **Complete forum system** with topics and threaded comments
 - Category browsing with server filtering
-- Topic and post counts
-- Recent activity feed
+- Create new topics and reply to existing ones
+- Topic and post counts with real-time updates
+- Recent activity feed showing latest posts
 - Forum rules section
 - Server-specific categories (Minecraft/FiveM/General)
+- Moderation tools (edit, delete, lock topics)
+- User authentication required for posting
+- Permission-based moderation access
+
+**Support Page** (`/support`)
+- Create support tickets with priority levels
+- View own tickets (users) or all tickets (admins)
+- Reply to tickets with threaded conversations
+- Ticket status tracking (open, in_progress, closed)
+- Email notifications for new tickets and replies
+- Filter tickets by status and priority
+- Staff reply indicators
+- Response time tracking
 
 **Changelog Page** (`/changelog`)
 - **Dual-tab system:**
@@ -224,7 +292,55 @@ EVU-WEB/
 - Version comparison links to GitHub
 - Visual "Latest" badges
 
-### 4. **Cookie Consent System**
+### 4. **Multi-Theme System**
+
+- **5 Built-in Themes:**
+  - 🌙 **Dark** - Default dark purple theme
+  - ☀️ **Light** - Clean light theme
+  - 💜 **Purple** - Vibrant purple theme
+  - 🌊 **Ocean** - Blue ocean theme
+  - 🌲 **Forest** - Green forest theme
+
+- **Features:**
+  - Theme switcher dropdown in navigation
+  - Persistent theme selection (localStorage)
+  - Respects system preference on first load
+  - Smooth theme transitions
+  - CSS variables for easy customization
+  - No flash of unstyled content (FOUC)
+  - Accessible theme selector with icons
+
+### 5. **Search System**
+
+- Full-text search across:
+  - Forum topics and comments
+  - User profiles
+  - Site content
+- Real-time autocomplete suggestions
+- Search result filtering by type
+- Keyboard navigation support
+- Debounced input for performance
+
+### 6. **Email Notification System**
+
+- **Supported Providers:**
+  - Resend API (recommended)
+  - SMTP (Gmail, Outlook, custom servers)
+
+- **Email Templates:**
+  - Welcome emails for new users
+  - Password reset notifications
+  - Support ticket confirmations
+  - Ticket reply notifications
+  - Forum mention notifications
+
+- **Admin Controls:**
+  - Configure email provider in admin panel
+  - Test email functionality
+  - View delivery status
+  - Customize from name and email
+
+### 7. **Cookie Consent System**
 
 - GDPR-compliant banner
 - Accept/Decline functionality
@@ -239,6 +355,28 @@ EVU-WEB/
 - Local storage consent tracking
 - Animated UI with smooth transitions
 
+### 8. **Performance Monitoring**
+
+- **Vercel Speed Insights** integration
+- **Vercel Analytics** for user tracking
+- **Platform Metrics System:**
+  - Daily automated metrics collection (Vercel Cron)
+  - User activity tracking
+  - Forum engagement metrics
+  - Support ticket response times
+  - Historical data retention
+  - Admin dashboard visualization
+
+### 9. **User Registration System**
+
+- Public user registration page
+- Password strength validation
+- Duplicate username/email prevention
+- Welcome email on registration
+- Default role assignment
+- Email verification support (optional)
+- Security headers and CSRF protection
+
 ---
 
 ## Database Architecture
@@ -251,14 +389,26 @@ EVU-WEB/
 - username (text, unique)
 - password_hash (text)          -- bcrypt hashed
 - is_default_password (boolean)
-- role (text)                   -- 'admin' or 'user'
+- role (text)                   -- 'admin' or 'user' (legacy)
 - is_admin (boolean)            -- backward compatibility
+- role_id (uuid, foreign key → user_roles.id)  -- RBAC system
 - created_at (timestamp)
 - updated_at (timestamp)
 - display_name (text)           -- user profiles
 - email (text)                  -- user profiles
 - bio (text)                    -- user profiles
 - avatar_url (text)             -- user profiles
+```
+
+#### **user_roles** table
+```sql
+- id (uuid, primary key)
+- name (text, unique)           -- Role name (e.g., "Administrator")
+- description (text)            -- Role description
+- permissions (text[])          -- Array of permission strings
+- is_system (boolean)           -- Cannot be deleted/modified
+- created_at (timestamp)
+- updated_at (timestamp)
 ```
 
 #### **sessions** table
@@ -274,6 +424,91 @@ EVU-WEB/
 - id (integer, primary key)     -- Always 1
 - content (jsonb)               -- Full site content structure
 - updated_at (timestamp)
+```
+
+#### **forum_categories** table
+```sql
+- id (uuid, primary key)
+- name (text)
+- description (text)
+- server_type (text)            -- 'all', 'minecraft', 'fivem'
+- icon (text)                   -- Emoji/icon
+- topic_count (integer)
+- post_count (integer)
+- created_at (timestamp)
+```
+
+#### **forum_topics** table
+```sql
+- id (uuid, primary key)
+- category_id (uuid, foreign key → forum_categories.id)
+- user_id (uuid, foreign key → admins.id)
+- title (text)
+- content (text)
+- is_locked (boolean)
+- is_pinned (boolean)
+- view_count (integer)
+- reply_count (integer)
+- created_at (timestamp)
+- updated_at (timestamp)
+```
+
+#### **forum_comments** table
+```sql
+- id (uuid, primary key)
+- topic_id (uuid, foreign key → forum_topics.id)
+- user_id (uuid, foreign key → admins.id)
+- content (text)
+- is_edited (boolean)
+- created_at (timestamp)
+- updated_at (timestamp)
+```
+
+#### **support_tickets** table
+```sql
+- id (uuid, primary key)
+- user_id (uuid, foreign key → admins.id)
+- subject (text)
+- priority (text)               -- 'low', 'medium', 'high'
+- status (text)                 -- 'open', 'in_progress', 'closed'
+- created_at (timestamp)
+- updated_at (timestamp)
+```
+
+#### **support_replies** table
+```sql
+- id (uuid, primary key)
+- ticket_id (uuid, foreign key → support_tickets.id)
+- user_id (uuid, foreign key → admins.id)
+- message (text)
+- is_staff_reply (boolean)
+- created_at (timestamp)
+```
+
+#### **email_settings** table
+```sql
+- id (integer, primary key)     -- Always 1
+- provider (text)               -- 'resend' or 'smtp'
+- resend_api_key (text)
+- smtp_host (text)
+- smtp_port (integer)
+- smtp_user (text)
+- smtp_pass (text)
+- from_email (text)
+- from_name (text)
+- updated_at (timestamp)
+```
+
+#### **platform_metrics** table
+```sql
+- id (uuid, primary key)
+- total_users (integer)
+- active_users (integer)        -- Last 30 days
+- total_topics (integer)
+- total_comments (integer)
+- open_tickets (integer)
+- avg_response_time (float)     -- Hours
+- recorded_at (timestamp)
 ```
 
 ### Database Functions
@@ -442,6 +677,232 @@ EVU-WEB/
   "confirmPassword": "string"
 }
 ```
+
+#### `POST /api/profile/upload-avatar`
+**Purpose**: Upload user avatar image
+**Requires**: Valid session
+**Request**: Multipart form data with `avatar` file
+**Response**: `{ "success": true, "avatarUrl": "string" }`
+
+#### `POST /api/profile/delete-account`
+**Purpose**: Delete user account (GDPR compliance)
+**Requires**: Valid session + password confirmation
+**Request**: `{ "password": "string" }`
+
+#### `GET /api/profile/export-data`
+**Purpose**: Export all user data (GDPR compliance)
+**Requires**: Valid session
+**Response**: JSON with complete user data
+
+### RBAC APIs
+
+#### `GET /api/roles`
+**Purpose**: List all roles and available permissions
+**Requires**: `roles.view` permission
+**Response**:
+```json
+{
+  "roles": [
+    {
+      "id": "uuid",
+      "name": "string",
+      "description": "string",
+      "permissions": ["array", "of", "permissions"],
+      "is_system": boolean
+    }
+  ],
+  "availablePermissions": {
+    "permission.key": "Description"
+  }
+}
+```
+
+#### `POST /api/roles`
+**Purpose**: Create new custom role
+**Requires**: `roles.create` permission
+**Request**:
+```json
+{
+  "name": "string",
+  "description": "string",
+  "permissions": ["array", "of", "permissions"],
+  "isSystem": false
+}
+```
+
+#### `PUT /api/roles`
+**Purpose**: Update existing role
+**Requires**: `roles.edit` permission
+**Request**:
+```json
+{
+  "roleId": "uuid",
+  "name": "string",
+  "description": "string",
+  "permissions": ["array"]
+}
+```
+**Protection**: Cannot modify system roles
+
+#### `DELETE /api/roles`
+**Purpose**: Delete custom role
+**Requires**: `roles.delete` permission
+**Request**: `{ "roleId": "uuid" }`
+**Protection**: Cannot delete system roles or roles with assigned users
+
+#### `POST /api/roles/initialize`
+**Purpose**: Initialize default roles (Administrator, Moderator, User)
+**Requires**: Admin authentication
+**Response**: Creates system roles if they don't exist
+
+### Forum APIs
+
+#### `GET /api/forum/topics`
+**Purpose**: Get forum topics for a category
+**Public**: Yes (viewing), authentication required for posting
+**Query**: `?categoryId=uuid`
+
+#### `POST /api/forum/topics`
+**Purpose**: Create new forum topic
+**Requires**: Valid session + `forum.post` permission
+**Request**:
+```json
+{
+  "categoryId": "uuid",
+  "title": "string",
+  "content": "string"
+}
+```
+
+#### `GET /api/forum/comments`
+**Purpose**: Get comments for a topic
+**Public**: Yes
+**Query**: `?topicId=uuid`
+
+#### `POST /api/forum/comments`
+**Purpose**: Post comment on topic
+**Requires**: Valid session + `forum.post` permission
+**Request**:
+```json
+{
+  "topicId": "uuid",
+  "content": "string"
+}
+```
+
+#### `POST /api/forum/moderation`
+**Purpose**: Moderate forum content (edit/delete/lock)
+**Requires**: `forum.moderate` permission
+**Request**:
+```json
+{
+  "action": "delete" | "edit" | "lock",
+  "targetType": "topic" | "comment",
+  "targetId": "uuid",
+  "content": "string"  // for edit action
+}
+```
+
+#### `GET /api/forum/recent`
+**Purpose**: Get recent forum activity
+**Public**: Yes
+**Response**: Recent topics and comments
+
+### Support Ticket APIs
+
+#### `GET /api/support/tickets`
+**Purpose**: Get support tickets (own tickets or all if admin)
+**Requires**: Valid session
+**Response**: Array of ticket objects
+
+#### `POST /api/support/tickets`
+**Purpose**: Create new support ticket
+**Requires**: Valid session
+**Request**:
+```json
+{
+  "subject": "string",
+  "message": "string",
+  "priority": "low" | "medium" | "high"
+}
+```
+
+#### `POST /api/support/replies`
+**Purpose**: Reply to support ticket
+**Requires**: Valid session (own ticket or `support.manage` permission)
+**Request**:
+```json
+{
+  "ticketId": "uuid",
+  "message": "string",
+  "isStaffReply": boolean
+}
+```
+
+### Email & Settings APIs
+
+#### `GET /api/email-settings`
+**Purpose**: Get email configuration
+**Requires**: `email.view` permission
+
+#### `POST /api/email-settings`
+**Purpose**: Update email settings
+**Requires**: `email.edit` permission
+**Request**:
+```json
+{
+  "provider": "resend" | "smtp",
+  "resendApiKey": "string",
+  "smtpHost": "string",
+  "smtpPort": number,
+  "smtpUser": "string",
+  "smtpPass": "string",
+  "fromEmail": "string",
+  "fromName": "string"
+}
+```
+
+#### `POST /api/test-email`
+**Purpose**: Send test email
+**Requires**: `email.send` permission
+**Request**: `{ "to": "email@example.com" }`
+
+### Analytics & Metrics APIs
+
+#### `GET /api/admin/dashboard`
+**Purpose**: Get admin dashboard statistics
+**Requires**: `dashboard.view` permission
+**Response**:
+```json
+{
+  "users": { "total": number, "new": number },
+  "tickets": { "open": number, "closed": number },
+  "forum": { "topics": number, "comments": number },
+  "metrics": { /* performance data */ }
+}
+```
+
+#### `GET /api/admin/metrics-history`
+**Purpose**: Get historical metrics data
+**Requires**: `analytics.view` permission
+**Query**: `?days=30` (default 30)
+**Response**: Time-series metrics data
+
+#### `POST /api/cron/record-metrics`
+**Purpose**: Record current metrics (called by Vercel Cron)
+**Public**: Yes (protected by Vercel Cron secret)
+
+### Search APIs
+
+#### `GET /api/search`
+**Purpose**: Full-text search across content
+**Public**: Yes
+**Query**: `?q=search+term&type=all|forum|users`
+
+#### `GET /api/search/autocomplete`
+**Purpose**: Get search suggestions
+**Public**: Yes
+**Query**: `?q=partial+term`
 
 ---
 
@@ -1057,8 +1518,55 @@ npm run build
 
 ## Version History
 
-### v2.5.2 (2025-10-06)
-- Documentation reorganization
+### v2.14.0 (2025-10-21)
+- Profile page optimization
+- Admin panel quick access from profile
+
+### v2.13.1 (2025-10-21)
+- Favicon implementation
+- Website loading performance fixes
+- Improved text contrast across themes
+
+### v2.13.0 (2025-10-21)
+- **Comprehensive RBAC system** with custom roles
+- Granular permission management
+- Role-based access control across all features
+
+### v2.12.0 (2025-10-20)
+- **Multi-theme system** (Dark, Light, Purple, Ocean, Forest)
+- Performance metrics tracking
+- Platform enhancements (Phase 1-3)
+- Request timeout implementation
+- Daily metrics cron job
+
+### v2.11.0 (2025-10-09)
+- **GDPR data management** (export/delete account)
+- Improved security headers
+
+### v2.10.0 (2025-10-09)
+- Avatar upload functionality
+- Image handling with Formidable
+
+### v2.9.0 (2025-10-08)
+- **Complete forum system** with topics and comments
+- Forum counter automation
+- Cumulative Layout Shift (CLS) fixes
+
+### v2.8.0 (2025-10-08)
+- **Support ticket system** with admin panel
+- **Email notification system** (Resend + SMTP)
+- Email settings management
+- User registration system
+- Password strength validation
+- Forum moderation tools
+- Dynamic recent activity feed
+
+### v2.7.0 (2025-10-06)
+- Vercel Analytics integration
+
+### v2.6.0 (2025-10-06)
+- Usercentrics CMP integration
+- Automated release workflow
 
 ### v2.5.0 (2025-10-06)
 - Dual-server support in admin panel
@@ -1067,7 +1575,7 @@ npm run build
 - Dual-server support for Minecraft and FiveM
 
 ### v2.2.0 (2025-10-06)
-- Role-based access control system
+- Basic role-based access control (Admin/User)
 
 ### v2.1.0 (2025-10-06)
 - Vercel Speed Insights integration
@@ -1101,6 +1609,6 @@ ISC License - See package.json
 
 ---
 
-**Last Updated**: 2025-10-06
+**Last Updated**: 2025-10-23
 **Maintained By**: EVU Development Team
-**Documentation Version**: 2.5.2
+**Documentation Version**: 2.14.0

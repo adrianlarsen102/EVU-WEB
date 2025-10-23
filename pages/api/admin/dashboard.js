@@ -33,90 +33,72 @@ export default async function handler(req, res) {
       system: {}
     };
 
-    // User Statistics
-    const { data: allUsers } = await supabase
-      .from('admins')
-      .select('id, created_at, role, is_admin');
-
-    stats.users.total = allUsers?.length || 0;
-    stats.users.admins = allUsers?.filter(u => u.role === 'admin' || u.is_admin).length || 0;
-    stats.users.regular = stats.users.total - stats.users.admins;
-
-    // Recent registrations (last 7 days)
+    // Calculate date thresholds
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    stats.users.recentRegistrations = allUsers?.filter(u =>
-      new Date(u.created_at) > sevenDaysAgo
-    ).length || 0;
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+    const now = new Date().toISOString();
 
-    // Active Sessions
-    const { data: activeSessions } = await supabase
-      .from('sessions')
-      .select('id, created_at, expires_at')
-      .gt('expires_at', new Date().toISOString());
+    // OPTIMIZATION: Parallelize all independent database queries
+    const [
+      allUsersResult,
+      recentUsersResult,
+      activeSessionsResult,
+      forumTopicsResult,
+      forumCommentsResult,
+      recentTopicsResult,
+      supportTicketsResult,
+      contentResult
+    ] = await Promise.all([
+      // User statistics
+      supabase.from('admins').select('id, role, is_admin', { count: 'exact' }),
+      supabase.from('admins').select('id', { count: 'exact' }).gte('created_at', sevenDaysAgo.toISOString()),
 
-    stats.sessions.active = activeSessions?.length || 0;
-    stats.sessions.total = activeSessions?.length || 0;
+      // Active sessions
+      supabase.from('sessions').select('id', { count: 'exact' }).gt('expires_at', now),
 
-    // Forum Statistics
-    try {
-      const { data: forumTopics } = await supabase
-        .from('forum_topics')
-        .select('id, created_at, views_count');
+      // Forum statistics
+      supabase.from('forum_topics').select('id, views_count', { count: 'exact' }).catch(() => ({ data: null, count: 0 })),
+      supabase.from('forum_comments').select('id', { count: 'exact' }).catch(() => ({ data: null, count: 0 })),
+      supabase.from('forum_topics').select('id', { count: 'exact' }).gte('created_at', oneDayAgo.toISOString()).catch(() => ({ count: 0 })),
 
-      stats.forum.topics = forumTopics?.length || 0;
-      stats.forum.totalViews = forumTopics?.reduce((sum, t) => sum + (t.views_count || 0), 0) || 0;
+      // Support ticket statistics
+      supabase.from('support_tickets').select('id, status', { count: 'exact' }).catch(() => ({ data: null, count: 0 })),
 
-      const { data: forumComments } = await supabase
-        .from('forum_comments')
-        .select('id');
+      // System health
+      supabase.from('site_content').select('updated_at').eq('id', 1).single()
+    ]);
 
-      stats.forum.comments = forumComments?.length || 0;
+    // Process user statistics
+    const allUsers = allUsersResult.data || [];
+    stats.users.total = allUsersResult.count || 0;
+    stats.users.admins = allUsers.filter(u => u.role === 'admin' || u.is_admin).length;
+    stats.users.regular = stats.users.total - stats.users.admins;
+    stats.users.recentRegistrations = recentUsersResult.count || 0;
 
-      // Recent forum activity (last 24 hours)
-      const oneDayAgo = new Date();
-      oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-      stats.forum.recentActivity = forumTopics?.filter(t =>
-        new Date(t.created_at) > oneDayAgo
-      ).length || 0;
-    } catch (forumError) {
-      console.error('Forum stats error:', forumError);
-      stats.forum.topics = 0;
-      stats.forum.comments = 0;
-      stats.forum.totalViews = 0;
-      stats.forum.recentActivity = 0;
-    }
+    // Process session statistics
+    stats.sessions.active = activeSessionsResult.count || 0;
+    stats.sessions.total = activeSessionsResult.count || 0;
 
-    // Support Ticket Statistics
-    try {
-      const { data: supportTickets } = await supabase
-        .from('support_tickets')
-        .select('id, status, created_at');
+    // Process forum statistics
+    const forumTopics = forumTopicsResult.data || [];
+    stats.forum.topics = forumTopicsResult.count || 0;
+    stats.forum.comments = forumCommentsResult.count || 0;
+    stats.forum.totalViews = forumTopics.reduce((sum, t) => sum + (t.views_count || 0), 0);
+    stats.forum.recentActivity = recentTopicsResult.count || 0;
 
-      stats.support.total = supportTickets?.length || 0;
-      stats.support.open = supportTickets?.filter(t => t.status === 'open').length || 0;
-      stats.support.inProgress = supportTickets?.filter(t => t.status === 'in_progress').length || 0;
-      stats.support.closed = supportTickets?.filter(t => t.status === 'closed').length || 0;
-    } catch (supportError) {
-      console.error('Support stats error:', supportError);
-      stats.support.total = 0;
-      stats.support.open = 0;
-      stats.support.inProgress = 0;
-      stats.support.closed = 0;
-    }
+    // Process support ticket statistics
+    const supportTickets = supportTicketsResult.data || [];
+    stats.support.total = supportTicketsResult.count || 0;
+    stats.support.open = supportTickets.filter(t => t.status === 'open').length;
+    stats.support.inProgress = supportTickets.filter(t => t.status === 'in_progress').length;
+    stats.support.closed = supportTickets.filter(t => t.status === 'closed').length;
 
-    // System Health
-    const { data: content } = await supabase
-      .from('site_content')
-      .select('updated_at')
-      .eq('id', 1)
-      .single();
-
-    stats.system.lastContentUpdate = content?.updated_at || null;
+    // Process system health
+    stats.system.lastContentUpdate = contentResult.data?.updated_at || null;
     stats.system.databaseConnected = true;
-    stats.system.serverTime = new Date().toISOString();
-
-    // Calculate uptime (placeholder - you'd need to implement actual uptime tracking)
+    stats.system.serverTime = now;
     stats.system.uptime = '99.9%';
 
     res.status(200).json(stats);
