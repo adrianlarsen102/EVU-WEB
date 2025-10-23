@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.15.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.14.0...v2.15.0) (2025-10-23)
+
+
+### Features
+
+* comprehensive platform improvements and optimizations ([a064dc1](https://github.com/adrianlarsen102/EVU-WEB/commit/a064dc1f0981d1ce126b015e33a7aac3ddb9eb31))
+
+
+### Bug Fixes
+
+* regenerate package-lock.json for testing dependencies ([6e6264c](https://github.com/adrianlarsen102/EVU-WEB/commit/6e6264ccd77034f8e7509a4dc74b4d4e22b0a21f))
+
 ## [2.14.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.13.1...v2.14.0) (2025-10-21)
 
 
