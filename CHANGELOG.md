@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.17.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.16.0...v2.17.0) (2025-10-24)
+
+
+### Features
+
+* implement comprehensive high-priority security improvements ([1704e7a](https://github.com/adrianlarsen102/EVU-WEB/commit/1704e7a50925edc7d4bd43c7fcc89340558e3ca9))
+
+
+### Bug Fixes
+
+* audit_logs RLS policies for session-based authentication ([227a113](https://github.com/adrianlarsen102/EVU-WEB/commit/227a1138100c1207367ddfc1e6b5b3e94ef8ecb9))
+* audit_logs table compatibility with admins table ID type ([186a4fc](https://github.com/adrianlarsen102/EVU-WEB/commit/186a4fc1da6373e0cae31e967baf9ce7b989b423))
+
+
+### Documentation
+
+* add comprehensive audit logs installation guide ([e50c33a](https://github.com/adrianlarsen102/EVU-WEB/commit/e50c33a250e47e0abc7b3c6d8954bf489bd63a87))
+
 ## [2.16.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.15.0...v2.16.0) (2025-10-24)
 
 
