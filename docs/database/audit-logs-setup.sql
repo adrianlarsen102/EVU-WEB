@@ -2,11 +2,15 @@
 -- Tracks all administrative actions for security and compliance
 -- Run this SQL in your Supabase SQL editor
 
--- Create audit_logs table
+-- Note: First check your admins table ID type
+-- Run: SELECT data_type FROM information_schema.columns WHERE table_name = 'admins' AND column_name = 'id';
+-- If it returns 'uuid', use UUID. If 'integer', use the version below.
+
+-- Create audit_logs table (using TEXT for user_id to be compatible with both)
 CREATE TABLE IF NOT EXISTS audit_logs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id BIGSERIAL PRIMARY KEY,
   event_type TEXT NOT NULL,
-  user_id UUID REFERENCES admins(id) ON DELETE SET NULL,
+  user_id TEXT,  -- TEXT to support both UUID and INTEGER from admins table
   metadata JSONB DEFAULT '{}'::jsonb,
   severity TEXT NOT NULL DEFAULT 'info' CHECK (severity IN ('info', 'warning', 'error', 'critical')),
   ip_address TEXT,
