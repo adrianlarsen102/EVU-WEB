@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.16.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.15.0...v2.16.0) (2025-10-24)
+
+
+### Features
+
+* add comprehensive Privacy Policy and Terms & Conditions pages ([81ce1c2](https://github.com/adrianlarsen102/EVU-WEB/commit/81ce1c24fae28d1097c2dc101f2e5ea9595c6266))
+
+
+### Bug Fixes
+
+* resolve 5 critical security vulnerabilities ([e8475da](https://github.com/adrianlarsen102/EVU-WEB/commit/e8475da2453c795a580fdbb34a7895b7867afd68))
+
 ## [2.15.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.14.0...v2.15.0) (2025-10-23)
 
 
