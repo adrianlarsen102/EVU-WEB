@@ -43,34 +43,35 @@ COMMENT ON COLUMN audit_logs.timestamp IS 'When the event occurred';
 -- Enable Row Level Security (RLS)
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 
--- Create policy: Only admins can view audit logs
-CREATE POLICY "Admins can view audit logs" ON audit_logs
-  FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM admins
-      WHERE id = auth.uid()
-      AND (role = 'admin' OR is_admin = true)
-    )
-  );
+-- IMPORTANT: Since this app uses session-based auth (NOT Supabase Auth),
+-- we need to use service_role for all operations and handle permissions in API layer.
+-- RLS is enabled for security, but policies allow service_role to do everything.
 
--- Create policy: System can insert audit logs (via service role)
-CREATE POLICY "System can insert audit logs" ON audit_logs
+-- Create policy: Service role can view all audit logs
+CREATE POLICY "Service role can view audit logs" ON audit_logs
+  FOR SELECT
+  TO service_role
+  USING (true);
+
+-- Create policy: Service role can insert audit logs
+CREATE POLICY "Service role can insert audit logs" ON audit_logs
   FOR INSERT
+  TO service_role
   WITH CHECK (true);
 
--- Create policy: No one can update or delete audit logs (immutable)
+-- Create policy: No updates allowed (audit logs are immutable)
 CREATE POLICY "Audit logs are immutable" ON audit_logs
   FOR UPDATE
   USING (false);
 
-CREATE POLICY "Audit logs cannot be deleted" ON audit_logs
+-- Create policy: No deletes allowed (except via cleanup function with SECURITY DEFINER)
+CREATE POLICY "Audit logs cannot be deleted by users" ON audit_logs
   FOR DELETE
   USING (false);
 
 -- Grant necessary permissions
-GRANT SELECT ON audit_logs TO authenticated;
-GRANT INSERT ON audit_logs TO service_role;
+-- Only service_role needs access since we use session-based auth in API
+GRANT SELECT, INSERT ON audit_logs TO service_role;
 
 -- Create function to auto-cleanup old logs (optional)
 CREATE OR REPLACE FUNCTION cleanup_old_audit_logs(retention_days INTEGER DEFAULT 90)
