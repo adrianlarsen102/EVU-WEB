@@ -6,12 +6,27 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-  // Verify this is a cron request (Vercel Cron or authorized request)
+  // Verify this is an authorized cron request
   const authHeader = req.headers.authorization;
+  const cronSecret = process.env.CRON_SECRET;
 
-  // In production, you should set CRON_SECRET in Vercel environment variables
-  // and check: if (authHeader !== `Bearer ${process.env.CRON_SECRET}`)
-  // For now, we'll allow all requests but log them
+  // SECURITY: Require CRON_SECRET to prevent unauthorized access
+  if (!cronSecret) {
+    console.error('CRON_SECRET not configured - metrics recording disabled for security');
+    return res.status(503).json({
+      error: 'Service unavailable',
+      message: 'CRON_SECRET environment variable must be configured'
+    });
+  }
+
+  // Validate authorization header
+  if (!authHeader || authHeader !== `Bearer ${cronSecret}`) {
+    console.warn('Unauthorized cron access attempt:', {
+      ip: req.headers['x-forwarded-for'] || req.socket?.remoteAddress,
+      timestamp: new Date().toISOString()
+    });
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
 
   if (req.method !== 'POST' && req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });

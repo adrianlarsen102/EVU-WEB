@@ -2,6 +2,7 @@ import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 import {
   createForumComment,
   getCommentsByTopic,
+  getCommentById,
   getTopicById,
   updateComment,
   deleteCommentSoft,
@@ -80,8 +81,18 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Content must be between 1 and 5000 characters' });
     }
 
-    // Note: For simplicity, we're allowing the update if authenticated
-    // In production, you should check comment ownership
+    // SECURITY: Verify comment ownership before allowing edit
+    const comment = await getCommentById(commentId);
+
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    // Only allow edit if user owns the comment OR is an admin
+    if (comment.author_id !== session.adminId && !session.isAdmin) {
+      return res.status(403).json({ error: 'Forbidden: You can only edit your own comments' });
+    }
+
     const result = await updateComment(commentId, content);
 
     if (result.success) {
@@ -104,6 +115,18 @@ export default async function handler(req, res) {
 
     if (!commentId) {
       return res.status(400).json({ error: 'Comment ID required' });
+    }
+
+    // SECURITY: Verify comment ownership before allowing deletion
+    const comment = await getCommentById(commentId);
+
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    // Only allow deletion if user owns the comment OR is an admin
+    if (comment.author_id !== session.adminId && !session.isAdmin) {
+      return res.status(403).json({ error: 'Forbidden: You can only delete your own comments' });
     }
 
     const result = await deleteCommentSoft(commentId);

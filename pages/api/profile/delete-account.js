@@ -70,11 +70,21 @@ export default async function handler(req, res) {
       try {
         const urlParts = user.avatar_url.split('/');
         const fileName = urlParts[urlParts.length - 1];
-        const filePath = `avatars/${fileName}`;
 
-        await supabase.storage
-          .from('profile-images')
-          .remove([filePath]);
+        // SECURITY: Validate filename to prevent path traversal attacks
+        // Only allow alphanumeric, hyphens, underscores, and safe extensions
+        const safeFilenameRegex = /^[a-zA-Z0-9_-]+\.(jpg|jpeg|png|gif|webp)$/;
+
+        if (!safeFilenameRegex.test(fileName)) {
+          console.warn('Invalid avatar filename detected, skipping deletion:', fileName);
+          // Continue without deleting if filename is suspicious
+        } else {
+          const filePath = `avatars/${fileName}`;
+
+          await supabase.storage
+            .from('profile-images')
+            .remove([filePath]);
+        }
       } catch (storageError) {
         console.error('Failed to delete avatar from storage:', storageError);
         // Continue with account deletion even if avatar deletion fails

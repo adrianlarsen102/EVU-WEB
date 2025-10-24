@@ -20,7 +20,21 @@ export default async function handler(req, res) {
     const result = await getEmailSettings();
 
     if (result.success) {
-      return res.status(200).json(result.settings);
+      // SECURITY: Mask sensitive credentials before sending to client
+      const maskedSettings = {
+        ...result.settings,
+        // Mask API key (show only last 4 characters)
+        resend_api_key: result.settings.resend_api_key
+          ? '***' + result.settings.resend_api_key.slice(-4)
+          : null,
+        // Completely hide SMTP password
+        smtp_pass: result.settings.smtp_pass ? '***' : null,
+        // Partially mask SMTP username (show only before @)
+        smtp_user: result.settings.smtp_user
+          ? result.settings.smtp_user.split('@')[0] + '@***'
+          : null
+      };
+      return res.status(200).json(maskedSettings);
     } else {
       return res.status(500).json({ error: result.error });
     }
