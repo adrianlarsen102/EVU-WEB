@@ -41,7 +41,34 @@ const Layout = memo(function Layout({ children, title = 'EVU Gaming Network' }) 
 
       <footer>
         <div className="container">
-          <p>&copy; 2025 EVU Gaming Network. All rights reserved.</p>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '1rem',
+            padding: '2rem 0'
+          }}>
+            <div style={{
+              display: 'flex',
+              gap: '2rem',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              marginBottom: '0.5rem'
+            }}>
+              <Link href="/privacy" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
+                Privacy Policy
+              </Link>
+              <Link href="/terms" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
+                Terms & Conditions
+              </Link>
+              <a href="https://discord.gg/yourserver" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
+                Discord
+              </a>
+            </div>
+            <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+              &copy; 2025 EVU Gaming Network. All rights reserved.
+            </p>
+          </div>
         </div>
       </footer>
 
