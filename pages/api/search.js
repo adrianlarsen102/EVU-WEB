@@ -69,20 +69,39 @@ export default async function handler(req, res) {
       }
     }
 
-    // Search users (admin only)
+    // Search users (SECURITY: Require authentication for user search)
     if ((type === 'all' || type === 'users')) {
-      try {
-        const { data: users, error: usersError } = await supabase
-          .from('admins')
-          .select('id, username, display_name, created_at, role')
-          .or(`username.ilike.${searchTerm},display_name.ilike.${searchTerm}`)
-          .limit(parseInt(limit));
+      // SECURITY FIX: Only allow authenticated users to search users
+      // Get session to verify authentication
+      const { validateSession, getSessionFromCookie } = require('../../lib/auth');
+      const sessionId = getSessionFromCookie(req.headers.cookie);
+      const session = sessionId ? await validateSession(sessionId) : null;
 
-        if (!usersError && users) {
-          results.users = users;
+      if (session) {
+        // Authenticated users can search users
+        try {
+          const { data: users, error: usersError } = await supabase
+            .from('admins')
+            .select('id, username, display_name, created_at, role')
+            .or(`username.ilike.${searchTerm},display_name.ilike.${searchTerm}`)
+            .limit(parseInt(limit));
+
+          if (!usersError && users) {
+            // Filter sensitive information based on user role
+            results.users = users.map(user => ({
+              id: user.id,
+              username: user.username,
+              display_name: user.display_name,
+              // Only show role if requester is admin
+              role: session.isAdmin ? user.role : undefined
+            }));
+          }
+        } catch (error) {
+          console.error('Users search error:', error);
         }
-      } catch (error) {
-        console.error('Users search error:', error);
+      } else {
+        // Unauthenticated users get empty results
+        results.users = [];
       }
     }
 

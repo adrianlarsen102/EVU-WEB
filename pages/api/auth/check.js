@@ -1,4 +1,5 @@
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
+import { generateCSRFToken } from '../../../lib/csrf';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -9,14 +10,24 @@ export default async function handler(req, res) {
   const session = sessionId ? await validateSession(sessionId) : null;
 
   if (session) {
+    // Generate CSRF token for authenticated session
+    let csrfToken = null;
+    try {
+      csrfToken = generateCSRFToken(sessionId);
+    } catch (error) {
+      console.error('Failed to generate CSRF token:', error);
+    }
+
     res.status(200).json({
       authenticated: true,
-      isDefaultPassword: session.isDefaultPassword
+      isDefaultPassword: session.isDefaultPassword,
+      csrfToken // Include CSRF token for client-side use
     });
   } else {
     res.status(200).json({
       authenticated: false,
-      isDefaultPassword: false
+      isDefaultPassword: false,
+      csrfToken: null
     });
   }
 }

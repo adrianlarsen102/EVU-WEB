@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
+import { hasPermission } from '../../../lib/permissions';
+import { requireCSRFToken } from '../../../lib/csrf';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -60,10 +62,13 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  // Check if user has role management permission
-  const hasRolePermission = await checkPermission(session.adminId, 'roles.view');
-  if (!hasRolePermission) {
-    return res.status(403).json({ error: 'Forbidden: You do not have permission to manage roles' });
+  // SECURITY: Check if user has role management permission
+  const hasRolePermission = await hasPermission(session.adminId, 'roles.view');
+  if (!hasRolePermission && !session.isAdmin) {
+    return res.status(403).json({
+      error: 'Forbidden',
+      message: 'You do not have permission to manage roles'
+    });
   }
 
   if (req.method === 'GET') {
@@ -88,10 +93,22 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to fetch roles' });
     }
   } else if (req.method === 'POST') {
-    // Create new role
-    const canCreate = await checkPermission(session.adminId, 'roles.create');
-    if (!canCreate) {
-      return res.status(403).json({ error: 'Forbidden: You do not have permission to create roles' });
+    // SECURITY: Validate CSRF token
+    const csrfCheck = requireCSRFToken(req, res, sessionId);
+    if (csrfCheck !== true) {
+      return res.status(csrfCheck.status).json({
+        error: csrfCheck.error,
+        message: csrfCheck.message
+      });
+    }
+
+    // Create new role - check permission
+    const canCreate = await hasPermission(session.adminId, 'roles.create');
+    if (!canCreate && !session.isAdmin) {
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'You do not have permission to create roles'
+      });
     }
 
     const { name, description, permissions, isSystem } = req.body;
@@ -129,10 +146,22 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to create role' });
     }
   } else if (req.method === 'PUT') {
-    // Update existing role
-    const canEdit = await checkPermission(session.adminId, 'roles.edit');
-    if (!canEdit) {
-      return res.status(403).json({ error: 'Forbidden: You do not have permission to edit roles' });
+    // SECURITY: Validate CSRF token
+    const csrfCheck = requireCSRFToken(req, res, sessionId);
+    if (csrfCheck !== true) {
+      return res.status(csrfCheck.status).json({
+        error: csrfCheck.error,
+        message: csrfCheck.message
+      });
+    }
+
+    // Update existing role - check permission
+    const canEdit = await hasPermission(session.adminId, 'roles.edit');
+    if (!canEdit && !session.isAdmin) {
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'You do not have permission to edit roles'
+      });
     }
 
     const { roleId, name, description, permissions } = req.body;

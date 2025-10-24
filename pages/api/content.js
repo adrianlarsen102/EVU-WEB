@@ -1,4 +1,6 @@
 import { validateSession, getSessionFromCookie } from '../../lib/auth';
+import { requireCSRFToken } from '../../lib/csrf';
+import { auditLog, getClientIP, getUserAgent, AuditEventTypes, AuditSeverity } from '../../lib/auditLog';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -45,6 +47,15 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    // SECURITY: Validate CSRF token for state-changing operation
+    const csrfCheck = requireCSRFToken(req, res, sessionId);
+    if (csrfCheck !== true) {
+      return res.status(csrfCheck.status).json({
+        error: csrfCheck.error,
+        message: csrfCheck.message
+      });
+    }
+
     // Only admins can update content
     if (!session.isAdmin) {
       return res.status(403).json({ error: 'Forbidden: Admin access required' });
@@ -65,6 +76,18 @@ export default async function handler(req, res) {
         console.error('Supabase update error:', error);
         return res.status(500).json({ error: 'Failed to save content' });
       }
+
+      // AUDIT LOG: Content updated
+      await auditLog(
+        AuditEventTypes.CONTENT_UPDATED,
+        session.adminId,
+        {
+          contentType: 'site_content',
+          userAgent: getUserAgent(req)
+        },
+        AuditSeverity.INFO,
+        getClientIP(req)
+      );
 
       return res.status(200).json({ success: true });
     } catch (error) {
