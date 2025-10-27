@@ -74,6 +74,9 @@ export default function Admin() {
   const [editingRole, setEditingRole] = useState(null);
   const [roleError, setRoleError] = useState('');
 
+  // CSRF Token
+  const [csrfToken, setCsrfToken] = useState(null);
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -125,8 +128,21 @@ export default function Admin() {
   useEffect(() => {
     if (isAuthenticated) {
       loadTicketNotifications();
+      fetchCSRFToken();
     }
   }, [isAuthenticated]);
+
+  const fetchCSRFToken = async () => {
+    try {
+      const res = await fetch('/api/csrf-token');
+      const data = await res.json();
+      if (res.ok && data.csrfToken) {
+        setCsrfToken(data.csrfToken);
+      }
+    } catch (error) {
+      console.error('CSRF token fetch error:', error);
+    }
+  };
 
   const checkAuth = async () => {
     try {
@@ -139,6 +155,7 @@ export default function Admin() {
           setShowPasswordChange(true);
         }
         loadContent();
+        fetchCSRFToken();
       }
     } catch (error) {
       console.error('Auth check error:', error);
@@ -166,6 +183,7 @@ export default function Admin() {
         }
 
         loadContent();
+        fetchCSRFToken();
       } else {
         setLoginError(data.error || 'Invalid credentials');
       }
@@ -193,10 +211,18 @@ export default function Admin() {
       return;
     }
 
+    if (!csrfToken) {
+      setPasswordError('Security token not available. Please refresh the page.');
+      return;
+    }
+
     try {
       const res = await fetch('/api/change-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify({ newPassword, confirmPassword })
       });
 
@@ -236,10 +262,18 @@ export default function Admin() {
   };
 
   const saveContent = async () => {
+    if (!csrfToken) {
+      showMessage('error', 'Security token not available. Please refresh the page.');
+      return;
+    }
+
     try {
       const res = await fetch('/api/content', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify(content)
       });
 
@@ -595,10 +629,18 @@ export default function Admin() {
   };
 
   const handleUpdateTicketStatus = async (ticketId, status) => {
+    if (!csrfToken) {
+      showMessage('error', 'Security token not available. Please refresh the page.');
+      return;
+    }
+
     try {
       const res = await fetch('/api/support/tickets', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify({ ticketId, status })
       });
 
@@ -674,10 +716,18 @@ export default function Admin() {
       }
     }
 
+    if (!csrfToken) {
+      setEmailError('Security token not available. Please refresh the page.');
+      return;
+    }
+
     try {
       const res = await fetch('/api/email-settings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify(emailSettings)
       });
 
@@ -707,12 +757,20 @@ export default function Admin() {
       return;
     }
 
+    if (!csrfToken) {
+      setTestEmailStatus('error:Security token not available. Please refresh the page.');
+      return;
+    }
+
     setSendingTestEmail(true);
 
     try {
       const res = await fetch('/api/test-email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify({ email: testEmail })
       });
 
@@ -759,10 +817,18 @@ export default function Admin() {
       return;
     }
 
+    if (!csrfToken) {
+      setRoleError('Security token not available. Please refresh the page.');
+      return;
+    }
+
     try {
       const res = await fetch('/api/roles', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify({
           name: newRoleName,
           description: newRoleDescription,
@@ -791,10 +857,18 @@ export default function Admin() {
 
     if (!editingRole) return;
 
+    if (!csrfToken) {
+      setRoleError('Security token not available. Please refresh the page.');
+      return;
+    }
+
     try {
       const res = await fetch('/api/roles', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify({
           roleId,
           name: editingRole.name,
@@ -822,10 +896,18 @@ export default function Admin() {
       return;
     }
 
+    if (!csrfToken) {
+      showMessage('error', 'Security token not available. Please refresh the page.');
+      return;
+    }
+
     try {
       const res = await fetch('/api/roles', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify({ roleId })
       });
 
@@ -881,10 +963,18 @@ export default function Admin() {
       return;
     }
 
+    if (!csrfToken) {
+      setUserError('Security token not available. Please refresh the page.');
+      return;
+    }
+
     try {
       const res = await fetch('/api/users', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify({
           username: newUsername,
           password: newUserPassword,
@@ -913,10 +1003,18 @@ export default function Admin() {
       return;
     }
 
+    if (!csrfToken) {
+      showMessage('error', 'Security token not available. Please refresh the page.');
+      return;
+    }
+
     try {
       const res = await fetch('/api/users', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify({ userId })
       });
 
@@ -942,10 +1040,18 @@ export default function Admin() {
       return;
     }
 
+    if (!csrfToken) {
+      showMessage('error', 'Security token not available. Please refresh the page.');
+      return;
+    }
+
     try {
       const res = await fetch('/api/users', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify({ userId, newPassword: newPass })
       });
 
@@ -988,10 +1094,18 @@ export default function Admin() {
       return;
     }
 
+    if (!csrfToken) {
+      setUserError('Security token not available. Please refresh the page.');
+      return;
+    }
+
     try {
       const res = await fetch('/api/users', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify({
           userId: editingUser.id,
           username: editUsername,
