@@ -4,9 +4,9 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        {/* Favicon */}
+        {/* Favicon - SVG preferred, fallback to SVG for ICO */}
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="alternate icon" href="/favicon.ico" />
+        <link rel="icon" type="image/x-icon" href="/favicon.svg" />
         <link rel="apple-touch-icon" href="/favicon.svg" />
 
         {/* Preconnect to improve loading */}

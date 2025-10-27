@@ -54,20 +54,24 @@ export default async function handler(req, res) {
       const result = await createAdmin(username, password, false, role, roleId);
 
       if (result.success) {
-        // AUDIT LOG: User created
-        await auditLog(
-          AuditEventTypes.USER_CREATED,
-          session.adminId,
-          {
-            createdUserId: result.admin.id,
-            createdUsername: username,
-            role: role,
-            roleId: roleId,
-            userAgent: getUserAgent(req)
-          },
-          AuditSeverity.INFO,
-          getClientIP(req)
-        );
+        // AUDIT LOG: User created (non-blocking)
+        try {
+          await auditLog(
+            AuditEventTypes.USER_CREATED,
+            session.adminId,
+            {
+              createdUserId: result.admin.id,
+              createdUsername: username,
+              role: role,
+              roleId: roleId,
+              userAgent: getUserAgent(req)
+            },
+            AuditSeverity.INFO,
+            getClientIP(req)
+          );
+        } catch (auditError) {
+          console.error('Audit log failed (non-critical):', auditError);
+        }
 
         res.status(201).json({ success: true, admin: result.admin });
       } else {
@@ -93,17 +97,21 @@ export default async function handler(req, res) {
       const result = await deleteAdmin(userId);
 
       if (result.success) {
-        // AUDIT LOG: User deleted
-        await auditLog(
-          AuditEventTypes.USER_DELETED,
-          session.adminId,
-          {
-            deletedUserId: userId,
-            userAgent: getUserAgent(req)
-          },
-          AuditSeverity.WARNING,
-          getClientIP(req)
-        );
+        // AUDIT LOG: User deleted (non-blocking)
+        try {
+          await auditLog(
+            AuditEventTypes.USER_DELETED,
+            session.adminId,
+            {
+              deletedUserId: userId,
+              userAgent: getUserAgent(req)
+            },
+            AuditSeverity.WARNING,
+            getClientIP(req)
+          );
+        } catch (auditError) {
+          console.error('Audit log failed (non-critical):', auditError);
+        }
 
         res.status(200).json({ success: true });
       } else {

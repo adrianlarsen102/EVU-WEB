@@ -77,17 +77,22 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Failed to save content' });
       }
 
-      // AUDIT LOG: Content updated
-      await auditLog(
-        AuditEventTypes.CONTENT_UPDATED,
-        session.adminId,
-        {
-          contentType: 'site_content',
-          userAgent: getUserAgent(req)
-        },
-        AuditSeverity.INFO,
-        getClientIP(req)
-      );
+      // AUDIT LOG: Content updated (non-blocking - don't fail if audit fails)
+      try {
+        await auditLog(
+          AuditEventTypes.CONTENT_UPDATED,
+          session.adminId,
+          {
+            contentType: 'site_content',
+            userAgent: getUserAgent(req)
+          },
+          AuditSeverity.INFO,
+          getClientIP(req)
+        );
+      } catch (auditError) {
+        // Log audit failure but don't block the response
+        console.error('Audit log failed (non-critical):', auditError);
+      }
 
       return res.status(200).json({ success: true });
     } catch (error) {
