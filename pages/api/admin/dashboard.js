@@ -58,13 +58,13 @@ export default async function handler(req, res) {
       // Active sessions
       supabase.from('sessions').select('id', { count: 'exact' }).gt('expires_at', now),
 
-      // Forum statistics
-      supabase.from('forum_topics').select('id, views_count', { count: 'exact' }).catch(() => ({ data: null, count: 0 })),
-      supabase.from('forum_comments').select('id', { count: 'exact' }).catch(() => ({ data: null, count: 0 })),
-      supabase.from('forum_topics').select('id', { count: 'exact' }).gte('created_at', oneDayAgo.toISOString()).catch(() => ({ count: 0 })),
+      // Forum statistics (with error handling)
+      supabase.from('forum_topics').select('id, views_count', { count: 'exact' }).then(res => res).catch(() => ({ data: null, count: 0 })),
+      supabase.from('forum_comments').select('id', { count: 'exact' }).then(res => res).catch(() => ({ data: null, count: 0 })),
+      supabase.from('forum_topics').select('id', { count: 'exact' }).gte('created_at', oneDayAgo.toISOString()).then(res => res).catch(() => ({ count: 0 })),
 
-      // Support ticket statistics
-      supabase.from('support_tickets').select('id, status', { count: 'exact' }).catch(() => ({ data: null, count: 0 })),
+      // Support ticket statistics (with error handling)
+      supabase.from('support_tickets').select('id, status', { count: 'exact' }).then(res => res).catch(() => ({ data: null, count: 0 })),
 
       // System health
       supabase.from('site_content').select('updated_at').eq('id', 1).single()
