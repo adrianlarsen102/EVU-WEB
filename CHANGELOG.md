@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.17.2](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.17.1...v2.17.2) (2025-10-27)
+
+
+### Bug Fixes
+
+* add triple-layer error handling for audit logging ([c43c85e](https://github.com/adrianlarsen102/EVU-WEB/commit/c43c85e44a2babddda098ea9637527a921fcbd6c))
+* bypass Vercel security checkpoint for API routes ([dcc8c03](https://github.com/adrianlarsen102/EVU-WEB/commit/dcc8c03041550afd0468dff2aef63875321e9218))
+* enhance error handling and add deployment tools ([84a7a72](https://github.com/adrianlarsen102/EVU-WEB/commit/84a7a722f9b6c0df18bc6cc1dfa971bcb998a7ea))
+* revert invalid security config and add SQL initialization script ([5602617](https://github.com/adrianlarsen102/EVU-WEB/commit/56026175d236dbb739a984335baae70658d0331f))
+
 ### [2.17.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.17.0...v2.17.1) (2025-10-27)
 
 
