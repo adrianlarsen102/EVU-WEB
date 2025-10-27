@@ -26,6 +26,11 @@ export default function Admin() {
   const [newUserPassword, setNewUserPassword] = useState('');
   const [newUserRole, setNewUserRole] = useState('');
   const [userError, setUserError] = useState('');
+  const [editingUser, setEditingUser] = useState(null);
+  const [editUsername, setEditUsername] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editDisplayName, setEditDisplayName] = useState('');
+  const [editRole, setEditRole] = useState('');
 
   // Forum moderation
   const [moderationTopics, setModerationTopics] = useState([]);
@@ -953,6 +958,60 @@ export default function Admin() {
       }
     } catch (error) {
       showMessage('error', 'Failed to reset password');
+    }
+  };
+
+  const handleEditUser = (user) => {
+    setEditingUser(user);
+    setEditUsername(user.username);
+    setEditEmail(user.email || '');
+    setEditDisplayName(user.display_name || '');
+    setEditRole(user.role_id || '');
+    setUserError('');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingUser(null);
+    setEditUsername('');
+    setEditEmail('');
+    setEditDisplayName('');
+    setEditRole('');
+    setUserError('');
+  };
+
+  const handleSaveEditUser = async (e) => {
+    e.preventDefault();
+    setUserError('');
+
+    if (!editUsername.trim()) {
+      setUserError('Username is required');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/users', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: editingUser.id,
+          username: editUsername,
+          email: editEmail,
+          display_name: editDisplayName,
+          roleId: editRole
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showMessage('success', `User "${editUsername}" updated successfully!`);
+        handleCancelEdit();
+        loadUsers();
+      } else {
+        setUserError(data.error || 'Failed to update user');
+      }
+    } catch (error) {
+      setUserError('Failed to update user');
     }
   };
 
@@ -2565,6 +2624,12 @@ export default function Admin() {
                         </div>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
                           <button
+                            onClick={() => handleEditUser(user)}
+                            className="btn-admin btn-admin-primary btn-admin-sm"
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button
                             onClick={() => handleResetUserPassword(user.id, user.username)}
                             className="btn-admin btn-admin-secondary btn-admin-sm"
                           >
@@ -2587,6 +2652,116 @@ export default function Admin() {
                     </p>
                   )}
                 </div>
+
+                {/* Edit User Modal */}
+                {editingUser && (
+                  <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000,
+                    padding: '1rem'
+                  }}>
+                    <div style={{
+                      backgroundColor: 'var(--card-bg)',
+                      border: '2px solid var(--primary-color)',
+                      borderRadius: '12px',
+                      padding: '2rem',
+                      maxWidth: '600px',
+                      width: '100%',
+                      maxHeight: '90vh',
+                      overflow: 'auto'
+                    }}>
+                      <h3 style={{ color: 'var(--primary-color)', marginBottom: '1.5rem' }}>
+                        ✏️ Edit User: {editingUser.username}
+                      </h3>
+
+                      {userError && (
+                        <div className="alert alert-error" style={{ marginBottom: '1rem' }}>
+                          {userError}
+                        </div>
+                      )}
+
+                      <form onSubmit={handleSaveEditUser}>
+                        <div className="form-group">
+                          <label>Username</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={editUsername}
+                            onChange={(e) => setEditUsername(e.target.value)}
+                            placeholder="Enter username"
+                            required
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label>Display Name</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={editDisplayName}
+                            onChange={(e) => setEditDisplayName(e.target.value)}
+                            placeholder="Full name or display name"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label>Email</label>
+                          <input
+                            type="email"
+                            className="form-input"
+                            value={editEmail}
+                            onChange={(e) => setEditEmail(e.target.value)}
+                            placeholder="user@example.com"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label>Role</label>
+                          <select
+                            className="form-input"
+                            value={editRole}
+                            onChange={(e) => setEditRole(e.target.value)}
+                            required
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <option value="">Select a role...</option>
+                            {roles.map((role) => (
+                              <option key={role.id} value={role.id}>
+                                {role.name} {role.is_system && '(System)'}
+                              </option>
+                            ))}
+                          </select>
+                          {editRole && roles.find(r => r.id === editRole)?.description && (
+                            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                              {roles.find(r => r.id === editRole)?.description}
+                            </p>
+                          )}
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                          <button type="submit" className="btn-admin btn-admin-primary">
+                            💾 Save Changes
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleCancelEdit}
+                            className="btn-admin btn-admin-secondary"
+                          >
+                            ❌ Cancel
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

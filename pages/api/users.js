@@ -1,7 +1,7 @@
 import { validateSession, getSessionFromCookie } from '../../lib/auth';
 import { requireCSRFToken } from '../../lib/csrf';
 import { auditLog, getClientIP, getUserAgent, AuditEventTypes, AuditSeverity } from '../../lib/auditLog';
-import { getAllAdmins, createAdmin, deleteAdmin, updateAdminPassword, updateAdminRole } from '../../lib/database';
+import { getAllAdmins, createAdmin, deleteAdmin, updateAdminPassword, updateAdmin } from '../../lib/database';
 
 export default async function handler(req, res) {
   // Check authentication
@@ -121,15 +121,32 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to delete user' });
     }
   } else if (req.method === 'PUT') {
-    // Update user password or role
+    // Update user (profile fields or password)
     try {
-      const { userId, newPassword, role } = req.body;
+      const { userId, username, email, display_name, role, roleId, newPassword } = req.body;
 
       if (!userId) {
         return res.status(400).json({ error: 'User ID required' });
       }
 
-      // Update password if provided
+      // Build updates object
+      const updates = {};
+
+      if (username !== undefined) updates.username = username;
+      if (email !== undefined) updates.email = email;
+      if (display_name !== undefined) updates.display_name = display_name;
+      if (role !== undefined) updates.role = role;
+      if (roleId !== undefined) updates.role_id = roleId;
+
+      // Update profile fields if any provided
+      if (Object.keys(updates).length > 0) {
+        const result = await updateAdmin(userId, updates);
+        if (!result.success) {
+          return res.status(400).json({ error: result.error || 'Failed to update user' });
+        }
+      }
+
+      // Update password separately if provided
       if (newPassword) {
         if (newPassword.length < 8) {
           return res.status(400).json({ error: 'Password must be at least 8 characters' });
@@ -141,12 +158,22 @@ export default async function handler(req, res) {
         }
       }
 
-      // Update role if provided
-      if (role) {
-        const result = await updateAdminRole(userId, role);
-        if (!result.success) {
-          return res.status(400).json({ error: result.error || 'Failed to update role' });
-        }
+      // AUDIT LOG: User updated (non-blocking)
+      try {
+        await auditLog(
+          AuditEventTypes.USER_UPDATED,
+          session.adminId,
+          {
+            updatedUserId: userId,
+            updatedFields: Object.keys(updates),
+            passwordChanged: !!newPassword,
+            userAgent: getUserAgent(req)
+          },
+          AuditSeverity.INFO,
+          getClientIP(req)
+        );
+      } catch (auditError) {
+        console.error('Audit log failed (non-critical):', auditError);
       }
 
       res.status(200).json({ success: true });
