@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.17.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.17.0...v2.17.1) (2025-10-27)
+
+
+### Bug Fixes
+
+* make audit logging non-blocking and improve error handling ([3d0ba13](https://github.com/adrianlarsen102/EVU-WEB/commit/3d0ba13566ae81bf3272039011931d3e889101f8))
+
 ## [2.17.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.16.0...v2.17.0) (2025-10-24)
 
 
