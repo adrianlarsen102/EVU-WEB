@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.18.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.17.2...v2.18.0) (2025-10-27)
+
+
+### Features
+
+* add user edit functionality in admin panel ([c53df3b](https://github.com/adrianlarsen102/EVU-WEB/commit/c53df3b9d1c90309471684acc6df51e8ae1fa620))
+
+
+### Bug Fixes
+
+* implement CSRF token protection for admin panel ([d88495a](https://github.com/adrianlarsen102/EVU-WEB/commit/d88495a0970c5e2bf945f08144531367566ee8d9))
+
 ### [2.17.2](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.17.1...v2.17.2) (2025-10-27)
 
 
