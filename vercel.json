@@ -50,12 +50,5 @@
     "pages/api/**/*.js": {
       "maxDuration": 10
     }
-  },
-  "security": {
-    "verification": {
-      "exclude": [
-        "/api/**"
-      ]
-    }
   }
 }
