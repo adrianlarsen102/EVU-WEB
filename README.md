@@ -217,6 +217,15 @@ const response = await fetch('YOUR_FIVEM_API');
 
 ## ❓ Troubleshooting
 
+**Getting errors?** See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for quick solutions.
+
+**Common Issues:**
+
+**"Failed to load content" / 500 Error**
+- Check `/api/health` endpoint
+- Verify environment variables in Vercel
+- Run `npm run db:init` to initialize content
+
 **Installation fails?**
 - See [Installation Guide](docs/guides/installation.md) troubleshooting section
 
@@ -230,6 +239,10 @@ const response = await fetch('YOUR_FIVEM_API');
 **Database connection errors?**
 - Verify environment variables in `.env.local`
 - Check Supabase project status
+- Visit Supabase dashboard to wake up paused project
+
+**Deployment issues?**
+- See [Deployment Checklist](docs/guides/deployment-checklist.md)
 
 ## 🆕 What's New in v2.0
 

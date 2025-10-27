@@ -17,7 +17,9 @@
     "release": "standard-version",
     "release:minor": "standard-version --release-as minor",
     "release:major": "standard-version --release-as major",
-    "release:patch": "standard-version --release-as patch"
+    "release:patch": "standard-version --release-as patch",
+    "db:init": "node scripts/init-content.js",
+    "db:init:force": "node scripts/init-content.js --force"
   },
   "keywords": [
     "fivem",
@@ -43,14 +45,15 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@testing-library/jest-dom": "^6.1.4",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.5.1",
     "@types/bcrypt": "^6.0.0",
     "@types/node": "^22",
     "@types/react": "^18.3.25",
     "@types/react-dom": "^18.3.7",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/jest-dom": "^6.1.4",
-    "@testing-library/user-event": "^14.5.1",
-    "@playwright/test": "^1.40.0",
+    "dotenv": "^17.2.3",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "standard-version": "^9.5.0"

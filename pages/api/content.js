@@ -3,12 +3,31 @@ import { requireCSRFToken } from '../../lib/csrf';
 import { auditLog, getClientIP, getUserAgent, AuditEventTypes, AuditSeverity } from '../../lib/auditLog';
 import { createClient } from '@supabase/supabase-js';
 
+// Validate environment variables
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.error('❌ CRITICAL: Missing Supabase environment variables!');
+  console.error('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? '✓ Set' : '✗ Missing');
+  console.error('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '✓ Set' : '✗ Missing');
+}
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 export default async function handler(req, res) {
+  // Set JSON content type to prevent HTML responses
+  res.setHeader('Content-Type', 'application/json');
+
+  // Check for environment variables
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.error('Environment variables not configured');
+    return res.status(500).json({
+      error: 'Server configuration error',
+      message: 'Database connection not configured. Please check environment variables.'
+    });
+  }
+
   if (req.method === 'GET') {
     // Read content from Supabase with caching
     try {
@@ -30,13 +49,35 @@ export default async function handler(req, res) {
 
       if (error) {
         console.error('Supabase error:', error);
-        return res.status(500).json({ error: 'Failed to read content' });
+        console.error('Error details:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        return res.status(500).json({
+          error: 'Failed to read content',
+          details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+      }
+
+      if (!data || !data.content) {
+        console.error('No content found in database');
+        return res.status(500).json({
+          error: 'No content found',
+          message: 'Database is empty. Please initialize the site content.'
+        });
       }
 
       return res.status(200).json(data.content);
     } catch (error) {
       console.error('Content read error:', error);
-      return res.status(500).json({ error: 'Failed to read content' });
+      console.error('Error stack:', error.stack);
+      return res.status(500).json({
+        error: 'Failed to read content',
+        message: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   } else if (req.method === 'POST') {
     // Update content (requires authentication)
