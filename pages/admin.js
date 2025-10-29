@@ -74,6 +74,18 @@ export default function Admin() {
   const [editingRole, setEditingRole] = useState(null);
   const [roleError, setRoleError] = useState('');
 
+  // Discord settings
+  const [discordSettings, setDiscordSettings] = useState({
+    enabled: false,
+    webhook_url: '',
+    bot_avatar_url: '',
+    event_config: {}
+  });
+  const [availableEventTypes, setAvailableEventTypes] = useState({});
+  const [discordError, setDiscordError] = useState('');
+  const [testDiscordStatus, setTestDiscordStatus] = useState('');
+  const [sendingTestDiscord, setSendingTestDiscord] = useState(false);
+
   // CSRF Token
   const [csrfToken, setCsrfToken] = useState(null);
 
@@ -122,6 +134,12 @@ export default function Admin() {
   useEffect(() => {
     if (activeTab === 'roles' && isAuthenticated) {
       loadRoles();
+    }
+  }, [activeTab, isAuthenticated]);
+
+  useEffect(() => {
+    if (activeTab === 'discord' && isAuthenticated) {
+      loadDiscordSettings();
     }
   }, [activeTab, isAuthenticated]);
 
@@ -789,6 +807,126 @@ export default function Admin() {
     }
   };
 
+  // Discord Webhook Functions
+  const loadDiscordSettings = async () => {
+    try {
+      const res = await fetch('/api/discord-settings');
+      const data = await res.json();
+      if (res.ok) {
+        setDiscordSettings({
+          enabled: data.enabled || false,
+          webhook_url: data.webhook_url || '',
+          bot_avatar_url: data.bot_avatar_url || '',
+          event_config: data.event_config || {}
+        });
+        setAvailableEventTypes(data.availableEventTypes || {});
+      }
+    } catch (error) {
+      console.error('Load Discord settings error:', error);
+    }
+  };
+
+  const handleSaveDiscordSettings = async (e) => {
+    e.preventDefault();
+    setDiscordError('');
+
+    // Validation
+    if (discordSettings.enabled && !discordSettings.webhook_url.trim()) {
+      setDiscordError('Webhook URL is required when Discord notifications are enabled');
+      return;
+    }
+
+    if (discordSettings.webhook_url && !discordSettings.webhook_url.startsWith('https://discord.com/api/webhooks/')) {
+      setDiscordError('Invalid webhook URL. Must start with https://discord.com/api/webhooks/');
+      return;
+    }
+
+    if (!csrfToken) {
+      setDiscordError('Security token not available. Please refresh the page.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/discord-settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify(discordSettings)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage({ type: 'success', text: 'Discord settings saved successfully!' });
+        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+        loadDiscordSettings();
+      } else {
+        setDiscordError(data.error || 'Failed to save Discord settings');
+      }
+    } catch (error) {
+      setDiscordError('Failed to save Discord settings');
+    }
+  };
+
+  const handleTestDiscordWebhook = async () => {
+    setTestDiscordStatus('');
+
+    if (!discordSettings.webhook_url || !discordSettings.webhook_url.trim()) {
+      setTestDiscordStatus('error:Please enter a webhook URL first');
+      return;
+    }
+
+    if (!discordSettings.webhook_url.startsWith('https://discord.com/api/webhooks/')) {
+      setTestDiscordStatus('error:Invalid webhook URL format');
+      return;
+    }
+
+    if (!csrfToken) {
+      setTestDiscordStatus('error:Security token not available. Please refresh the page.');
+      return;
+    }
+
+    setSendingTestDiscord(true);
+
+    try {
+      const res = await fetch('/api/test-discord', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify({ webhook_url: discordSettings.webhook_url })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setTestDiscordStatus('success:Test notification sent successfully! Check your Discord channel.');
+      } else {
+        setTestDiscordStatus(`error:${data.error || 'Failed to send test notification'}`);
+      }
+    } catch (error) {
+      setTestDiscordStatus('error:Failed to send test notification. Check your webhook URL.');
+    } finally {
+      setSendingTestDiscord(false);
+    }
+  };
+
+  const toggleEventType = (eventKey) => {
+    setDiscordSettings({
+      ...discordSettings,
+      event_config: {
+        ...discordSettings.event_config,
+        [eventKey]: {
+          ...discordSettings.event_config[eventKey],
+          enabled: !(discordSettings.event_config[eventKey]?.enabled ?? true)
+        }
+      }
+    });
+  };
+
   // Role Management Functions
   const loadRoles = async () => {
     try {
@@ -1386,6 +1524,12 @@ export default function Admin() {
                 onClick={() => setActiveTab('email')}
               >
                 📧 Email Settings
+              </button>
+              <button
+                className={`admin-tab ${activeTab === 'discord' ? 'active' : ''}`}
+                onClick={() => setActiveTab('discord')}
+              >
+                💬 Discord Webhooks
               </button>
               <button
                 className={`admin-tab ${activeTab === 'roles' ? 'active' : ''}`}
@@ -3154,6 +3298,224 @@ export default function Admin() {
                       <li>Create app password for "Mail"</li>
                       <li>Use: smtp.gmail.com, port 587, your email, and app password</li>
                     </ol>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Discord Webhooks Tab */}
+            {activeTab === 'discord' && (
+              <div className="admin-section">
+                <h2 style={{ marginBottom: '1.5rem', color: 'var(--primary-color)' }}>💬 Discord Webhook Notifications</h2>
+
+                <form onSubmit={handleSaveDiscordSettings}>
+                  {/* Enable/Disable */}
+                  <div className="admin-card">
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+                      <input
+                        type="checkbox"
+                        id="discord-enabled"
+                        checked={discordSettings.enabled}
+                        onChange={(e) => setDiscordSettings({ ...discordSettings, enabled: e.target.checked })}
+                        style={{ width: '20px', height: '20px', marginRight: '1rem', cursor: 'pointer' }}
+                      />
+                      <label htmlFor="discord-enabled" style={{ fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', margin: 0 }}>
+                        Enable Discord Notifications
+                      </label>
+                    </div>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginLeft: '2rem' }}>
+                      Send real-time notifications to Discord for important events like user registrations, security alerts, support tickets, and forum activity
+                    </p>
+                  </div>
+
+                  {/* Webhook Configuration */}
+                  <div className="admin-card">
+                    <h3 className="admin-card-title">Webhook Configuration</h3>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+                      Create a webhook in your Discord server: Server Settings → Integrations → Webhooks → New Webhook
+                    </p>
+
+                    <div className="form-group">
+                      <label>Webhook URL *</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={discordSettings.webhook_url}
+                        onChange={(e) => setDiscordSettings({ ...discordSettings, webhook_url: e.target.value })}
+                        placeholder="https://discord.com/api/webhooks/123456789/abcdefg..."
+                      />
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                        Required if Discord notifications are enabled
+                      </p>
+                    </div>
+
+                    <div className="form-group">
+                      <label>Bot Avatar URL (Optional)</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={discordSettings.bot_avatar_url}
+                        onChange={(e) => setDiscordSettings({ ...discordSettings, bot_avatar_url: e.target.value })}
+                        placeholder="https://example.com/avatar.png"
+                      />
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                        Custom avatar image for webhook messages
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Event Types Configuration */}
+                  <div className="admin-card">
+                    <h3 className="admin-card-title">Event Notifications</h3>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+                      Choose which events should trigger Discord notifications
+                    </p>
+
+                    {Object.keys(availableEventTypes).length > 0 && (
+                      <div style={{ display: 'grid', gap: '1rem' }}>
+                        {Object.entries(availableEventTypes).map(([eventKey, eventInfo]) => {
+                          const isEnabled = discordSettings.event_config[eventKey]?.enabled ?? true;
+                          const category = eventKey.split('_')[0];
+
+                          const categoryColors = {
+                            USER: '#3b82f6',
+                            LOGIN: '#f59e0b',
+                            UNAUTHORIZED: '#ef4444',
+                            CSRF: '#ef4444',
+                            RATE: '#f59e0b',
+                            ROLE: '#8b5cf6',
+                            CONTENT: '#6b46c1',
+                            TOPIC: '#8b5cf6',
+                            COMMENT: '#8b5cf6',
+                            TICKET: '#10b981',
+                            PASSWORD: '#f59e0b',
+                            ADMIN: '#fbbf24',
+                            EMAIL: '#6b46c1'
+                          };
+
+                          return (
+                            <div
+                              key={eventKey}
+                              style={{
+                                padding: '1rem',
+                                borderRadius: '8px',
+                                border: `1px solid ${isEnabled ? 'var(--primary-color)' : 'var(--text-secondary)'}`,
+                                backgroundColor: isEnabled ? 'rgba(107, 70, 193, 0.1)' : 'transparent',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onClick={() => toggleEventType(eventKey)}
+                            >
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <span style={{ fontSize: '1.5rem' }}>{eventInfo.icon}</span>
+                                <div>
+                                  <div style={{ fontWeight: 'bold', color: categoryColors[category] || 'var(--text-primary)' }}>
+                                    {eventKey.replace(/_/g, ' ')}
+                                  </div>
+                                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+                                    {eventInfo.description}
+                                  </div>
+                                </div>
+                              </div>
+                              <div style={{
+                                width: '60px',
+                                height: '30px',
+                                borderRadius: '15px',
+                                backgroundColor: isEnabled ? 'var(--success-color)' : 'var(--text-secondary)',
+                                position: 'relative',
+                                transition: 'all 0.3s',
+                                boxShadow: isEnabled ? '0 0 10px rgba(0, 255, 136, 0.3)' : 'none'
+                              }}>
+                                <div style={{
+                                  width: '26px',
+                                  height: '26px',
+                                  borderRadius: '50%',
+                                  backgroundColor: 'white',
+                                  position: 'absolute',
+                                  top: '2px',
+                                  left: isEnabled ? '32px' : '2px',
+                                  transition: 'all 0.3s',
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                }}></div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Error Display */}
+                  {discordError && (
+                    <div className="alert alert-error" style={{ marginBottom: '1rem' }}>
+                      {discordError}
+                    </div>
+                  )}
+
+                  {/* Save Button */}
+                  <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                    <button type="submit" className="btn-admin btn-admin-primary">
+                      💾 Save Discord Settings
+                    </button>
+                  </div>
+                </form>
+
+                {/* Test Section */}
+                <div className="admin-card" style={{ marginTop: '2rem' }}>
+                  <h3 className="admin-card-title">🧪 Test Webhook</h3>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+                    Send a test notification to verify your webhook is working correctly
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={handleTestDiscordWebhook}
+                    disabled={sendingTestDiscord}
+                    className="btn-admin btn-admin-secondary"
+                    style={{ opacity: sendingTestDiscord ? 0.6 : 1 }}
+                  >
+                    {sendingTestDiscord ? '📤 Sending...' : '📨 Send Test Notification'}
+                  </button>
+
+                  {testDiscordStatus && (
+                    <div
+                      className={`alert ${testDiscordStatus.startsWith('success') ? 'alert-success' : 'alert-error'}`}
+                      style={{ marginTop: '1rem' }}
+                    >
+                      {testDiscordStatus.split(':')[1]}
+                    </div>
+                  )}
+                </div>
+
+                {/* Documentation */}
+                <div className="admin-card" style={{ marginTop: '2rem' }}>
+                  <h3 className="admin-card-title">📖 Setup Guide</h3>
+                  <ol style={{ color: 'var(--text-secondary)', lineHeight: '1.8', paddingLeft: '1.5rem' }}>
+                    <li>Open your Discord server and go to <strong>Server Settings</strong></li>
+                    <li>Navigate to <strong>Integrations → Webhooks</strong></li>
+                    <li>Click <strong>New Webhook</strong> or <strong>Create Webhook</strong></li>
+                    <li>Give your webhook a name (e.g., "EVU Server Bot")</li>
+                    <li>Select the channel where notifications should be sent</li>
+                    <li>Optional: Upload a custom avatar image</li>
+                    <li>Click <strong>Copy Webhook URL</strong></li>
+                    <li>Paste the URL in the "Webhook URL" field above</li>
+                    <li>Configure which events you want to receive notifications for</li>
+                    <li>Click "Save Discord Settings"</li>
+                    <li>Use "Send Test Notification" to verify it works</li>
+                  </ol>
+
+                  <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: 'rgba(107, 70, 193, 0.1)', borderRadius: '8px', border: '1px solid var(--primary-color)' }}>
+                    <strong style={{ color: 'var(--primary-color)' }}>💡 Notification Categories:</strong>
+                    <ul style={{ marginTop: '0.5rem', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
+                      <li><strong style={{ color: '#3b82f6' }}>User Events:</strong> Registration, creation, deletion, updates</li>
+                      <li><strong style={{ color: '#ef4444' }}>Security Alerts:</strong> Login failures, unauthorized access, CSRF violations, rate limits</li>
+                      <li><strong style={{ color: '#8b5cf6' }}>Forum Activity:</strong> New topics, comments, moderation actions</li>
+                      <li><strong style={{ color: '#10b981' }}>Support Tickets:</strong> New tickets, replies, status changes</li>
+                      <li><strong style={{ color: '#fbbf24' }}>Admin Actions:</strong> Role changes, content updates, password changes</li>
+                    </ul>
                   </div>
                 </div>
               </div>
