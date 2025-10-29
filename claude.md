@@ -28,7 +28,7 @@
 **EVU-WEB** is a full-stack gaming community website built with Next.js, designed specifically for managing both Minecraft and FiveM gaming servers from a single unified platform.
 
 ### Key Information
-- **Version**: 2.14.0
+- **Version**: 2.17.2
 - **Framework**: Next.js 15.5.4
 - **Runtime**: Node.js 22.x (LTS)
 - **Database**: Supabase (PostgreSQL)
@@ -39,6 +39,7 @@
 - **Dual-server support** for Minecraft and FiveM
 - **Admin panel** with comprehensive CMS and quick access from profile
 - **User authentication** and profile management with avatar uploads
+- **User management** with full edit capabilities (username, email, display name, role)
 - **Advanced RBAC system** with custom roles and granular permissions
 - **Multi-theme system** with 5 themes (Dark, Light, Purple, Ocean, Forest)
 - **Complete forum system** with topics, comments, and moderation
@@ -47,6 +48,11 @@
 - **GDPR-compliant** data management with export/delete
 - **Performance metrics** tracking and analytics
 - **Email notification system** (Resend/SMTP)
+- **Enterprise-grade security** with CSRF protection, audit logging, and rate limiting
+- **Comprehensive audit trail** for all administrative actions
+- **Input validation & sanitization** to prevent XSS and SQL injection
+- **Privacy Policy & Terms** pages for legal compliance
+- **Testing infrastructure** with Jest and Playwright
 
 ---
 
@@ -74,7 +80,13 @@
   "@types/react": "^18.3.25",
   "@types/react-dom": "^18.3.7",
   "@types/bcrypt": "^6.0.0",
-  "standard-version": "^9.5.0"          // Semantic versioning
+  "standard-version": "^9.5.0",         // Semantic versioning
+  "@playwright/test": "^1.40.0",        // E2E testing
+  "@testing-library/react": "^14.0.0",  // React component testing
+  "@testing-library/jest-dom": "^6.1.5", // Jest matchers
+  "jest": "^29.7.0",                    // Unit testing framework
+  "jest-environment-jsdom": "^29.7.0",  // Browser environment for tests
+  "dotenv": "^16.3.1"                   // Environment variable loading
 }
 ```
 
@@ -101,27 +113,57 @@ EVU-WEB/
 │   ├── forum.js               # Community forum
 │   ├── changelog.js           # Auto + manual changelog viewer
 │   ├── profile.js             # User profile & login
+│   ├── register.js            # Public user registration
+│   ├── privacy.js             # Privacy Policy (GDPR)
+│   ├── terms.js               # Terms & Conditions
 │   └── api/                   # Backend API routes
 │       ├── auth/
 │       │   └── check.js       # Check authentication status
 │       ├── login.js           # User/admin login
 │       ├── logout.js          # Session destruction
+│       ├── register.js        # User registration endpoint
+│       ├── csrf-token.js      # CSRF token generation
 │       ├── change-password.js # Admin password change
 │       ├── content.js         # CMS content CRUD
-│       ├── users.js           # User management (CRUD)
+│       ├── users.js           # User management (CRUD + Edit)
 │       ├── status.js          # Server status API
+│       ├── health.js          # Health check endpoint
 │       ├── changelog-md.js    # Parse CHANGELOG.md
+│       ├── roles.js           # RBAC role management
+│       ├── email-settings.js  # Email configuration
+│       ├── test-email.js      # Email testing
+│       ├── admin/
+│       │   ├── dashboard.js   # Dashboard statistics
+│       │   └── metrics-history.js # Performance metrics
+│       ├── forum/
+│       │   ├── topics.js      # Forum topics CRUD
+│       │   ├── comments.js    # Forum comments CRUD
+│       │   └── moderation.js  # Forum moderation tools
+│       ├── support/
+│       │   ├── tickets.js     # Support tickets CRUD
+│       │   └── replies.js     # Ticket replies
 │       └── profile/
 │           ├── index.js       # User profile CRUD
-│           └── password.js    # User password change
+│           ├── password.js    # User password change
+│           ├── upload-avatar.js # Avatar upload
+│           ├── delete-account.js # GDPR account deletion
+│           └── export-data.js # GDPR data export
 │
 ├── components/                # React components
 │   ├── Layout.js             # Page layout with navbar & footer
-│   └── CookieConsent.js      # GDPR cookie consent banner
+│   ├── CookieConsent.js      # GDPR cookie consent banner
+│   ├── ErrorBoundary.js      # React error boundary
+│   └── LoadingSkeleton.js    # Loading skeleton UI
 │
 ├── lib/                      # Utility libraries
 │   ├── auth.js              # Authentication helpers
-│   └── database.js          # Supabase database operations
+│   ├── database.js          # Supabase database operations
+│   ├── csrf.js              # CSRF token generation & validation
+│   ├── auditLog.js          # Comprehensive audit logging system
+│   ├── rateLimit.js         # Rate limiting middleware
+│   ├── validation.js        # Input validation & sanitization
+│   ├── sessionCache.js      # Session caching for performance
+│   └── fetchWithTimeout.js  # HTTP client with timeout
 │
 ├── public/                   # Static assets
 │   └── styles/
@@ -177,13 +219,17 @@ EVU-WEB/
 - Server-type filtering (all, minecraft, fivem)
 - Category descriptions
 
-**Users Tab**
+**Users Tab** (v2.17.2)
 - Create new users with role assignment
+- **Edit user profiles** (username, email, display name, role)
 - Assign custom roles with specific permissions
 - Delete users (with confirmation)
 - Reset user passwords
 - View user creation dates
 - Default password warnings
+- Modal-based edit interface with form validation
+- Real-time role description preview
+- Automatic audit logging for all changes
 
 **Roles Tab** (RBAC System)
 - View all custom and system roles
@@ -1321,6 +1367,13 @@ See `docs/database/supabase-setup.sql` for full SQL schema.
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOi...  # Keep secret!
+
+# Security Configuration (v2.17.2+)
+CSRF_SECRET=your-random-secret-here-min-32-chars  # CSRF token signing key
+
+# Optional Configuration
+NODE_ENV=production  # or 'development'
+CRON_SECRET=your-cron-secret  # For Vercel Cron jobs
 ```
 
 ### Local Development
@@ -1329,6 +1382,17 @@ Create `.env.local` in project root:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+CSRF_SECRET=generate-a-strong-random-secret-here
+NODE_ENV=development
+```
+
+**Generate Strong CSRF Secret:**
+```bash
+# Linux/Mac
+openssl rand -hex 32
+
+# Node.js
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
 ### Vercel Configuration
@@ -1345,63 +1409,251 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
 ## Security
 
-### Security Features
+### Enterprise-Grade Security Features
+
+#### **CSRF Token Protection** (v2.17.2)
+
+**Library**: `lib/csrf.js`
+
+**Features**:
+- Session-based CSRF token generation with HMAC-SHA256 signatures
+- 1-hour token expiry with automatic cleanup
+- In-memory token store optimized for serverless
+- Validation via header (`X-CSRF-Token`) or request body (`csrfToken`)
+- Token invalidation on logout
+
+**API Endpoint**: `GET /api/csrf-token`
+
+**Implementation**:
+```javascript
+// Generate token
+const csrfToken = generateCSRFToken(sessionId);
+
+// Validate token (middleware)
+const csrfCheck = requireCSRFToken(req, res, sessionId);
+
+// Include in requests
+headers: {
+  'X-CSRF-Token': csrfToken
+}
+```
+
+**Protected Operations**:
+- All POST, PUT, DELETE, PATCH requests
+- Content management
+- User management (create, edit, delete)
+- Password changes
+- Role management
+- Email settings
+- Support ticket updates
+- Forum moderation
+
+#### **Comprehensive Audit Logging** (v2.17.0)
+
+**Library**: `lib/auditLog.js`
+**Database Table**: `audit_logs`
+
+**Event Types** (25+ events):
+- **Authentication**: LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT, PASSWORD_CHANGED
+- **User Management**: USER_CREATED, USER_DELETED, USER_UPDATED, USER_ROLE_CHANGED
+- **Content**: CONTENT_UPDATED, CONTENT_DELETED
+- **Forum**: TOPIC_DELETED, COMMENT_DELETED, TOPIC_LOCKED
+- **Settings**: EMAIL_SETTINGS_UPDATED, SYSTEM_SETTINGS_UPDATED
+- **Roles**: ROLE_CREATED, ROLE_UPDATED, ROLE_DELETED
+- **Security**: UNAUTHORIZED_ACCESS_ATTEMPT, CSRF_TOKEN_INVALID, RATE_LIMIT_EXCEEDED
+- **Support**: TICKET_STATUS_CHANGED, TICKET_DELETED
+
+**Severity Levels**: `info`, `warning`, `error`, `critical`
+
+**Features**:
+- Non-blocking async logging (triple-layer error handling)
+- IP address and User-Agent tracking
+- Metadata storage (JSONB)
+- Session-based RLS policies
+- Compliance-ready audit trail
+
+**Usage**:
+```javascript
+await auditLog(
+  AuditEventTypes.USER_UPDATED,
+  session.adminId,
+  { updatedUserId, updatedFields: ['email', 'role'] },
+  AuditSeverity.INFO,
+  getClientIP(req)
+);
+```
+
+#### **Advanced Rate Limiting** (v2.17.0)
+
+**Library**: `lib/rateLimit.js`
+
+**Pre-configured Limiters**:
+```javascript
+login: 5 attempts per 15 minutes
+register: 3 accounts per hour
+password: 5 changes per hour
+api: 30 requests per minute
+content: 20 updates per minute
+read: 100 reads per minute
+profile: 10 updates per hour
+forumPost: 20 posts per hour
+forumComment: 30 comments per hour
+supportTicket: 5 tickets per hour
+upload: 10 uploads per hour
+email: 3 emails per hour
+dataExport: 2 exports per hour
+```
+
+**Features**:
+- Vercel-specific header trust (x-real-ip, x-vercel-forwarded-for)
+- IP spoofing prevention
+- Returns 429 with Retry-After header
+- Automatic cleanup every 15 minutes
+- In-memory store for serverless
+
+**Usage**:
+```javascript
+const limiter = getRateLimiter('login');
+const limited = await limiter.check(req, res);
+if (limited) return; // Response already sent
+```
+
+#### **Input Validation & Sanitization** (v2.17.0)
+
+**Library**: `lib/validation.js`
+
+**Functions**:
+- `sanitizeString()` - XSS prevention with HTML entity encoding
+- `sanitizeHTML()` - Safe HTML rendering
+- `validateUsername()` - Format check + reserved name detection
+- `validatePassword()` - Strength scoring (0-5) + complexity rules
+- `validateEmail()` - RFC-compliant validation
+- `validateTextContent()` - Length + spam pattern detection
+- `validateUUID()` - UUID format validation
+- `validateInteger()` - Range validation
+- `sanitizeObject()` - Recursive object sanitization
+- `hasSQLInjection()` - SQL injection pattern detection
+- `validateRequestBody()` - Comprehensive field validation
+
+**Password Strength**:
+```javascript
+const strength = validatePassword(password);
+// Returns: { valid: boolean, strength: 0-5, issues: [] }
+// Factors: length, uppercase, lowercase, numbers, special chars
+// Blocks: common passwords, repeated characters
+```
+
+#### **Session Security**
+
+**Session Caching** (`lib/sessionCache.js`):
+- In-memory session validation cache
+- Reduces database queries
+- Configurable TTL (default: 5 minutes)
+- Automatic cleanup
+
+**Features**:
+- HttpOnly cookies (no JavaScript access)
+- SameSite=Strict (CSRF protection)
+- 24-hour expiry
+- Automatic cleanup of expired sessions
+- Session invalidation on logout
+
+#### **Traditional Security Features**
 
 ✅ **Database Security**
 - PostgreSQL with Row-Level Security (RLS)
 - Service role key never exposed to client
 - Encrypted at rest and in transit
+- Parameterized queries (SQL injection prevention)
 
 ✅ **Password Security**
 - Bcrypt hashing (10 rounds)
-- Forced password change for defaults
+- Forced password change for default credentials
 - Minimum 8-character requirement
-- Cannot reuse default password
-
-✅ **Session Security**
-- HttpOnly cookies (no JavaScript access)
-- SameSite=Strict (CSRF protection)
-- 24-hour expiry
-- Automatic cleanup of expired sessions
+- Password strength validation (0-5 scale)
+- Common password detection
+- Cannot reuse default password ("admin123")
 
 ✅ **API Security**
-- Role-based access control
+- CSRF token validation on all state-changing operations
+- Rate limiting per endpoint
+- Role-based access control (RBAC)
+- Permission-based route protection
 - Session validation on protected routes
-- Input validation
+- Input validation and sanitization
 - Error handling without information leakage
+- Request timeout protection (fetchWithTimeout)
 
 ✅ **GDPR Compliance**
 - Cookie consent banner
-- Privacy policy disclosure
+- Privacy Policy page (`/privacy`)
+- Terms & Conditions page (`/terms`)
 - User data rights (access, delete, export)
-- Transparent data collection
+- Transparent data collection disclosure
 - Data retention policies
+- Right to be forgotten implementation
+- Data portability (JSON export)
 
 ### Security Best Practices
 
 **DO:**
 - ✅ Change default password immediately
-- ✅ Use strong, unique passwords
-- ✅ Keep Supabase service key secret
-- ✅ Regularly review user access
-- ✅ Monitor session activity
+- ✅ Use strong, unique passwords (min 8 chars, mix of upper/lower/numbers/symbols)
+- ✅ Keep Supabase service key and CSRF_SECRET confidential
+- ✅ Regularly review user access and audit logs
+- ✅ Monitor session activity and failed login attempts
 - ✅ Enable HTTPS only (automatic on Vercel)
+- ✅ Review audit logs for suspicious activity
+- ✅ Keep dependencies updated (npm audit)
+- ✅ Test rate limiters in staging before production
+- ✅ Set strong CSRF_SECRET environment variable
 
 **DON'T:**
-- ❌ Commit `.env.local` to Git
-- ❌ Share service role key
+- ❌ Commit `.env.local` or `.env` to Git
+- ❌ Share service role key or CSRF_SECRET
 - ❌ Use default passwords in production
-- ❌ Disable security features
+- ❌ Disable security features (CSRF, rate limiting, validation)
 - ❌ Expose admin credentials
+- ❌ Ignore audit log warnings or errors
+- ❌ Bypass rate limiters in production
+- ❌ Store sensitive data in plain text
 
-### Security Vulnerabilities
+### Threat Mitigation
 
-**Mitigations:**
-- **XSS**: HttpOnly cookies, React auto-escaping
-- **CSRF**: SameSite cookies
-- **SQL Injection**: Supabase parameterized queries
-- **Password Attacks**: Bcrypt slow hashing
-- **Session Hijacking**: Secure, HttpOnly, SameSite cookies
+**Comprehensive Protection:**
+
+| Threat | Mitigation Strategy | Implementation |
+|--------|---------------------|----------------|
+| **XSS (Cross-Site Scripting)** | Input sanitization, output encoding, CSP | `sanitizeString()`, `sanitizeHTML()`, React auto-escaping, HttpOnly cookies |
+| **CSRF (Cross-Site Request Forgery)** | Token validation, SameSite cookies | `lib/csrf.js`, SameSite=Strict, X-CSRF-Token header |
+| **SQL Injection** | Parameterized queries, input validation | Supabase prepared statements, `hasSQLInjection()` |
+| **Brute Force** | Rate limiting, account lockout | `lib/rateLimit.js` (login: 5/15min), audit logging |
+| **Session Hijacking** | Secure cookies, session expiry | HttpOnly, Secure, SameSite, 24-hour expiry |
+| **Password Attacks** | Bcrypt hashing, strength validation | 10 salt rounds, `validatePassword()` scoring |
+| **DDoS/Rate Abuse** | Endpoint-specific rate limiting | Pre-configured limiters per endpoint type |
+| **Privilege Escalation** | RBAC, permission checks | 52+ granular permissions, `hasPermission()` |
+| **Data Exposure** | Input validation, error sanitization | Generic error messages, no stack traces to client |
+| **Mass Assignment** | Explicit field whitelisting | Only specified fields updated in APIs |
+| **Account Enumeration** | Generic error messages | Same message for invalid username/password |
+| **Audit Trail Tampering** | RLS policies, immutable logs | Session-based RLS, no delete on audit_logs |
+
+### Security Incident Response
+
+**Audit Log Monitoring:**
+```javascript
+// Query suspicious activity
+SELECT * FROM audit_logs
+WHERE severity = 'critical'
+  AND event_type IN ('UNAUTHORIZED_ACCESS_ATTEMPT', 'CSRF_TOKEN_INVALID')
+  AND timestamp > NOW() - INTERVAL '24 hours'
+ORDER BY timestamp DESC;
+```
+
+**Rate Limit Statistics:**
+```javascript
+const stats = getRateLimiterStats();
+// Returns: { totalBuckets, activeIPs, blockedRequests }
+```
 
 ---
 
