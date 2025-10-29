@@ -285,6 +285,89 @@ WHERE schemaname = 'public'
   AND tablename IN ('metrics_history', 'user_roles', 'discord_settings')
 ORDER BY tablename;
 
+-- ============================================
+-- FIX 3: Additional Functions Missing search_path
+-- ============================================
+
+-- Fix increment_view_count (if it exists without conditional wrapper)
+DROP FUNCTION IF EXISTS public.increment_view_count(uuid) CASCADE;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'forum_topics') THEN
+    CREATE OR REPLACE FUNCTION public.increment_view_count(topic_id uuid)
+    RETURNS void
+    LANGUAGE plpgsql
+    SECURITY DEFINER
+    SET search_path = public
+    AS $func$
+    BEGIN
+      UPDATE forum_topics
+      SET view_count = view_count + 1
+      WHERE id = topic_id;
+    END;
+    $func$;
+  END IF;
+END $$;
+
+-- Fix is_admin function
+DROP FUNCTION IF EXISTS public.is_admin(text) CASCADE;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'admins') THEN
+    CREATE OR REPLACE FUNCTION public.is_admin(user_id text)
+    RETURNS boolean
+    LANGUAGE plpgsql
+    SECURITY DEFINER
+    SET search_path = public
+    AS $func$
+    DECLARE
+      admin_check boolean;
+    BEGIN
+      SELECT is_admin INTO admin_check
+      FROM admins
+      WHERE id::text = user_id;
+
+      RETURN COALESCE(admin_check, false);
+    END;
+    $func$;
+  END IF;
+END $$;
+
+-- Fix get_user_role function
+DROP FUNCTION IF EXISTS public.get_user_role(uuid) CASCADE;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'admins') THEN
+    CREATE OR REPLACE FUNCTION public.get_user_role(user_id uuid)
+    RETURNS text
+    LANGUAGE plpgsql
+    SECURITY DEFINER
+    SET search_path = public
+    AS $func$
+    DECLARE
+      user_role text;
+    BEGIN
+      SELECT role INTO user_role
+      FROM admins
+      WHERE id = user_id;
+
+      RETURN user_role;
+    END;
+    $func$;
+  END IF;
+END $$;
+
+-- ============================================
+-- Verification Query
+-- ============================================
+
+-- Run this to verify RLS is enabled on all tables
+SELECT schemaname, tablename, rowsecurity
+FROM pg_tables
+WHERE schemaname = 'public'
+  AND tablename IN ('metrics_history', 'user_roles', 'discord_settings')
+ORDER BY tablename;
+
 -- Run this to verify functions have search_path set
 SELECT
   routine_name,
