@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.19.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.18.0...v2.19.0) (2025-10-29)
+
+
+### Features
+
+* add Discord webhook notification system ([f31ece0](https://github.com/adrianlarsen102/EVU-WEB/commit/f31ece0a80f4cb629f05316fe6a9c1e51c951991))
+
+
+### Documentation
+
+* comprehensive update to CLAUDE.md for v2.17.2 ([7445256](https://github.com/adrianlarsen102/EVU-WEB/commit/7445256e59e035b1704c9e05988f6003c7311861))
+
 ## [2.18.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.17.2...v2.18.0) (2025-10-27)
 
 
