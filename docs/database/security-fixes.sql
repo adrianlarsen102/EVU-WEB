@@ -71,75 +71,95 @@ BEGIN
 END;
 $$;
 
--- Increment view count function
-DROP FUNCTION IF EXISTS public.increment_view_count(uuid) CASCADE;
-CREATE OR REPLACE FUNCTION public.increment_view_count(topic_id uuid)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
+-- Increment view count function (only if forum_topics table exists)
+DO $$
 BEGIN
-  UPDATE forum_topics
-  SET view_count = view_count + 1
-  WHERE id = topic_id;
-END;
-$$;
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'forum_topics') THEN
+    DROP FUNCTION IF EXISTS public.increment_view_count(uuid) CASCADE;
+    CREATE OR REPLACE FUNCTION public.increment_view_count(topic_id uuid)
+    RETURNS void
+    LANGUAGE plpgsql
+    SECURITY DEFINER
+    SET search_path = public
+    AS $func$
+    BEGIN
+      UPDATE forum_topics
+      SET view_count = view_count + 1
+      WHERE id = topic_id;
+    END;
+    $func$;
+  END IF;
+END $$;
 
--- Generate ticket number function
-DROP FUNCTION IF EXISTS public.generate_ticket_number() CASCADE;
-CREATE OR REPLACE FUNCTION public.generate_ticket_number()
-RETURNS text
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-  new_number text;
-  counter integer;
+-- Generate ticket number function (only if support_tickets table exists)
+DO $$
 BEGIN
-  SELECT COALESCE(MAX(CAST(SUBSTRING(ticket_number FROM 6) AS integer)), 0) + 1
-  INTO counter
-  FROM support_tickets
-  WHERE ticket_number LIKE 'EVU-%';
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'support_tickets') THEN
+    DROP FUNCTION IF EXISTS public.generate_ticket_number() CASCADE;
+    CREATE OR REPLACE FUNCTION public.generate_ticket_number()
+    RETURNS text
+    LANGUAGE plpgsql
+    SECURITY DEFINER
+    SET search_path = public
+    AS $func$
+    DECLARE
+      new_number text;
+      counter integer;
+    BEGIN
+      SELECT COALESCE(MAX(CAST(SUBSTRING(ticket_number FROM 6) AS integer)), 0) + 1
+      INTO counter
+      FROM support_tickets
+      WHERE ticket_number LIKE 'EVU-%';
 
-  new_number := 'EVU-' || LPAD(counter::text, 6, '0');
-  RETURN new_number;
-END;
-$$;
+      new_number := 'EVU-' || LPAD(counter::text, 6, '0');
+      RETURN new_number;
+    END;
+    $func$;
+  END IF;
+END $$;
 
--- Cleanup expired sessions function
-DROP FUNCTION IF EXISTS public.cleanup_expired_sessions() CASCADE;
-CREATE OR REPLACE FUNCTION public.cleanup_expired_sessions()
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
+-- Cleanup expired sessions function (only if sessions table exists)
+DO $$
 BEGIN
-  DELETE FROM sessions
-  WHERE expires_at < NOW();
-END;
-$$;
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'sessions') THEN
+    DROP FUNCTION IF EXISTS public.cleanup_expired_sessions() CASCADE;
+    CREATE OR REPLACE FUNCTION public.cleanup_expired_sessions()
+    RETURNS void
+    LANGUAGE plpgsql
+    SECURITY DEFINER
+    SET search_path = public
+    AS $func$
+    BEGIN
+      DELETE FROM sessions
+      WHERE expires_at < NOW();
+    END;
+    $func$;
+  END IF;
+END $$;
 
--- Cleanup old audit logs function
-DROP FUNCTION IF EXISTS public.cleanup_old_audit_logs(integer) CASCADE;
-CREATE OR REPLACE FUNCTION public.cleanup_old_audit_logs(retention_days integer DEFAULT 90)
-RETURNS integer
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-  deleted_count integer;
+-- Cleanup old audit logs function (only if audit_logs table exists)
+DO $$
 BEGIN
-  DELETE FROM audit_logs
-  WHERE timestamp < NOW() - (retention_days || ' days')::interval;
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'audit_logs') THEN
+    DROP FUNCTION IF EXISTS public.cleanup_old_audit_logs(integer) CASCADE;
+    CREATE OR REPLACE FUNCTION public.cleanup_old_audit_logs(retention_days integer DEFAULT 90)
+    RETURNS integer
+    LANGUAGE plpgsql
+    SECURITY DEFINER
+    SET search_path = public
+    AS $func$
+    DECLARE
+      deleted_count integer;
+    BEGIN
+      DELETE FROM audit_logs
+      WHERE timestamp < NOW() - (retention_days || ' days')::interval;
 
-  GET DIAGNOSTICS deleted_count = ROW_COUNT;
-  RETURN deleted_count;
-END;
-$$;
+      GET DIAGNOSTICS deleted_count = ROW_COUNT;
+      RETURN deleted_count;
+    END;
+    $func$;
+  END IF;
+END $$;
 
 -- Is admin check function
 DROP FUNCTION IF EXISTS public.is_admin(text) CASCADE;
@@ -193,46 +213,66 @@ BEGIN
 END;
 $$;
 
--- Update support ticket updated_at function
-DROP FUNCTION IF EXISTS public.update_support_ticket_updated_at() CASCADE;
-CREATE OR REPLACE FUNCTION public.update_support_ticket_updated_at()
-RETURNS TRIGGER
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
+-- Update support ticket updated_at function (only if support_tickets table exists)
+DO $$
 BEGIN
-  UPDATE support_tickets
-  SET updated_at = NOW()
-  WHERE id = NEW.ticket_id;
-  RETURN NEW;
-END;
-$$;
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'support_tickets') THEN
+    DROP FUNCTION IF EXISTS public.update_support_ticket_updated_at() CASCADE;
+    CREATE OR REPLACE FUNCTION public.update_support_ticket_updated_at()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+    SECURITY DEFINER
+    SET search_path = public
+    AS $func$
+    BEGIN
+      UPDATE support_tickets
+      SET updated_at = NOW()
+      WHERE id = NEW.ticket_id;
+      RETURN NEW;
+    END;
+    $func$;
+  END IF;
+END $$;
 
 -- ============================================
 -- Recreate triggers with fixed functions
 -- ============================================
 
--- Email settings trigger
-DROP TRIGGER IF EXISTS email_settings_updated_at ON email_settings;
-CREATE TRIGGER email_settings_updated_at
-  BEFORE UPDATE ON email_settings
-  FOR EACH ROW
-  EXECUTE FUNCTION update_email_settings_timestamp();
+-- Email settings trigger (only if table exists)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'email_settings') THEN
+    DROP TRIGGER IF EXISTS email_settings_updated_at ON email_settings;
+    CREATE TRIGGER email_settings_updated_at
+      BEFORE UPDATE ON email_settings
+      FOR EACH ROW
+      EXECUTE FUNCTION update_email_settings_timestamp();
+  END IF;
+END $$;
 
--- Discord settings trigger
-DROP TRIGGER IF EXISTS discord_settings_updated_at ON discord_settings;
-CREATE TRIGGER discord_settings_updated_at
-  BEFORE UPDATE ON discord_settings
-  FOR EACH ROW
-  EXECUTE FUNCTION update_discord_settings_timestamp();
+-- Discord settings trigger (only if table exists)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'discord_settings') THEN
+    DROP TRIGGER IF EXISTS discord_settings_updated_at ON discord_settings;
+    CREATE TRIGGER discord_settings_updated_at
+      BEFORE UPDATE ON discord_settings
+      FOR EACH ROW
+      EXECUTE FUNCTION update_discord_settings_timestamp();
+  END IF;
+END $$;
 
--- Support ticket reply trigger
-DROP TRIGGER IF EXISTS support_reply_update_ticket ON support_replies;
-CREATE TRIGGER support_reply_update_ticket
-  AFTER INSERT ON support_replies
-  FOR EACH ROW
-  EXECUTE FUNCTION update_support_ticket_updated_at();
+-- Support ticket reply trigger (only if table exists)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'support_replies') THEN
+    DROP TRIGGER IF EXISTS support_reply_update_ticket ON support_replies;
+    CREATE TRIGGER support_reply_update_ticket
+      AFTER INSERT ON support_replies
+      FOR EACH ROW
+      EXECUTE FUNCTION update_support_ticket_updated_at();
+  END IF;
+END $$;
 
 -- ============================================
 -- Verification Query
