@@ -32,14 +32,18 @@ CREATE POLICY "Allow admins to update discord settings"
   USING (true)
   WITH CHECK (true);
 
--- Create function to update timestamp
+-- Create function to update timestamp (with security fixes)
 CREATE OR REPLACE FUNCTION update_discord_settings_timestamp()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- Create trigger
 DROP TRIGGER IF EXISTS discord_settings_updated_at ON discord_settings;
