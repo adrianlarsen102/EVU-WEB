@@ -1,6 +1,7 @@
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcrypt';
+import { rateLimiters } from '../../../lib/rateLimit';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -13,6 +14,10 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  // Apply rate limiting for password changes
+  const rateLimitResult = await rateLimiters.password(req, res, null);
+  if (rateLimitResult !== true) return;
 
   // Check authentication
   const sessionId = getSessionFromCookie(req.headers.cookie);

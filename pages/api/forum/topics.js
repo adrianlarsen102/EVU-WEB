@@ -7,8 +7,15 @@ import {
   deleteTopicSoft,
   incrementCategoryTopicCount
 } from '../../../lib/database';
+import { rateLimiters } from '../../../lib/rateLimit';
 
 export default async function handler(req, res) {
+  // Apply rate limiting for POST requests (creating topics)
+  if (req.method === 'POST') {
+    const rateLimitResult = await rateLimiters.forumPost(req, res, null);
+    if (rateLimitResult !== true) return;
+  }
+
   // GET - Get topics by category or specific topic by ID
   if (req.method === 'GET') {
     const { categoryId, topicId } = req.query;

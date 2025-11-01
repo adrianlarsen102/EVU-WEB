@@ -7,8 +7,15 @@ import {
   updateTicket
 } from '../../../lib/database';
 import { sendTicketCreatedEmail, sendAdminTicketNotification, sendTicketStatusEmail } from '../../../lib/email';
+import { rateLimiters } from '../../../lib/rateLimit';
 
 export default async function handler(req, res) {
+  // Apply rate limiting for POST requests (creating tickets)
+  if (req.method === 'POST') {
+    const rateLimitResult = await rateLimiters.supportTicket(req, res, null);
+    if (rateLimitResult !== true) return;
+  }
+
   // GET - Get all tickets (admin) or user's tickets
   if (req.method === 'GET') {
     const { ticketId } = req.query;

@@ -8,8 +8,15 @@ import {
   deleteCommentSoft,
   incrementCategoryPostCount
 } from '../../../lib/database';
+import { rateLimiters } from '../../../lib/rateLimit';
 
 export default async function handler(req, res) {
+  // Apply rate limiting for POST requests (creating comments)
+  if (req.method === 'POST') {
+    const rateLimitResult = await rateLimiters.forumComment(req, res, null);
+    if (rateLimitResult !== true) return;
+  }
+
   // GET - Get comments by topic
   if (req.method === 'GET') {
     const { topicId } = req.query;
