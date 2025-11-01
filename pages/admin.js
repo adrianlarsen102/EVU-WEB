@@ -1273,8 +1273,6 @@ export default function Admin() {
       <>
         <Head>
           <title>Change Password - EVU Server Admin</title>
-          <link rel="stylesheet" href="/styles/style.css" />
-          <link rel="stylesheet" href="/styles/admin.css" />
         </Head>
         <div style={{
           position: 'fixed',
@@ -1351,8 +1349,6 @@ export default function Admin() {
       <>
         <Head>
           <title>Admin Login - EVU Server</title>
-          <link rel="stylesheet" href="/styles/style.css" />
-          <link rel="stylesheet" href="/styles/admin.css" />
         </Head>
         <div className="admin-login-wrapper">
           <div className="admin-card" style={{ maxWidth: '450px', width: '100%' }}>
@@ -1408,8 +1404,6 @@ export default function Admin() {
       <>
         <Head>
           <title>Loading... - EVU Server Admin</title>
-          <link rel="stylesheet" href="/styles/style.css" />
-          <link rel="stylesheet" href="/styles/admin.css" />
         </Head>
         <div className="admin-login-wrapper">
           <div style={{ textAlign: 'center', color: 'var(--primary-color)' }}>
@@ -1424,8 +1418,6 @@ export default function Admin() {
     <>
       <Head>
         <title>Admin Panel - EVU Server</title>
-        <link rel="stylesheet" href="/styles/style.css" />
-        <link rel="stylesheet" href="/styles/admin.css" />
       </Head>
 
       <div className="admin-wrapper">
