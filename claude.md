@@ -28,7 +28,7 @@
 **EVU-WEB** is a full-stack gaming community website built with Next.js, designed specifically for managing both Minecraft and FiveM gaming servers from a single unified platform.
 
 ### Key Information
-- **Version**: 2.17.2
+- **Version**: 2.18.0
 - **Framework**: Next.js 15.5.4
 - **Runtime**: Node.js 22.x (LTS)
 - **Database**: Supabase (PostgreSQL)
@@ -44,6 +44,7 @@
 - **Multi-theme system** with 5 themes (Dark, Light, Purple, Ocean, Forest)
 - **Complete forum system** with topics, comments, and moderation
 - **Support ticket system** with email notifications
+- **Discord webhook notifications** with 25+ event types and admin UI
 - **Automated changelog** generation from Git commits
 - **GDPR-compliant** data management with export/delete
 - **Performance metrics** tracking and analytics
@@ -132,6 +133,8 @@ EVU-WEB/
 │       ├── roles.js           # RBAC role management
 │       ├── email-settings.js  # Email configuration
 │       ├── test-email.js      # Email testing
+│       ├── discord-settings.js # Discord webhook configuration (v2.18.0)
+│       ├── test-discord.js     # Discord webhook testing (v2.18.0)
 │       ├── admin/
 │       │   ├── dashboard.js   # Dashboard statistics
 │       │   └── metrics-history.js # Performance metrics
@@ -163,6 +166,7 @@ EVU-WEB/
 │   ├── rateLimit.js         # Rate limiting middleware
 │   ├── validation.js        # Input validation & sanitization
 │   ├── sessionCache.js      # Session caching for performance
+│   ├── discordWebhook.js    # Discord webhook notification system (v2.18.0)
 │   └── fetchWithTimeout.js  # HTTP client with timeout
 │
 ├── public/                   # Static assets
@@ -260,6 +264,21 @@ EVU-WEB/
 - Configure from email/name
 - Test email functionality
 - View email delivery status
+
+**Discord Webhooks Tab** (v2.18.0)
+- Enable/disable Discord notifications
+- Configure webhook URL and bot avatar
+- Toggle 25+ event types individually
+- Test webhook with live notification
+- Event categories:
+  - User Events (registration, creation, deletion, role changes)
+  - Security Alerts (login failures, CSRF, rate limits, unauthorized access)
+  - Forum Activity (topics, comments, moderation)
+  - Support Tickets (creation, replies, status changes)
+  - Admin Actions (password changes, settings updates)
+- Color-coded Discord embeds with emoji icons
+- Automatic integration with audit logging system
+- Non-blocking fire-and-forget notifications
 
 **Dashboard Tab**
 - User statistics (total, new, active)
@@ -386,7 +405,38 @@ EVU-WEB/
   - View delivery status
   - Customize from name and email
 
-### 7. **Cookie Consent System**
+### 7. **Discord Webhook Notification System** (v2.18.0)
+
+- **Features:**
+  - Rich embedded messages with color coding
+  - 25+ configurable event types
+  - Individual event enable/disable toggles
+  - Custom bot avatar support
+  - Non-blocking fire-and-forget delivery
+  - Automatic integration with audit logging
+
+- **Event Categories:**
+  - 👤 **User Events**: Registration, creation, deletion, role changes
+  - 🔴 **Security Alerts**: Login failures, CSRF violations, rate limits, unauthorized access
+  - 💬 **Forum Activity**: Topics created/deleted/locked, comment moderation
+  - 🎫 **Support Tickets**: New tickets, replies, status changes
+  - 🔐 **Admin Actions**: Password changes, role updates, settings modifications
+
+- **Discord Embed Features:**
+  - Color-coded by event severity (green=success, red=security, yellow=admin)
+  - Emoji icons for visual identification
+  - Timestamp and IP address tracking
+  - User-agent information for security events
+  - Rich metadata fields
+
+- **Admin Controls:**
+  - Configure webhook URL in admin panel
+  - Enable/disable notifications globally
+  - Toggle individual event types
+  - Test webhook with live notification
+  - Custom bot avatar URL
+
+### 8. **Cookie Consent System**
 
 - GDPR-compliant banner
 - Accept/Decline functionality
@@ -401,7 +451,7 @@ EVU-WEB/
 - Local storage consent tracking
 - Animated UI with smooth transitions
 
-### 8. **Performance Monitoring**
+### 9. **Performance Monitoring**
 
 - **Vercel Speed Insights** integration
 - **Vercel Analytics** for user tracking
@@ -413,7 +463,7 @@ EVU-WEB/
   - Historical data retention
   - Admin dashboard visualization
 
-### 9. **User Registration System**
+### 10. **User Registration System**
 
 - Public user registration page
 - Password strength validation
@@ -555,6 +605,16 @@ EVU-WEB/
 - open_tickets (integer)
 - avg_response_time (float)     -- Hours
 - recorded_at (timestamp)
+```
+
+#### **discord_settings** table (v2.18.0)
+```sql
+- id (integer, primary key)     -- Always 1 (singleton)
+- enabled (boolean)             -- Global Discord notifications toggle
+- webhook_url (text)            -- Discord webhook URL
+- bot_avatar_url (text)         -- Optional custom avatar
+- event_config (jsonb)          -- Per-event enable/disable config
+- updated_at (timestamp)
 ```
 
 ### Database Functions
@@ -912,6 +972,49 @@ EVU-WEB/
 **Purpose**: Send test email
 **Requires**: `email.send` permission
 **Request**: `{ "to": "email@example.com" }`
+
+### Discord Webhook APIs (v2.18.0)
+
+#### `GET /api/discord-settings`
+**Purpose**: Get Discord webhook configuration
+**Requires**: Admin authentication
+**Response**:
+```json
+{
+  "enabled": boolean,
+  "webhook_url": "string",
+  "bot_avatar_url": "string",
+  "event_config": {
+    "EVENT_TYPE": { "enabled": boolean }
+  },
+  "availableEventTypes": {
+    "EVENT_TYPE": { "icon": "emoji", "color": number, "enabled": boolean, "description": "string" }
+  }
+}
+```
+
+#### `POST /api/discord-settings`
+**Purpose**: Update Discord webhook configuration
+**Requires**: Admin authentication + CSRF token
+**Request**:
+```json
+{
+  "enabled": boolean,
+  "webhook_url": "string",
+  "bot_avatar_url": "string",
+  "event_config": {
+    "USER_REGISTERED": { "enabled": true },
+    "LOGIN_FAILURE": { "enabled": true },
+    "TICKET_CREATED": { "enabled": true }
+  }
+}
+```
+
+#### `POST /api/test-discord`
+**Purpose**: Send test Discord webhook notification
+**Requires**: Admin authentication + CSRF token
+**Request**: `{ "webhook_url": "https://discord.com/api/webhooks/..." }`
+**Response**: `{ "success": true, "message": "Test notification sent successfully!" }`
 
 ### Analytics & Metrics APIs
 
@@ -1770,6 +1873,16 @@ npm run build
 
 ## Version History
 
+### v2.18.0 (2025-11-01)
+- **Discord webhook notification system** with admin UI
+- 25+ event types with individual toggles
+- Color-coded Discord embeds with emoji icons
+- Test webhook functionality
+- User edit modal in admin panel
+- Full user profile editing (username, email, display name, role)
+- Database security improvements (fixed 11 duplicate index warnings)
+- Enhanced audit logging integration
+
 ### v2.14.0 (2025-10-21)
 - Profile page optimization
 - Admin panel quick access from profile
@@ -1861,6 +1974,6 @@ ISC License - See package.json
 
 ---
 
-**Last Updated**: 2025-10-23
+**Last Updated**: 2025-11-01
 **Maintained By**: EVU Development Team
-**Documentation Version**: 2.14.0
+**Documentation Version**: 2.18.0
