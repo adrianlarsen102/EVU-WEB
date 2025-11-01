@@ -6,8 +6,13 @@ export default function Home() {
   const [activeServer, setActiveServer] = useState('minecraft'); // Default to Minecraft
 
   useEffect(() => {
+    let isMounted = true;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(() => {
+      if (isMounted) {
+        controller.abort();
+      }
+    }, 10000); // 10 second timeout
 
     fetch('/api/content', { signal: controller.signal })
       .then(res => {
@@ -15,28 +20,38 @@ export default function Home() {
         if (!res.ok) throw new Error('Failed to fetch');
         return res.json();
       })
-      .then(data => setContent(data))
+      .then(data => {
+        if (isMounted) {
+          setContent(data);
+        }
+      })
       .catch(err => {
         clearTimeout(timeoutId);
-        console.error('Failed to load content:', err);
-        // Set fallback content so page doesn't hang forever
-        setContent({
-          general: {
-            websiteTitle: 'EVU Gaming Network',
-            welcomeMessage: 'Your Home for Gaming'
-          },
-          servers: {
-            minecraft: {
-              enabled: false
+        // Only log if not an abort error
+        if (err.name !== 'AbortError') {
+          console.error('Failed to load content:', err);
+        }
+        // Set fallback content if still mounted and error wasn't just abort
+        if (isMounted && err.name !== 'AbortError') {
+          setContent({
+            general: {
+              websiteTitle: 'EVU Gaming Network',
+              welcomeMessage: 'Your Home for Gaming'
             },
-            fivem: {
-              enabled: false
+            servers: {
+              minecraft: {
+                enabled: false
+              },
+              fivem: {
+                enabled: false
+              }
             }
-          }
-        });
+          });
+        }
       });
 
     return () => {
+      isMounted = false;
       clearTimeout(timeoutId);
       controller.abort();
     };
