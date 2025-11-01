@@ -4,6 +4,8 @@ import '@testing-library/jest-dom'
 // Mock environment variables for tests
 process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
 process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key'
+process.env.CSRF_SECRET = 'test-csrf-secret-minimum-32-characters-long-for-security'
+process.env.NODE_ENV = 'test'
 
 // Mock Next.js router
 jest.mock('next/router', () => ({

@@ -27,7 +27,7 @@ const customJestConfig = {
     '!pages/_document.js',
     '!pages/api/**',  // Separate integration tests for API
   ],
-  coverageThresholds: {
+  coverageThreshold: {
     global: {
       branches: 70,
       functions: 70,
