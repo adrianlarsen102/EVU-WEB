@@ -2,6 +2,58 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.18.0...v3.0.0) (2025-11-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* Applications must set CSRF_SECRET environment variable
+before startup. Generate with:
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+### Features
+
+* add comprehensive error handling and security headers (Fix [#6](https://github.com/adrianlarsen102/EVU-WEB/issues/6), [#7](https://github.com/adrianlarsen102/EVU-WEB/issues/7)) ([7a971f0](https://github.com/adrianlarsen102/EVU-WEB/commit/7a971f01db0ec92592a11797945af2efebb739c7))
+* add comprehensive testing infrastructure (Fix [#5](https://github.com/adrianlarsen102/EVU-WEB/issues/5)) ([6718990](https://github.com/adrianlarsen102/EVU-WEB/commit/6718990df432bf2c0a1dde3e26faed381d987355))
+* add Discord webhook configuration UI to admin panel ([bd05e9c](https://github.com/adrianlarsen102/EVU-WEB/commit/bd05e9c52c71f2d7ad8643a96f41de1c039e00b1))
+* add Discord webhook notification system ([f31ece0](https://github.com/adrianlarsen102/EVU-WEB/commit/f31ece0a80f4cb629f05316fe6a9c1e51c951991))
+* add quick security fix script for remaining warnings ([1040120](https://github.com/adrianlarsen102/EVU-WEB/commit/10401202b78133d18db1f661a9e162aae4874108))
+* add quick security fix script for remaining warnings ([ae5dc37](https://github.com/adrianlarsen102/EVU-WEB/commit/ae5dc37072e98f190c7e122a081b682b29c018de))
+* add rate limiting to forum, support, and profile endpoints ([4724014](https://github.com/adrianlarsen102/EVU-WEB/commit/47240140543cddd236cce0d3a8f1b7b4441bc32d))
+
+
+### Bug Fixes
+
+* add critical security improvements and module system standardization ([b08c1c8](https://github.com/adrianlarsen102/EVU-WEB/commit/b08c1c870a1774c6b2ac0d5de23fe18d16855d13))
+* add database scripts for duplicate indexes and Discord setup ([8394d30](https://github.com/adrianlarsen102/EVU-WEB/commit/8394d3039a93609e56470fd35418f304c8b891c9))
+* add remaining function search_path fixes ([d351c79](https://github.com/adrianlarsen102/EVU-WEB/commit/d351c7918434318bc586ea0d6b86c44985e26fe1))
+* add script to remove actual duplicate indexes from Supabase ([8844e55](https://github.com/adrianlarsen102/EVU-WEB/commit/8844e55814b1415351b599d15312bf43e28bc76f))
+* correct module imports for ES6 compatibility ([c312899](https://github.com/adrianlarsen102/EVU-WEB/commit/c3128991675792e6178ba01b472a0417ede3082f))
+* create safe version of performance indexes with table existence checks ([792c388](https://github.com/adrianlarsen102/EVU-WEB/commit/792c388aaca52c0c7d326fa60585987d63c4a5bf))
+* disable module.hot.dispose to prevent infinite refresh loop ([ae2f25b](https://github.com/adrianlarsen102/EVU-WEB/commit/ae2f25b40fed3d50c2e0e21ca8b9384a890fbf9e))
+* make security-fixes.sql resilient to missing tables ([b8af392](https://github.com/adrianlarsen102/EVU-WEB/commit/b8af39264f34679f738cd041fbaff9a4a4d8421b))
+* move stylesheets to _document.js per Next.js best practices ([430c5a5](https://github.com/adrianlarsen102/EVU-WEB/commit/430c5a5db360d27476888ebbcf9ae52a9cc2b3ca))
+* resolve AbortController error in React Strict Mode ([f5ae4e1](https://github.com/adrianlarsen102/EVU-WEB/commit/f5ae4e1c583952c237306ab62faa3494fa3dd1ff))
+* resolve Discord settings API import error ([80de50d](https://github.com/adrianlarsen102/EVU-WEB/commit/80de50de8afdd6db2ad63392c2e8ce7f7d740980))
+* resolve MaxListenersExceeded warning with centralized process manager ([7c13e0d](https://github.com/adrianlarsen102/EVU-WEB/commit/7c13e0d9125d02aa0469839defd575eaaf146888))
+* resolve sessionCache.get is not a function error ([a515850](https://github.com/adrianlarsen102/EVU-WEB/commit/a5158502ebd5e7bde74e7248b534cb1ef576bfb5))
+* resolve Supabase Security Advisor warnings ([5b4c06f](https://github.com/adrianlarsen102/EVU-WEB/commit/5b4c06fca70489db516f0f8067cd607c3d164e1e))
+* resolve Supabase security warnings for integer-parameter function versions ([b782b16](https://github.com/adrianlarsen102/EVU-WEB/commit/b782b1608d88a55483543b7ee2e2d78b614afcde))
+
+
+### Performance Improvements
+
+* add comprehensive database performance indexes ([f0688eb](https://github.com/adrianlarsen102/EVU-WEB/commit/f0688ebdb89b326f034ef99cc8f129506064b997))
+
+
+### Documentation
+
+* add comprehensive improvements documentation ([197a370](https://github.com/adrianlarsen102/EVU-WEB/commit/197a370c3c1c971ea4060f3a6f0961020ce79d2c)), closes [#1](https://github.com/adrianlarsen102/EVU-WEB/issues/1) [#2](https://github.com/adrianlarsen102/EVU-WEB/issues/2) [#3](https://github.com/adrianlarsen102/EVU-WEB/issues/3) [#4](https://github.com/adrianlarsen102/EVU-WEB/issues/4) [#5](https://github.com/adrianlarsen102/EVU-WEB/issues/5) [#6](https://github.com/adrianlarsen102/EVU-WEB/issues/6) [#7](https://github.com/adrianlarsen102/EVU-WEB/issues/7)
+* comprehensive update to CLAUDE.md for v2.17.2 ([7445256](https://github.com/adrianlarsen102/EVU-WEB/commit/7445256e59e035b1704c9e05988f6003c7311861))
+* enhance .env.example with all environment variables ([07e96b7](https://github.com/adrianlarsen102/EVU-WEB/commit/07e96b75162e19ee57b7459fb6dd3dd18e087464))
+* update documentation for v2.18.0 release ([edf57de](https://github.com/adrianlarsen102/EVU-WEB/commit/edf57de38dfb46bf2fab0c7c0a6c92798df812a9)), closes [#7](https://github.com/adrianlarsen102/EVU-WEB/issues/7) [#8](https://github.com/adrianlarsen102/EVU-WEB/issues/8) [#9](https://github.com/adrianlarsen102/EVU-WEB/issues/9) [#10](https://github.com/adrianlarsen102/EVU-WEB/issues/10)
+* update IMPROVEMENTS.md with latest bug fixes ([f99c6f9](https://github.com/adrianlarsen102/EVU-WEB/commit/f99c6f99456ce8c167dce559a284ec49673ff9f3))
+
 ## [2.18.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.17.2...v2.18.0) (2025-10-27)
 
 
