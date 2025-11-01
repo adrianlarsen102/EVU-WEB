@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.0.1...v3.1.0) (2025-11-01)
+
+
+### Features
+
+* upgrade to Next.js 16 and React 19 ([bca7565](https://github.com/adrianlarsen102/EVU-WEB/commit/bca7565dc268c49aa7a5f54086d1c296b8dfef40))
+
 ### [3.0.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.0.0...v3.0.1) (2025-11-01)
 
 ## [3.0.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v2.18.0...v3.0.0) (2025-11-01)
