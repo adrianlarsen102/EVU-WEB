@@ -19,7 +19,8 @@
       "Bash(npm audit:*)",
       "Bash(npm outdated)",
       "Bash(find:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npm run db:migrate:*)"
     ],
     "deny": [],
     "ask": []

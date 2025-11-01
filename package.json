@@ -19,7 +19,8 @@
     "release:major": "standard-version --release-as major",
     "release:patch": "standard-version --release-as patch",
     "db:init": "node scripts/init-content.js",
-    "db:init:force": "node scripts/init-content.js --force"
+    "db:init:force": "node scripts/init-content.js --force",
+    "db:migrate": "node scripts/apply-migrations.js"
   },
   "keywords": [
     "fivem",
