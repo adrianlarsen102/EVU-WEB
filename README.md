@@ -1,20 +1,24 @@
 # EVU Gaming Network Website
 
-A modern, secure, and easy-to-manage website for your gaming community built with Next.js. Supports both Minecraft and FiveM servers with seamless switching.
+**Version 2.18.0** - A modern, secure, and feature-rich website for your gaming community built with Next.js. Supports both Minecraft and FiveM servers with seamless switching.
 
 ## ✨ Features
 
 - 🎮 **Dual Server Support**: Manage both Minecraft and FiveM servers from one website
 - 🔄 **Easy Server Switching**: Tab-based interface to switch between server information
-- 🎨 **Modern UI**: Clean, responsive design that works on all devices
+- 🎨 **Modern UI**: Clean, responsive design with 5 theme options (Dark, Light, Purple, Ocean, Forest)
 - 🔒 **Secure Admin Panel**: Database-backed authentication with bcrypt password hashing
 - ⚡ **Fast Performance**: Built with Next.js for optimal speed and SEO
 - 📝 **Easy Content Management**: Update everything through a simple web interface
 - 🔄 **Real-time Updates**: Changes appear instantly on the website
 - 📱 **Mobile Friendly**: Looks great on phones, tablets, and desktops
-- 👥 **User Profiles**: User login system with profile management
-- 🎯 **Role-Based Access**: Separate admin and user roles
+- 👥 **User Profiles**: User login system with profile management and avatar uploads
+- 🎯 **Role-Based Access**: Advanced RBAC system with custom roles and 52+ permissions
 - 📊 **Automatic Versioning**: Git-based changelog generation
+- 💬 **Discord Webhooks**: Real-time notifications for 25+ event types
+- 🎫 **Support Tickets**: Integrated ticket system with email notifications
+- 📧 **Email System**: Resend or SMTP support for automated emails
+- 🛡️ **Enterprise Security**: CSRF protection, audit logging, rate limiting, input validation
 
 ## 🚀 Quick Start
 
@@ -35,11 +39,15 @@ See [Installation Guide](docs/guides/installation.md) for detailed installation 
 
 ## 📋 Pages
 
-- **Status** (`/`) - Server status, player count, and features
-- **Join** (`/join`) - How to connect to your server
-- **Forum** (`/forum`) - Community forum categories
-- **Changelog** (`/changelog`) - Version history and updates
-- **Admin** (`/admin`) - Content management panel
+- **Home** (`/`) - Server status, player count, and features
+- **Join** (`/join`) - Step-by-step connection guides
+- **Forum** (`/forum`) - Complete forum system with topics and comments
+- **Support** (`/support`) - Support ticket system for users
+- **Changelog** (`/changelog`) - Auto-generated and manual version history
+- **Profile** (`/profile`) - User login, registration, and profile management
+- **Admin** (`/admin`) - Comprehensive content management panel
+- **Privacy** (`/privacy`) - GDPR-compliant privacy policy
+- **Terms** (`/terms`) - Terms and conditions
 
 ## 🔐 Security
 
@@ -64,36 +72,73 @@ See [Database Setup Guide](docs/database/setup-guide.md) for security details.
 
 Manage your entire website without touching code:
 
-### Server Info
-- Change server name and title
-- Update version information
-- Set server status (online/offline)
-- Adjust max players and uptime
+### 📊 Dashboard
+- View user statistics (total, new, active)
+- Monitor ticket metrics (open, closed, response times)
+- Track forum activity
+- View performance metrics history
 
-### Features
+### 🖥️ Server Info
+- Manage dual-server settings (Minecraft/FiveM)
+- Update server status, IP, and port
+- Configure website title and Discord link
+
+### ⭐ Features
 - Add/remove server features
 - Customize icons and descriptions
-- Showcase what makes your server unique
+- Per-server feature lists
 
-### Join Information
-- Update server IP/connect command
-- Change Discord invite link
-- Manage connection instructions
+### 🚀 Join Information
+- Update connection instructions
+- Manage server IPs and commands
+- Discord integration
 
-### Changelog
-- Add new version entries
-- Document features, improvements, and bug fixes
-- Keep players informed of updates
+### 📝 Changelog
+- Create version entries with semantic versioning
+- Categorize changes (Features, Improvements, Fixes)
+- Date tracking and version management
 
-### Forum
+### 💬 Forum Management
 - Create/edit forum categories
-- Update topic and post counts
-- Organize community discussions
+- Server-type filtering (all, minecraft, fivem)
+- Topic and post count tracking
 
-### Password Management
-- Change your password anytime
-- Visual indicator for default password
-- Enforced security requirements
+### 🎭 Moderation
+- Review all forum topics and comments
+- Edit, delete, or lock content
+- Moderation action logging
+
+### 🎫 Support Tickets
+- View all support tickets with filtering
+- Reply to tickets
+- Change ticket status (open, in_progress, closed)
+- Priority management
+
+### 👥 Users
+- Create new users with role assignment
+- **Edit user profiles** (username, email, display name, role)
+- Delete users with confirmation
+- Reset passwords
+- View creation dates
+
+### 📧 Email Settings
+- Configure email provider (Resend or SMTP)
+- Test email functionality
+- Customize from email/name
+- View delivery status
+
+### 💬 Discord Webhooks (v2.18.0)
+- Enable/disable Discord notifications
+- Configure webhook URL and bot avatar
+- Toggle 25+ individual event types
+- Test webhook with live notification
+- Event categories: User Events, Security Alerts, Forum Activity, Support Tickets, Admin Actions
+
+### 🔐 Roles & Permissions
+- Create custom roles
+- Configure 52+ granular permissions
+- Manage role assignments
+- System role protection
 
 ## 🛠️ Tech Stack
 
@@ -244,17 +289,28 @@ const response = await fetch('YOUR_FIVEM_API');
 **Deployment issues?**
 - See [Deployment Checklist](docs/guides/deployment-checklist.md)
 
-## 🆕 What's New in v2.0
+## 🆕 What's New in v2.18.0
 
+### Latest Features
+- ✅ **Discord Webhook Notifications** - Real-time alerts for 25+ event types
+- ✅ **User Edit Modal** - Full profile editing in admin panel
+- ✅ **Database Security Fixes** - Resolved all duplicate index warnings
+- ✅ **Enhanced Audit Logging** - Discord integration for security events
+
+### Previous Major Updates (v2.0+)
 - ✅ Migrated to Next.js 15 framework
 - ✅ **Vercel-ready deployment** with Supabase
-- ✅ Supabase PostgreSQL database integration
-- ✅ Vercel integration for automatic environment setup
-- ✅ Bcrypt password hashing
-- ✅ Forced password change on first login
-- ✅ Improved session management
-- ✅ Better performance with React
-- ✅ Enhanced security features
+- ✅ Advanced RBAC system with custom roles
+- ✅ Multi-theme system (5 themes)
+- ✅ Complete forum system with moderation
+- ✅ Support ticket system with email notifications
+- ✅ CSRF protection and rate limiting
+- ✅ Comprehensive audit trail
+- ✅ Input validation & sanitization
+- ✅ GDPR-compliant data management
+- ✅ Performance metrics tracking
+- ✅ Email notification system (Resend/SMTP)
+- ✅ User registration and avatar uploads
 - ✅ Global edge deployment support
 
 ## 📝 License
