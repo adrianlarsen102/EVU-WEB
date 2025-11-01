@@ -231,6 +231,78 @@ This document tracks all improvements made to the EVU-WEB project following a co
 
 ---
 
+### Bug Fix: AbortController React Strict Mode Error (HIGH)
+**Status:** ✅ Completed
+**Commit:** `f5ae4e1`
+
+**Changes:**
+- Fixed AbortController cleanup in React Strict Mode
+- Added `isMounted` flag to prevent state updates after unmount
+- Suppressed AbortError logging (expected during cleanup)
+- Only set fallback content for real errors, not abort signals
+
+**Files Modified:**
+- `pages/index.js` - Fixed useEffect cleanup
+
+**Impact:**
+- No more runtime AbortError warnings
+- Better React 18 compatibility
+- Cleaner development console
+
+---
+
+### Bug Fix: MaxListenersExceeded Warning (HIGH)
+**Status:** ✅ Completed
+**Commit:** `7c13e0d`
+
+**Changes:**
+- Created centralized process manager (`lib/processManager.js`)
+- Implemented `createManagedInterval()` and `createManagedTimeout()`
+- Single `registerCleanup()` system for all modules
+- Increased `process.setMaxListeners(20)` appropriately
+- Converted all modules to use managed intervals
+
+**Files Created:**
+- `lib/processManager.js` - Centralized cleanup manager
+
+**Files Modified:**
+- `lib/sessionCache.js` - Use managed intervals
+- `lib/rateLimit.js` - Use managed cleanup
+- `lib/csrf.js` - Use managed cleanup
+- `lib/database.js` - Use managed cleanup
+- `lib/security.js` - Use managed cleanup
+
+**Impact:**
+- No more MaxListenersExceeded warnings
+- Cleaner shutdown handling
+- Better development experience with hot reload
+- Proper cleanup on process termination
+
+---
+
+### Documentation: Enhanced .env.example (MEDIUM)
+**Status:** ✅ Completed
+**Commit:** `07e96b7`
+
+**Changes:**
+- Added comprehensive documentation for all environment variables
+- Organized into required vs optional sections
+- Added email configuration (Resend/SMTP)
+- Added Discord webhook configuration
+- Added Vercel Cron secret
+- Added application URL configuration
+- Clear examples and instructions for each variable
+
+**Files Modified:**
+- `.env.example` - Complete environment variable documentation
+
+**Impact:**
+- Easier project setup for new developers
+- Clear understanding of what needs to be configured
+- Reduced configuration errors
+
+---
+
 ## 📋 Remaining Improvements
 
 ### Fix #8: Input Validation on Remaining Endpoints (MEDIUM)
@@ -346,9 +418,14 @@ This document tracks all improvements made to the EVU-WEB project following a co
 | #10   | LOW      | ⏳ Pending | - | Documentation |
 | #11   | LOW      | ⏳ Pending | - | Monitoring |
 
-**Completed:** 7/11 (64%)
-**In Progress:** 1/11 (9%)
-**Pending:** 3/11 (27%)
+**Completed:** 10/14 (71%)
+**In Progress:** 0/14 (0%)
+**Pending:** 4/14 (29%)
+
+**Additional Fixes Completed:**
+- ✅ AbortController React Strict Mode Error
+- ✅ MaxListenersExceeded Warning
+- ✅ Enhanced .env.example Documentation
 
 ---
 
