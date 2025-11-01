@@ -44,7 +44,6 @@ data/admin.db-wal
 *.swp
 *.swo
 *~
-.claude/settings.local.json
 
 # Temp files
 nul
