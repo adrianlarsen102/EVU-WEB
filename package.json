@@ -20,7 +20,8 @@
     "release:patch": "standard-version --release-as patch",
     "db:init": "node scripts/init-content.js",
     "db:init:force": "node scripts/init-content.js --force",
-    "db:migrate": "node scripts/apply-migrations.js"
+    "db:migrate": "node scripts/apply-migrations.js",
+    "db:push": "node scripts/push-to-supabase.js"
   },
   "keywords": [
     "fivem",
@@ -42,6 +43,7 @@
     "formidable": "^3.5.4",
     "next": "^16.0.1",
     "nodemailer": "^7.0.9",
+    "pg": "^8.16.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
