@@ -171,12 +171,42 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
 
+      - name: Extract current version changelog
+        id: extract_changelog
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Extract only the current version's changes from CHANGELOG.md
+          # This creates a temporary file with just the current version's notes
+
+          # Method: Find the section between current version header and the next version header
+          awk -v version="$VERSION" '
+            /^###? \[?[0-9]+\.[0-9]+\.[0-9]+/ {
+              if (found) exit
+              if ($0 ~ version) {
+                found=1
+                next
+              }
+            }
+            found { print }
+          ' CHANGELOG.md > RELEASE_NOTES.md
+
+          # If extraction failed or empty, create a basic release note
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "## Release v${VERSION}" > RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details." >> RELEASE_NOTES.md
+          fi
+
+          echo "Generated release notes:"
+          cat RELEASE_NOTES.md
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: Release v${{ steps.version.outputs.version }}
-          body_path: CHANGELOG.md
+          body_path: RELEASE_NOTES.md
           draft: false
           prerelease: false
         env:
