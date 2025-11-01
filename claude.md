@@ -28,8 +28,8 @@
 **EVU-WEB** is a full-stack gaming community website built with Next.js, designed specifically for managing both Minecraft and FiveM gaming servers from a single unified platform.
 
 ### Key Information
-- **Version**: 2.18.0
-- **Framework**: Next.js 15.5.4
+- **Version**: 3.0.1
+- **Framework**: Next.js 16.0.1 (with Turbopack)
 - **Runtime**: Node.js 22.x (LTS)
 - **Database**: Supabase (PostgreSQL)
 - **Deployment**: Vercel
@@ -62,9 +62,9 @@
 ### Core Dependencies
 ```json
 {
-  "next": "^15.5.4",                    // React framework with SSR
-  "react": "^18.3.1",                   // UI library
-  "react-dom": "^18.3.1",               // React DOM rendering
+  "next": "^16.0.1",                    // React framework with SSR & Turbopack
+  "react": "^19.2.0",                   // UI library
+  "react-dom": "^19.2.0",               // React DOM rendering
   "@supabase/supabase-js": "^2.39.0",  // Database client
   "bcrypt": "^6.0.0",                   // Password hashing
   "@vercel/speed-insights": "^1.2.0",  // Performance monitoring
@@ -77,22 +77,23 @@
 ### Development Dependencies
 ```json
 {
-  "@types/node": "^20.19.19",
-  "@types/react": "^18.3.25",
-  "@types/react-dom": "^18.3.7",
+  "@types/node": "^22",
+  "@types/react": "^19.2.2",
+  "@types/react-dom": "^19.2.2",
   "@types/bcrypt": "^6.0.0",
   "standard-version": "^9.5.0",         // Semantic versioning
   "@playwright/test": "^1.40.0",        // E2E testing
-  "@testing-library/react": "^14.0.0",  // React component testing
-  "@testing-library/jest-dom": "^6.1.5", // Jest matchers
+  "@testing-library/react": "^16.3.0",  // React component testing
+  "@testing-library/jest-dom": "^6.1.4", // Jest matchers
   "jest": "^29.7.0",                    // Unit testing framework
   "jest-environment-jsdom": "^29.7.0",  // Browser environment for tests
-  "dotenv": "^16.3.1"                   // Environment variable loading
+  "dotenv": "^17.2.3"                   // Environment variable loading
 }
 ```
 
 ### Key Technologies
-- **Next.js 15** - React framework with Pages Router
+- **Next.js 16** - React framework with Pages Router and Turbopack bundler
+- **React 19** - Latest React with enhanced performance and features
 - **Supabase** - PostgreSQL database with real-time capabilities
 - **Bcrypt** - Industry-standard password hashing (10 salt rounds)
 - **Vercel** - Serverless deployment platform with Analytics

@@ -421,7 +421,7 @@ export default function Admin() {
           ...prev.servers,
           [activeServer]: {
             ...prev.servers[activeServer],
-            features: [...(prev.servers[activeServer]?.features || []), 'New Feature']
+            features: [...(prev.servers[activeServer]?.features || []), { icon: '🎮', title: 'New Feature', description: 'Description' }]
           }
         }
       }));
@@ -435,14 +435,14 @@ export default function Admin() {
 
   const updateFeature = (index, field, value) => {
     if (isDualServerStructure()) {
-      // New structure uses string array
+      // New structure uses feature objects with icon, title, description
       setContent(prev => ({
         ...prev,
         servers: {
           ...prev.servers,
           [activeServer]: {
             ...prev.servers[activeServer],
-            features: prev.servers[activeServer].features.map((f, i) => i === index ? value : f)
+            features: prev.servers[activeServer].features.map((f, i) => i === index ? { ...f, [field]: value } : f)
           }
         }
       }));
@@ -2026,13 +2026,33 @@ export default function Admin() {
                               🗑️ Remove
                             </button>
                           </div>
+                          <div className="form-grid">
+                            <div className="form-group">
+                              <label>Icon (emoji)</label>
+                              <input
+                                type="text"
+                                className="form-input"
+                                value={feature.icon || ''}
+                                onChange={(e) => updateFeature(index, 'icon', e.target.value)}
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>Title</label>
+                              <input
+                                type="text"
+                                className="form-input"
+                                value={feature.title || ''}
+                                onChange={(e) => updateFeature(index, 'title', e.target.value)}
+                              />
+                            </div>
+                          </div>
                           <div className="form-group">
-                            <label>Feature Description</label>
-                            <input
-                              type="text"
+                            <label>Description</label>
+                            <textarea
                               className="form-input"
-                              value={feature}
-                              onChange={(e) => updateFeature(index, null, e.target.value)}
+                              value={feature.description || ''}
+                              onChange={(e) => updateFeature(index, 'description', e.target.value)}
+                              rows={3}
                             />
                           </div>
                         </div>
