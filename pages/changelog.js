@@ -6,6 +6,7 @@ export default function Changelog() {
   const [content, setContent] = useState(null);
   const [autoChangelog, setAutoChangelog] = useState(null);
   const [activeTab, setActiveTab] = useState('auto'); // 'auto' or 'manual'
+  const [serverFilter, setServerFilter] = useState('all'); // 'all', 'minecraft', 'fivem'
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,12 +41,31 @@ export default function Changelog() {
           { key: 'fixes', title: '🐛 Bug Fixes', items: entry.changes?.fixes },
         ];
 
+    const getServerBadge = () => {
+      const serverType = entry.serverType || 'both';
+      if (serverType === 'minecraft') return { emoji: '⛏️', text: 'Minecraft', color: '#00AA00' };
+      if (serverType === 'fivem') return { emoji: '🚗', text: 'FiveM', color: '#F40552' };
+      return { emoji: '🌐', text: 'Both Servers', color: '#6b46c1' };
+    };
+
+    const serverBadge = getServerBadge();
+
     return (
       <div key={index} className="changelog-entry">
         <div className="changelog-header">
           <h2>Version {entry.version}</h2>
-          <span className="changelog-date">{entry.date}</span>
-          {index === 0 && <span className="changelog-badge new">Latest</span>}
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            {!isAuto && (
+              <span className="changelog-badge" style={{
+                background: `linear-gradient(135deg, ${serverBadge.color}, ${serverBadge.color}dd)`,
+                fontSize: '0.85rem'
+              }}>
+                {serverBadge.emoji} {serverBadge.text}
+              </span>
+            )}
+            <span className="changelog-date">{entry.date}</span>
+            {index === 0 && <span className="changelog-badge new">Latest</span>}
+          </div>
         </div>
         <div className="changelog-content">
           {sections.map(section => (
@@ -157,14 +177,77 @@ export default function Changelog() {
               border: '1px solid rgba(236, 72, 153, 0.3)'
             }}>
               <p style={{ margin: 0, color: 'var(--text-secondary)' }}>
-                🎮 <strong>Server game updates</strong> - Manually curated FiveM server changes, features, and improvements.
+                🎮 <strong>Server game updates</strong> - Manually curated server changes, features, and improvements.
               </p>
+            </div>
+
+            {/* Server Filter Buttons */}
+            <div style={{
+              display: 'flex',
+              gap: '0.75rem',
+              marginBottom: '2rem',
+              flexWrap: 'wrap'
+            }}>
+              <button
+                onClick={() => setServerFilter('all')}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: serverFilter === 'all' ? 'linear-gradient(135deg, #6b46c1, #ec4899)' : 'rgba(107, 70, 193, 0.1)',
+                  border: serverFilter === 'all' ? '2px solid #6b46c1' : '2px solid rgba(107, 70, 193, 0.3)',
+                  color: serverFilter === 'all' ? 'white' : 'var(--text-primary)',
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                  fontWeight: '600',
+                  borderRadius: '8px',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                🌐 All Servers
+              </button>
+              <button
+                onClick={() => setServerFilter('minecraft')}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: serverFilter === 'minecraft' ? 'linear-gradient(135deg, #00AA00, #00CC00)' : 'rgba(0, 170, 0, 0.1)',
+                  border: serverFilter === 'minecraft' ? '2px solid #00AA00' : '2px solid rgba(0, 170, 0, 0.3)',
+                  color: serverFilter === 'minecraft' ? 'white' : 'var(--text-primary)',
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                  fontWeight: '600',
+                  borderRadius: '8px',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                ⛏️ Minecraft
+              </button>
+              <button
+                onClick={() => setServerFilter('fivem')}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: serverFilter === 'fivem' ? 'linear-gradient(135deg, #F40552, #FF1E68)' : 'rgba(244, 5, 82, 0.1)',
+                  border: serverFilter === 'fivem' ? '2px solid #F40552' : '2px solid rgba(244, 5, 82, 0.3)',
+                  color: serverFilter === 'fivem' ? 'white' : 'var(--text-primary)',
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                  fontWeight: '600',
+                  borderRadius: '8px',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                🚗 FiveM
+              </button>
             </div>
 
             {loading ? (
               <SkeletonChangelog count={2} />
             ) : content?.changelog?.length > 0 ? (
-              content.changelog.map((entry, index) => renderChangelogEntry(entry, index, false))
+              content.changelog
+                .filter(entry => {
+                  if (serverFilter === 'all') return true;
+                  const entryServerType = entry.serverType || 'both';
+                  return entryServerType === serverFilter || entryServerType === 'both';
+                })
+                .map((entry, index) => renderChangelogEntry(entry, index, false))
             ) : (
               <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
                 <p>No manual changelog entries yet. Add them from the admin panel.</p>

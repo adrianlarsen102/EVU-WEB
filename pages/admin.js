@@ -86,6 +86,23 @@ export default function Admin() {
   const [testDiscordStatus, setTestDiscordStatus] = useState('');
   const [sendingTestDiscord, setSendingTestDiscord] = useState(false);
 
+  // Audit Logs
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [logsSeverityFilter, setLogsSeverityFilter] = useState('all');
+  const [logsEventTypeFilter, setLogsEventTypeFilter] = useState('all');
+  const [logsPage, setLogsPage] = useState(1);
+  const [logsTotalPages, setLogsTotalPages] = useState(1);
+
+  // Error Logs
+  const [errorLogs, setErrorLogs] = useState([]);
+  const [errorLogsLoading, setErrorLogsLoading] = useState(false);
+  const [errorLogsSeverityFilter, setErrorLogsSeverityFilter] = useState('all');
+  const [errorLogsTypeFilter, setErrorLogsTypeFilter] = useState('all');
+  const [errorLogsResolvedFilter, setErrorLogsResolvedFilter] = useState('all');
+  const [errorLogsPage, setErrorLogsPage] = useState(1);
+  const [errorLogsTotalPages, setErrorLogsTotalPages] = useState(1);
+
   // CSRF Token
   const [csrfToken, setCsrfToken] = useState(null);
 
@@ -142,6 +159,18 @@ export default function Admin() {
       loadDiscordSettings();
     }
   }, [activeTab, isAuthenticated]);
+
+  useEffect(() => {
+    if (activeTab === 'logs' && isAuthenticated) {
+      loadAuditLogs();
+    }
+  }, [activeTab, isAuthenticated, logsPage, logsSeverityFilter, logsEventTypeFilter]);
+
+  useEffect(() => {
+    if (activeTab === 'error-logs' && isAuthenticated) {
+      loadErrorLogs();
+    }
+  }, [activeTab, isAuthenticated, errorLogsPage, errorLogsSeverityFilter, errorLogsTypeFilter, errorLogsResolvedFilter]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -479,7 +508,7 @@ export default function Admin() {
     setContent(prev => ({
       ...prev,
       changelog: [
-        { version: '1.0.0', date: today, changes: { features: [], improvements: [], fixes: [] } },
+        { version: '1.0.0', date: today, serverType: 'both', changes: { features: [], improvements: [], fixes: [] } },
         ...(prev.changelog || [])
       ]
     }));
@@ -938,6 +967,61 @@ export default function Admin() {
       }
     } catch (error) {
       console.error('Load roles error:', error);
+    }
+  };
+
+  const loadAuditLogs = async () => {
+    setLogsLoading(true);
+    try {
+      const params = new URLSearchParams({
+        page: logsPage.toString(),
+        limit: '50',
+        ...(logsSeverityFilter !== 'all' && { severity: logsSeverityFilter }),
+        ...(logsEventTypeFilter !== 'all' && { eventType: logsEventTypeFilter })
+      });
+
+      const res = await fetchWithTimeout(`/api/admin/audit-logs?${params}`, {}, 10000);
+      const data = await res.json();
+
+      if (res.ok) {
+        setAuditLogs(data.logs || []);
+        setLogsTotalPages(data.totalPages || 1);
+      } else {
+        showMessage('error', data.error || 'Failed to load audit logs');
+      }
+    } catch (error) {
+      console.error('Load audit logs error:', error);
+      showMessage('error', 'Failed to load audit logs');
+    } finally {
+      setLogsLoading(false);
+    }
+  };
+
+  const loadErrorLogs = async () => {
+    setErrorLogsLoading(true);
+    try {
+      const params = new URLSearchParams({
+        page: errorLogsPage.toString(),
+        limit: '50',
+        ...(errorLogsSeverityFilter !== 'all' && { severity: errorLogsSeverityFilter }),
+        ...(errorLogsTypeFilter !== 'all' && { errorType: errorLogsTypeFilter }),
+        ...(errorLogsResolvedFilter !== 'all' && { resolved: errorLogsResolvedFilter })
+      });
+
+      const res = await fetchWithTimeout(`/api/admin/error-logs?${params}`, {}, 10000);
+      const data = await res.json();
+
+      if (res.ok) {
+        setErrorLogs(data.logs || []);
+        setErrorLogsTotalPages(data.totalPages || 1);
+      } else {
+        showMessage('error', data.error || 'Failed to load error logs');
+      }
+    } catch (error) {
+      console.error('Load error logs error:', error);
+      showMessage('error', 'Failed to load error logs');
+    } finally {
+      setErrorLogsLoading(false);
     }
   };
 
@@ -1528,6 +1612,18 @@ export default function Admin() {
                 onClick={() => setActiveTab('roles')}
               >
                 🔐 Roles & Permissions
+              </button>
+              <button
+                className={`admin-tab ${activeTab === 'logs' ? 'active' : ''}`}
+                onClick={() => setActiveTab('logs')}
+              >
+                📋 Audit Logs
+              </button>
+              <button
+                className={`admin-tab ${activeTab === 'error-logs' ? 'active' : ''}`}
+                onClick={() => setActiveTab('error-logs')}
+              >
+                🚨 Error Logs
               </button>
             </div>
 
@@ -2247,6 +2343,18 @@ export default function Admin() {
                             value={entry.date}
                             onChange={(e) => updateChangelog(index, 'date', e.target.value)}
                           />
+                        </div>
+                        <div className="form-group">
+                          <label>Server Type</label>
+                          <select
+                            className="form-input"
+                            value={entry.serverType || 'both'}
+                            onChange={(e) => updateChangelog(index, 'serverType', e.target.value)}
+                          >
+                            <option value="both">🌐 Both Servers</option>
+                            <option value="minecraft">⛏️ Minecraft Only</option>
+                            <option value="fivem">🚗 FiveM Only</option>
+                          </select>
                         </div>
                       </div>
                       <div className="form-group">
@@ -3873,6 +3981,425 @@ export default function Admin() {
                       </p>
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Logs Tab */}
+            {activeTab === 'logs' && (
+              <div className="admin-tab-content">
+                <div className="admin-card">
+                  <h3 className="admin-card-title">📋 Audit Logs</h3>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
+                    View all system events, user actions, and security alerts
+                  </p>
+
+                  {/* Filters */}
+                  <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                    <div style={{ flex: '1', minWidth: '200px' }}>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>Severity</label>
+                      <select
+                        className="form-input"
+                        value={logsSeverityFilter}
+                        onChange={(e) => {
+                          setLogsSeverityFilter(e.target.value);
+                          setLogsPage(1);
+                        }}
+                      >
+                        <option value="all">All Severities</option>
+                        <option value="info">ℹ️ Info</option>
+                        <option value="warning">⚠️ Warning</option>
+                        <option value="error">❌ Error</option>
+                        <option value="critical">🔴 Critical</option>
+                      </select>
+                    </div>
+                    <div style={{ flex: '1', minWidth: '200px' }}>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>Event Type</label>
+                      <select
+                        className="form-input"
+                        value={logsEventTypeFilter}
+                        onChange={(e) => {
+                          setLogsEventTypeFilter(e.target.value);
+                          setLogsPage(1);
+                        }}
+                      >
+                        <option value="all">All Event Types</option>
+                        <optgroup label="Authentication">
+                          <option value="LOGIN_SUCCESS">Login Success</option>
+                          <option value="LOGIN_FAILURE">Login Failure</option>
+                          <option value="LOGOUT">Logout</option>
+                          <option value="PASSWORD_CHANGED">Password Changed</option>
+                        </optgroup>
+                        <optgroup label="User Management">
+                          <option value="USER_CREATED">User Created</option>
+                          <option value="USER_UPDATED">User Updated</option>
+                          <option value="USER_DELETED">User Deleted</option>
+                          <option value="USER_ROLE_CHANGED">User Role Changed</option>
+                        </optgroup>
+                        <optgroup label="Content">
+                          <option value="CONTENT_UPDATED">Content Updated</option>
+                          <option value="CONTENT_DELETED">Content Deleted</option>
+                        </optgroup>
+                        <optgroup label="Forum">
+                          <option value="TOPIC_DELETED">Topic Deleted</option>
+                          <option value="COMMENT_DELETED">Comment Deleted</option>
+                          <option value="TOPIC_LOCKED">Topic Locked</option>
+                        </optgroup>
+                        <optgroup label="Security">
+                          <option value="UNAUTHORIZED_ACCESS_ATTEMPT">Unauthorized Access</option>
+                          <option value="CSRF_TOKEN_INVALID">CSRF Token Invalid</option>
+                          <option value="RATE_LIMIT_EXCEEDED">Rate Limit Exceeded</option>
+                        </optgroup>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Logs List */}
+                  {logsLoading ? (
+                    <div style={{ textAlign: 'center', padding: '3rem' }}>
+                      <p>Loading audit logs...</p>
+                    </div>
+                  ) : auditLogs.length > 0 ? (
+                    <>
+                      <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '2px solid rgba(107, 70, 193, 0.2)' }}>
+                              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Timestamp</th>
+                              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Event</th>
+                              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>User</th>
+                              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Severity</th>
+                              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>IP Address</th>
+                              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Details</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {auditLogs.map((log, index) => (
+                              <tr key={log.id || index} style={{ borderBottom: '1px solid rgba(107, 70, 193, 0.1)' }}>
+                                <td style={{ padding: '1rem', fontSize: '0.9rem' }}>
+                                  {new Date(log.timestamp).toLocaleString()}
+                                </td>
+                                <td style={{ padding: '1rem', fontSize: '0.9rem' }}>
+                                  {log.event_type?.replace(/_/g, ' ')}
+                                </td>
+                                <td style={{ padding: '1rem', fontSize: '0.9rem' }}>
+                                  {log.user_id || 'System'}
+                                </td>
+                                <td style={{ padding: '1rem' }}>
+                                  <span style={{
+                                    padding: '0.25rem 0.75rem',
+                                    borderRadius: '12px',
+                                    fontSize: '0.85rem',
+                                    fontWeight: '600',
+                                    background: log.severity === 'critical' ? 'rgba(255, 0, 0, 0.2)' :
+                                      log.severity === 'error' ? 'rgba(255, 100, 0, 0.2)' :
+                                      log.severity === 'warning' ? 'rgba(255, 200, 0, 0.2)' :
+                                      'rgba(107, 70, 193, 0.2)',
+                                    color: log.severity === 'critical' ? '#ff0000' :
+                                      log.severity === 'error' ? '#ff6400' :
+                                      log.severity === 'warning' ? '#ffc800' :
+                                      'var(--primary-color)'
+                                  }}>
+                                    {log.severity === 'critical' && '🔴'}
+                                    {log.severity === 'error' && '❌'}
+                                    {log.severity === 'warning' && '⚠️'}
+                                    {log.severity === 'info' && 'ℹ️'}
+                                    {' '}{log.severity}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '1rem', fontSize: '0.85rem', fontFamily: 'monospace' }}>
+                                  {log.ip_address || 'N/A'}
+                                </td>
+                                <td style={{ padding: '1rem', fontSize: '0.85rem' }}>
+                                  {log.metadata && Object.keys(log.metadata).length > 0 ? (
+                                    <details style={{ cursor: 'pointer' }}>
+                                      <summary style={{ color: 'var(--primary-color)' }}>View metadata</summary>
+                                      <pre style={{
+                                        marginTop: '0.5rem',
+                                        padding: '0.5rem',
+                                        background: 'rgba(0, 0, 0, 0.2)',
+                                        borderRadius: '4px',
+                                        fontSize: '0.75rem',
+                                        overflow: 'auto',
+                                        maxWidth: '300px'
+                                      }}>
+                                        {JSON.stringify(log.metadata, null, 2)}
+                                      </pre>
+                                    </details>
+                                  ) : (
+                                    <span style={{ color: 'var(--text-secondary)' }}>No metadata</span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Pagination */}
+                      {logsTotalPages > 1 && (
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          gap: '0.5rem',
+                          marginTop: '2rem',
+                          flexWrap: 'wrap'
+                        }}>
+                          <button
+                            onClick={() => setLogsPage(Math.max(1, logsPage - 1))}
+                            disabled={logsPage === 1}
+                            className="btn-admin btn-admin-secondary"
+                            style={{ opacity: logsPage === 1 ? 0.5 : 1 }}
+                          >
+                            ← Previous
+                          </button>
+                          <span style={{
+                            padding: '0.75rem 1.5rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            fontWeight: '600'
+                          }}>
+                            Page {logsPage} of {logsTotalPages}
+                          </span>
+                          <button
+                            onClick={() => setLogsPage(Math.min(logsTotalPages, logsPage + 1))}
+                            disabled={logsPage === logsTotalPages}
+                            className="btn-admin btn-admin-secondary"
+                            style={{ opacity: logsPage === logsTotalPages ? 0.5 : 1 }}
+                          >
+                            Next →
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+                      <p>No audit logs found. Logs will appear as users interact with the system.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Error Logs Tab */}
+            {activeTab === 'error-logs' && (
+              <div className="admin-tab-content">
+                <div className="admin-card">
+                  <h3 className="admin-card-title">🚨 Error Logs</h3>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
+                    View application errors, exceptions, and failures for debugging
+                  </p>
+
+                  {/* Filters */}
+                  <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                    <div style={{ flex: '1', minWidth: '200px' }}>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>Severity</label>
+                      <select
+                        className="form-input"
+                        value={errorLogsSeverityFilter}
+                        onChange={(e) => {
+                          setErrorLogsSeverityFilter(e.target.value);
+                          setErrorLogsPage(1);
+                        }}
+                      >
+                        <option value="all">All Severities</option>
+                        <option value="low">🟢 Low</option>
+                        <option value="medium">🟡 Medium</option>
+                        <option value="high">🟠 High</option>
+                        <option value="critical">🔴 Critical</option>
+                      </select>
+                    </div>
+                    <div style={{ flex: '1', minWidth: '200px' }}>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>Error Type</label>
+                      <select
+                        className="form-input"
+                        value={errorLogsTypeFilter}
+                        onChange={(e) => {
+                          setErrorLogsTypeFilter(e.target.value);
+                          setErrorLogsPage(1);
+                        }}
+                      >
+                        <option value="all">All Error Types</option>
+                        <optgroup label="API Errors">
+                          <option value="API_ERROR">API Error</option>
+                          <option value="VALIDATION_ERROR">Validation Error</option>
+                        </optgroup>
+                        <optgroup label="Database Errors">
+                          <option value="DATABASE_ERROR">Database Error</option>
+                          <option value="QUERY_ERROR">Query Error</option>
+                        </optgroup>
+                        <optgroup label="External Services">
+                          <option value="EMAIL_ERROR">Email Error</option>
+                          <option value="DISCORD_WEBHOOK_ERROR">Discord Webhook Error</option>
+                        </optgroup>
+                        <optgroup label="File Operations">
+                          <option value="FILE_UPLOAD_ERROR">File Upload Error</option>
+                          <option value="FILE_READ_ERROR">File Read Error</option>
+                        </optgroup>
+                        <optgroup label="Application">
+                          <option value="UNHANDLED_EXCEPTION">Unhandled Exception</option>
+                          <option value="TIMEOUT_ERROR">Timeout Error</option>
+                        </optgroup>
+                        <optgroup label="Authentication">
+                          <option value="SESSION_ERROR">Session Error</option>
+                          <option value="AUTH_ERROR">Auth Error</option>
+                        </optgroup>
+                      </select>
+                    </div>
+                    <div style={{ flex: '1', minWidth: '200px' }}>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>Status</label>
+                      <select
+                        className="form-input"
+                        value={errorLogsResolvedFilter}
+                        onChange={(e) => {
+                          setErrorLogsResolvedFilter(e.target.value);
+                          setErrorLogsPage(1);
+                        }}
+                      >
+                        <option value="all">All Statuses</option>
+                        <option value="false">🔓 Unresolved</option>
+                        <option value="true">✅ Resolved</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Error Logs List */}
+                  {errorLogsLoading ? (
+                    <div style={{ textAlign: 'center', padding: '3rem' }}>
+                      <p>Loading error logs...</p>
+                    </div>
+                  ) : errorLogs.length > 0 ? (
+                    <>
+                      <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '2px solid rgba(255, 0, 0, 0.2)' }}>
+                              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Timestamp</th>
+                              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Type</th>
+                              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Message</th>
+                              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Severity</th>
+                              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Endpoint</th>
+                              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Status</th>
+                              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Details</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {errorLogs.map((log, index) => (
+                              <tr key={log.id || index} style={{ borderBottom: '1px solid rgba(255, 0, 0, 0.1)' }}>
+                                <td style={{ padding: '1rem', fontSize: '0.9rem' }}>
+                                  {new Date(log.timestamp).toLocaleString()}
+                                </td>
+                                <td style={{ padding: '1rem', fontSize: '0.9rem', fontFamily: 'monospace' }}>
+                                  {log.error_type}
+                                </td>
+                                <td style={{ padding: '1rem', fontSize: '0.9rem', maxWidth: '300px' }}>
+                                  {log.message}
+                                </td>
+                                <td style={{ padding: '1rem' }}>
+                                  <span style={{
+                                    padding: '0.25rem 0.75rem',
+                                    borderRadius: '12px',
+                                    fontSize: '0.85rem',
+                                    fontWeight: '600',
+                                    background: log.severity === 'critical' ? 'rgba(255, 0, 0, 0.2)' :
+                                      log.severity === 'high' ? 'rgba(255, 100, 0, 0.2)' :
+                                      log.severity === 'medium' ? 'rgba(255, 200, 0, 0.2)' :
+                                      'rgba(0, 255, 0, 0.2)',
+                                    color: log.severity === 'critical' ? '#ff0000' :
+                                      log.severity === 'high' ? '#ff6400' :
+                                      log.severity === 'medium' ? '#ffc800' :
+                                      '#00ff00'
+                                  }}>
+                                    {log.severity === 'critical' && '🔴'}
+                                    {log.severity === 'high' && '🟠'}
+                                    {log.severity === 'medium' && '🟡'}
+                                    {log.severity === 'low' && '🟢'}
+                                    {' '}{log.severity}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '1rem', fontSize: '0.85rem', fontFamily: 'monospace' }}>
+                                  {log.endpoint || 'N/A'}
+                                </td>
+                                <td style={{ padding: '1rem' }}>
+                                  <span style={{
+                                    padding: '0.25rem 0.75rem',
+                                    borderRadius: '12px',
+                                    fontSize: '0.85rem',
+                                    fontWeight: '600',
+                                    background: log.resolved ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 100, 0, 0.2)',
+                                    color: log.resolved ? '#00ff88' : '#ff6400'
+                                  }}>
+                                    {log.resolved ? '✅ Resolved' : '🔓 Open'}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '1rem', fontSize: '0.85rem' }}>
+                                  {log.details && Object.keys(log.details).length > 0 ? (
+                                    <details style={{ cursor: 'pointer' }}>
+                                      <summary style={{ color: 'var(--primary-color)' }}>View details</summary>
+                                      <pre style={{
+                                        marginTop: '0.5rem',
+                                        padding: '0.5rem',
+                                        background: 'rgba(0, 0, 0, 0.2)',
+                                        borderRadius: '4px',
+                                        fontSize: '0.75rem',
+                                        overflow: 'auto',
+                                        maxWidth: '400px',
+                                        maxHeight: '200px'
+                                      }}>
+                                        {JSON.stringify(log.details, null, 2)}
+                                      </pre>
+                                    </details>
+                                  ) : (
+                                    <span style={{ color: 'var(--text-secondary)' }}>No details</span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Pagination */}
+                      {errorLogsTotalPages > 1 && (
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          gap: '0.5rem',
+                          marginTop: '2rem',
+                          flexWrap: 'wrap'
+                        }}>
+                          <button
+                            onClick={() => setErrorLogsPage(Math.max(1, errorLogsPage - 1))}
+                            disabled={errorLogsPage === 1}
+                            className="btn-admin btn-admin-secondary"
+                            style={{ opacity: errorLogsPage === 1 ? 0.5 : 1 }}
+                          >
+                            ← Previous
+                          </button>
+                          <span style={{
+                            padding: '0.75rem 1.5rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            fontWeight: '600'
+                          }}>
+                            Page {errorLogsPage} of {errorLogsTotalPages}
+                          </span>
+                          <button
+                            onClick={() => setErrorLogsPage(Math.min(errorLogsTotalPages, errorLogsPage + 1))}
+                            disabled={errorLogsPage === errorLogsTotalPages}
+                            className="btn-admin btn-admin-secondary"
+                            style={{ opacity: errorLogsPage === errorLogsTotalPages ? 0.5 : 1 }}
+                          >
+                            Next →
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+                      <p>No error logs found. Error logs will appear when the application encounters errors.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
