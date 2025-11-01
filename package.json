@@ -40,6 +40,7 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
     "bcrypt": "^6.0.0",
+    "file-type": "^16.5.4",
     "formidable": "^3.5.4",
     "next": "^16.0.1",
     "nodemailer": "^7.0.9",

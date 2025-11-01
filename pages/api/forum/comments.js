@@ -9,6 +9,7 @@ import {
   incrementCategoryPostCount
 } from '../../../lib/database';
 import { rateLimiters } from '../../../lib/rateLimit';
+import { requireCSRFToken } from '../../../lib/csrf';
 
 export default async function handler(req, res) {
   // Apply rate limiting for POST requests (creating comments)
@@ -78,6 +79,15 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    // CSRF protection
+    const csrfCheck = requireCSRFToken(req, res, sessionId);
+    if (csrfCheck !== true) {
+      return res.status(csrfCheck.status).json({
+        error: csrfCheck.error,
+        message: csrfCheck.message
+      });
+    }
+
     const { commentId, content } = req.body;
 
     if (!commentId || !content) {
@@ -116,6 +126,15 @@ export default async function handler(req, res) {
 
     if (!session) {
       return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // CSRF protection
+    const csrfCheck = requireCSRFToken(req, res, sessionId);
+    if (csrfCheck !== true) {
+      return res.status(csrfCheck.status).json({
+        error: csrfCheck.error,
+        message: csrfCheck.message
+      });
     }
 
     const { commentId } = req.body;

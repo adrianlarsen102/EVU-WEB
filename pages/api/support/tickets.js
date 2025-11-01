@@ -8,6 +8,7 @@ import {
 } from '../../../lib/database';
 import { sendTicketCreatedEmail, sendAdminTicketNotification, sendTicketStatusEmail } from '../../../lib/email';
 import { rateLimiters } from '../../../lib/rateLimit';
+import { requireCSRFToken } from '../../../lib/csrf';
 
 export default async function handler(req, res) {
   // Apply rate limiting for POST requests (creating tickets)
@@ -122,6 +123,15 @@ export default async function handler(req, res) {
 
     if (!session) {
       return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // CSRF protection
+    const csrfCheck = requireCSRFToken(req, res, sessionId);
+    if (csrfCheck !== true) {
+      return res.status(csrfCheck.status).json({
+        error: csrfCheck.error,
+        message: csrfCheck.message
+      });
     }
 
     const { ticketId, status, priority, assignedTo, adminNotes } = req.body;

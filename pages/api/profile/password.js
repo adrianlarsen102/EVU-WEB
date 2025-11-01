@@ -39,8 +39,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'New passwords do not match' });
     }
 
-    if (newPassword.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters' });
     }
 
     // Get current user

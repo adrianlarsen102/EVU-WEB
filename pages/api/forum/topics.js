@@ -8,6 +8,7 @@ import {
   incrementCategoryTopicCount
 } from '../../../lib/database';
 import { rateLimiters } from '../../../lib/rateLimit';
+import { requireCSRFToken } from '../../../lib/csrf';
 
 export default async function handler(req, res) {
   // Apply rate limiting for POST requests (creating topics)
@@ -86,6 +87,15 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    // CSRF protection
+    const csrfCheck = requireCSRFToken(req, res, sessionId);
+    if (csrfCheck !== true) {
+      return res.status(csrfCheck.status).json({
+        error: csrfCheck.error,
+        message: csrfCheck.message
+      });
+    }
+
     const { topicId, title, content, isPinned, isLocked } = req.body;
 
     if (!topicId) {
@@ -129,6 +139,15 @@ export default async function handler(req, res) {
 
     if (!session) {
       return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // CSRF protection
+    const csrfCheck = requireCSRFToken(req, res, sessionId);
+    if (csrfCheck !== true) {
+      return res.status(csrfCheck.status).json({
+        error: csrfCheck.error,
+        message: csrfCheck.message
+      });
     }
 
     const { topicId } = req.body;
