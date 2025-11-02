@@ -6,6 +6,9 @@ on:
 jobs:
   clear-cache:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
 
     steps:
     - name: Checkout code
