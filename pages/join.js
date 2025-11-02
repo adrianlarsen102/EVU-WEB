@@ -134,8 +134,5 @@ export default function Join() {
     </Layout>
   );
 }
-
-// Force server-side rendering
-export async function getServerSideProps() {
-  return { props: {} };
-}
+// Force SSR
+export async function getServerSideProps() { return { props: {} }; }

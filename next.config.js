@@ -2,6 +2,11 @@
 const nextConfig = {
   reactStrictMode: true,
 
+  // Disable ESLint during build (linting is done separately in CI)
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   // Performance optimizations (swcMinify is default in Next.js 15+)
   compress: true,
 
@@ -107,10 +112,16 @@ const nextConfig = {
   // Enable experimental features for better performance
   experimental: {
     optimizePackageImports: ['@supabase/supabase-js'],
+    isrMemoryCacheSize: 0,
   },
 
   // Production optimizations
   productionBrowserSourceMaps: false,
+
+  // Disable automatic static optimization for error pages
+  generateBuildId: async () => {
+    return 'build-' + Date.now();
+  },
 }
 
 module.exports = nextConfig

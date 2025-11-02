@@ -32,7 +32,15 @@
       "Bash(npx next:*)",
       "Bash(npm test:*)",
       "Bash(npx eslint:*)",
-      "Bash(node node_modules/next/dist/bin/next lint:*)"
+      "Bash(node node_modules/next/dist/bin/next lint:*)",
+      "Bash(TURBOPACK=0 npm run build:*)",
+      "Bash(npm view:*)",
+      "Bash(do if [[ \"$file\" != \"_\"* ]])",
+      "Bash(! grep -q \"getServerSideProps\\|getStaticProps\" \"$file\")",
+      "Bash(then echo \"// Force SSR\")",
+      "Bash(\"$file\")",
+      "Bash(echo:*)",
+      "Bash(fi)"
     ],
     "deny": [],
     "ask": []
