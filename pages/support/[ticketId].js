@@ -273,3 +273,10 @@ export default function TicketDetail() {
     </Layout>
   );
 }
+
+// Force server-side rendering to avoid Next.js build errors with useRouter
+export async function getServerSideProps() {
+  return {
+    props: {}, // Will be passed to the page component as props
+  };
+}
