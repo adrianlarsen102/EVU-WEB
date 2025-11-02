@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.2.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.1.0...v3.2.0) (2025-11-02)
+
+
+### Features
+
+* add comprehensive GitHub Actions workflows for CI/CD ([61f3ca4](https://github.com/adrianlarsen102/EVU-WEB/commit/61f3ca4d84955da633d42d4340cb4f95c2469443))
+* consolidate database connections and update dependencies ([4c6e290](https://github.com/adrianlarsen102/EVU-WEB/commit/4c6e290418a210624a849671d7b5a54b2b377f22))
+* implement high-priority security and performance improvements ([8f83ff9](https://github.com/adrianlarsen102/EVU-WEB/commit/8f83ff90d0e156400e5c899af83adfc4619aa9a3))
+* install and configure ESLint for code quality ([d8bbe39](https://github.com/adrianlarsen102/EVU-WEB/commit/d8bbe396054a2fea39cbe9dd9f10811327b94c36))
+* migrate to ESLint 9 flat config (eslint.config.mjs) ([1ec0e1b](https://github.com/adrianlarsen102/EVU-WEB/commit/1ec0e1b04aaf26604d4c8bc56bad0e60b9bccc24))
+
+
+### Bug Fixes
+
+* add cache-busting to GitHub Actions workflows ([dba870e](https://github.com/adrianlarsen102/EVU-WEB/commit/dba870e00a13f5db2a3e5c937fda882a428f9990))
+* add getServerSideProps to dynamic routes to prevent build errors ([22f6381](https://github.com/adrianlarsen102/EVU-WEB/commit/22f63815844034b866b4753eeeb581a72fa04c8d))
+* correct import paths in roles and search subdirectories ([b52c046](https://github.com/adrianlarsen102/EVU-WEB/commit/b52c046d42c51ae9dce59dbff3f569bb3cca5356))
+* correct validation test error messages and ESLint config ([15126f5](https://github.com/adrianlarsen102/EVU-WEB/commit/15126f5baa4b40bc1d96142fcb04c2cc3be2d075))
+* gracefully handle missing ESLint in CI workflow ([873b6cb](https://github.com/adrianlarsen102/EVU-WEB/commit/873b6cb5dc2c4d837c227bdcaecfb4fe22353230)), closes [#6](https://github.com/adrianlarsen102/EVU-WEB/issues/6)
+* implement critical security fixes (P0 issues) ([f69ae00](https://github.com/adrianlarsen102/EVU-WEB/commit/f69ae00363c68deecae627da244b164af29b9536))
+* remove deprecated eslint config from next.config.js ([e942ec9](https://github.com/adrianlarsen102/EVU-WEB/commit/e942ec93aacb0d0f8711ac249549a491756f976e))
+* resolve critical ESLint errors and improve code quality ([15b689e](https://github.com/adrianlarsen102/EVU-WEB/commit/15b689e23f95d8cff9b504cd138f6ce21f05d36c))
+* resolve csrf.test.js failures (3 failures → 0) ([5c93a17](https://github.com/adrianlarsen102/EVU-WEB/commit/5c93a173951675ecd90b926012ee6e955035ccf2))
+* resolve permissions.test.js mocking issues (10 failures → 0) ([5b68cb0](https://github.com/adrianlarsen102/EVU-WEB/commit/5b68cb0c78c82abf093b5477efd442f1e9071fdc))
+* resolve sessionCache.test.js failures (14 failures → 0) ([5aae2a7](https://github.com/adrianlarsen102/EVU-WEB/commit/5aae2a7bca5e4bc7301215d804fb2cfca8b2806e))
+* update validation and login tests to match current implementation ([8c1837a](https://github.com/adrianlarsen102/EVU-WEB/commit/8c1837a78f6ae4da5cb6ae16316648099d765460))
+* upgrade ESLint to v9 and fix GitHub Actions permissions ([9f98e56](https://github.com/adrianlarsen102/EVU-WEB/commit/9f98e56982c204e92e48dff7f8ad52ba4db9c629))
+* workaround for Next.js 16 lint command issue ([1d34030](https://github.com/adrianlarsen102/EVU-WEB/commit/1d34030435db6dc37573fd888bb48567a82e57d6))
+
+
+### Documentation
+
+* add comprehensive TODO.md for test failures and future improvements ([3f99bfb](https://github.com/adrianlarsen102/EVU-WEB/commit/3f99bfb4ca415ad44acee0c6fcf01df82f8e52b4))
+
 ## [3.1.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.0.1...v3.1.0) (2025-11-01)
 
 
