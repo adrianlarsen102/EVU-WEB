@@ -1,4 +1,4 @@
-import { getSupabaseClient } from '../../lib/database';
+import { getSupabaseClient } from '../../../lib/database';
 import { rateLimiters } from '../../../lib/rateLimit';
 
 const supabase = getSupabaseClient();

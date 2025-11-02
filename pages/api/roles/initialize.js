@@ -1,4 +1,4 @@
-import { getSupabaseClient } from '../../lib/database';
+import { getSupabaseClient } from '../../../lib/database';
 import { ALL_PERMISSIONS } from './index';
 
 const supabase = getSupabaseClient();
