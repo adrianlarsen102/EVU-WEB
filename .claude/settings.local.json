@@ -21,7 +21,11 @@
       "Bash(find:*)",
       "Bash(cat:*)",
       "Bash(npm run db:migrate:*)",
-      "Bash(npm run db:push:*)"
+      "Bash(npm run db:push:*)",
+      "Bash(for:*)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(head:*)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

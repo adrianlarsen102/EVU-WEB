@@ -85,55 +85,60 @@ export default async function handler(req, res) {
 
   // PUT - Update topic (requires authentication and ownership or admin)
   if (req.method === 'PUT') {
-    const sessionId = getSessionFromCookie(req.headers.cookie);
-    const session = await validateSession(sessionId);
+    try {
+      const sessionId = getSessionFromCookie(req.headers.cookie);
+      const session = await validateSession(sessionId);
 
-    if (!session) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
+      if (!session) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
 
-    // CSRF protection
-    const csrfCheck = requireCSRFToken(req, res, sessionId);
-    if (csrfCheck !== true) {
-      return res.status(csrfCheck.status).json({
-        error: csrfCheck.error,
-        message: csrfCheck.message
-      });
-    }
+      // CSRF protection
+      const csrfCheck = requireCSRFToken(req, res, sessionId);
+      if (csrfCheck !== true) {
+        return res.status(csrfCheck.status).json({
+          error: csrfCheck.error,
+          message: csrfCheck.message
+        });
+      }
 
-    const { topicId, title, content, isPinned, isLocked } = req.body;
+      const { topicId, title, content, isPinned, isLocked } = req.body;
 
-    if (!topicId) {
-      return res.status(400).json({ error: 'Topic ID required' });
-    }
+      if (!topicId) {
+        return res.status(400).json({ error: 'Topic ID required' });
+      }
 
-    // Get the topic to check ownership
-    const topic = await getTopicById(topicId);
-    if (!topic) {
-      return res.status(404).json({ error: 'Topic not found' });
-    }
+      // Get the topic to check ownership
+      const topic = await getTopicById(topicId);
+      if (!topic) {
+        return res.status(404).json({ error: 'Topic not found' });
+      }
 
-    // Only author or admin can update
-    if (topic.author_id !== session.adminId && !session.isAdmin) {
-      return res.status(403).json({ error: 'Forbidden: You can only edit your own topics' });
-    }
+      // Only author or admin can update
+      if (topic.author_id !== session.adminId && !session.isAdmin) {
+        return res.status(403).json({ error: 'Forbidden: You can only edit your own topics' });
+      }
 
-    const updates = {};
-    if (title !== undefined) updates.title = title;
-    if (content !== undefined) updates.content = content;
+      const updates = {};
+      if (title !== undefined) updates.title = title;
+      if (content !== undefined) updates.content = content;
 
-    // Only admins can pin or lock topics
-    if (session.isAdmin) {
-      if (isPinned !== undefined) updates.is_pinned = isPinned;
-      if (isLocked !== undefined) updates.is_locked = isLocked;
-    }
+      // Only admins can pin or lock topics
+      if (session.isAdmin) {
+        if (isPinned !== undefined) updates.is_pinned = isPinned;
+        if (isLocked !== undefined) updates.is_locked = isLocked;
+      }
 
-    const result = await updateTopic(topicId, updates);
+      const result = await updateTopic(topicId, updates);
 
-    if (result.success) {
-      return res.status(200).json({ success: true });
-    } else {
-      return res.status(500).json({ error: result.error });
+      if (result.success) {
+        return res.status(200).json({ success: true });
+      } else {
+        return res.status(500).json({ error: result.error });
+      }
+    } catch (error) {
+      console.error('Error updating forum topic:', error);
+      return res.status(500).json({ error: 'Failed to update topic' });
     }
   }
 

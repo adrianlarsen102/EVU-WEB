@@ -1,9 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from '../../../lib/database';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const supabase = getSupabaseClient();
 
 export default async function handler(req, res) {
   // Verify this is an authorized cron request

@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from '../../lib/database';
 
 export default async function handler(req, res) {
   // Set JSON content type

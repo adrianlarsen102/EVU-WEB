@@ -1,10 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from '../../../lib/database';
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const supabase = getSupabaseClient();
 
 export default async function handler(req, res) {
   // Validate admin session
