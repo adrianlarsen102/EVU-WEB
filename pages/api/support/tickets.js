@@ -9,6 +9,7 @@ import {
 import { sendTicketCreatedEmail, sendAdminTicketNotification, sendTicketStatusEmail } from '../../../lib/email';
 import { rateLimiters } from '../../../lib/rateLimit';
 import { requireCSRFToken } from '../../../lib/csrf';
+import { sanitizeString, sanitizeHTML } from '../../../lib/validation';
 
 export default async function handler(req, res) {
   // Apply rate limiting for POST requests (creating tickets)
@@ -60,12 +61,18 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Subject, description, and category are required' });
     }
 
+    // Sanitize inputs
+    const sanitizedSubject = sanitizeString(subject);
+    const sanitizedDescription = sanitizeHTML(description);
+    const sanitizedCategory = sanitizeString(category);
+    const sanitizedEmail = email ? sanitizeString(email) : null;
+
     const sessionId = getSessionFromCookie(req.headers.cookie);
     const session = await validateSession(sessionId);
 
     let authorId = null;
     let authorUsername = 'Guest';
-    let authorEmail = email || null;
+    let authorEmail = sanitizedEmail;
 
     if (session) {
       authorId = session.adminId;
@@ -73,9 +80,9 @@ export default async function handler(req, res) {
     }
 
     const result = await createSupportTicket(
-      subject,
-      description,
-      category,
+      sanitizedSubject,
+      sanitizedDescription,
+      sanitizedCategory,
       priority || 'medium',
       authorId,
       authorUsername,

@@ -10,6 +10,7 @@ import {
 } from '../../../lib/database';
 import { rateLimiters } from '../../../lib/rateLimit';
 import { requireCSRFToken } from '../../../lib/csrf';
+import { sanitizeHTML } from '../../../lib/validation';
 
 export default async function handler(req, res) {
   // Apply rate limiting for POST requests (creating comments)
@@ -45,13 +46,16 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Topic ID and content are required' });
     }
 
-    if (content.length < 1 || content.length > 5000) {
+    // Sanitize content
+    const sanitizedContent = sanitizeHTML(content);
+
+    if (sanitizedContent.length < 1 || sanitizedContent.length > 5000) {
       return res.status(400).json({ error: 'Content must be between 1 and 5000 characters' });
     }
 
     const result = await createForumComment(
       topicId,
-      content,
+      sanitizedContent,
       session.adminId,
       session.username
     );

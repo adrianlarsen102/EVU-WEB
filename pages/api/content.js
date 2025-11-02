@@ -1,19 +1,9 @@
 import { validateSession, getSessionFromCookie } from '../../lib/auth';
 import { requireCSRFToken } from '../../lib/csrf';
 import { auditLog, getClientIP, getUserAgent, AuditEventTypes, AuditSeverity } from '../../lib/auditLog';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from '../../lib/database';
 
-// Validate environment variables
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  console.error('❌ CRITICAL: Missing Supabase environment variables!');
-  console.error('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? '✓ Set' : '✗ Missing');
-  console.error('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '✓ Set' : '✗ Missing');
-}
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const supabase = getSupabaseClient();
 
 export default async function handler(req, res) {
   // Set JSON content type to prevent HTML responses

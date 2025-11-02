@@ -9,6 +9,7 @@ import {
 } from '../../../lib/database';
 import { rateLimiters } from '../../../lib/rateLimit';
 import { requireCSRFToken } from '../../../lib/csrf';
+import { sanitizeString, sanitizeHTML } from '../../../lib/validation';
 
 export default async function handler(req, res) {
   // Apply rate limiting for POST requests (creating topics)
@@ -52,18 +53,22 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Category ID, title, and content are required' });
     }
 
-    if (title.length < 3 || title.length > 200) {
+    // Sanitize inputs
+    const sanitizedTitle = sanitizeString(title);
+    const sanitizedContent = sanitizeHTML(content);
+
+    if (sanitizedTitle.length < 3 || sanitizedTitle.length > 200) {
       return res.status(400).json({ error: 'Title must be between 3 and 200 characters' });
     }
 
-    if (content.length < 10 || content.length > 10000) {
+    if (sanitizedContent.length < 10 || sanitizedContent.length > 10000) {
       return res.status(400).json({ error: 'Content must be between 10 and 10000 characters' });
     }
 
     const result = await createForumTopic(
       categoryId,
-      title,
-      content,
+      sanitizedTitle,
+      sanitizedContent,
       session.adminId,
       session.username
     );

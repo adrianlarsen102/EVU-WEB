@@ -2,6 +2,9 @@ import { validateSession, getSessionFromCookie } from '../../lib/auth';
 import { requireCSRFToken } from '../../lib/csrf';
 import { auditLog, getClientIP, getUserAgent, AuditEventTypes, AuditSeverity } from '../../lib/auditLog';
 import { getAllAdmins, createAdmin, deleteAdmin, updateAdminPassword, updateAdmin } from '../../lib/database';
+import { sessionCache } from '../../lib/sessionCache';
+import { validateUsername, sanitizeString } from '../../lib/validation';
+import { rateLimiters } from '../../lib/rateLimit';
 
 export default async function handler(req, res) {
   // Check authentication
@@ -29,6 +32,10 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'GET') {
+    // Apply rate limiting for read operations
+    const rateLimitResult = await rateLimiters.read(req, res, null);
+    if (rateLimitResult !== true) return;
+
     // Get all users
     try {
       const admins = await getAllAdmins();
@@ -129,20 +136,40 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'User ID required' });
       }
 
-      // Build updates object
+      // Build updates object with sanitization
       const updates = {};
 
-      if (username !== undefined) updates.username = username;
-      if (email !== undefined) updates.email = email;
-      if (display_name !== undefined) updates.display_name = display_name;
+      if (username !== undefined) {
+        const validation = validateUsername(username);
+        if (!validation.valid) {
+          return res.status(400).json({ error: validation.errors[0] });
+        }
+        updates.username = validation.sanitized;
+      }
+      if (email !== undefined) {
+        updates.email = sanitizeString(email);
+      }
+      if (display_name !== undefined) {
+        updates.display_name = sanitizeString(display_name);
+      }
       if (role !== undefined) updates.role = role;
       if (roleId !== undefined) updates.role_id = roleId;
+
+      // Track if role/permissions changed for cache invalidation
+      const roleChanged = (role !== undefined || roleId !== undefined);
 
       // Update profile fields if any provided
       if (Object.keys(updates).length > 0) {
         const result = await updateAdmin(userId, updates);
         if (!result.success) {
           return res.status(400).json({ error: result.error || 'Failed to update user' });
+        }
+
+        // Invalidate user's session cache if role/permissions changed
+        // This forces permission re-check on next request
+        if (roleChanged) {
+          const invalidatedCount = sessionCache.invalidateUserSessions(userId);
+          console.log(`Invalidated ${invalidatedCount} session(s) for user ${userId} due to role change`);
         }
       }
 

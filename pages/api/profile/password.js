@@ -1,13 +1,9 @@
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from '../../../lib/database';
 import bcrypt from 'bcrypt';
 import { rateLimiters } from '../../../lib/rateLimit';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
+const supabase = getSupabaseClient();
 const SALT_ROUNDS = 10;
 
 export default async function handler(req, res) {

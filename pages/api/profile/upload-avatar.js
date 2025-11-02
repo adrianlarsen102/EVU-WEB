@@ -1,15 +1,12 @@
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from '../../../lib/database';
 import { rateLimiters } from '../../../lib/rateLimit';
 import formidable from 'formidable';
 import fs from 'fs';
 import path from 'path';
 import { fileTypeFromBuffer } from 'file-type';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const supabase = getSupabaseClient();
 
 export const config = {
   api: {

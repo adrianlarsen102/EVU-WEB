@@ -1,12 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from '../../../lib/database';
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 import { hasPermission } from '../../../lib/permissions';
 import { requireCSRFToken } from '../../../lib/csrf';
+import { sessionCache } from '../../../lib/sessionCache';
+import { rateLimiters } from '../../../lib/rateLimit';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const supabase = getSupabaseClient();
 
 // Default permissions available in the system
 export const ALL_PERMISSIONS = {
@@ -72,6 +71,10 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'GET') {
+    // Apply rate limiting for read operations
+    const rateLimitResult = await rateLimiters.read(req, res, null);
+    if (rateLimitResult !== true) return;
+
     // Get all roles
     try {
       const { data: roles, error } = await supabase
@@ -204,6 +207,22 @@ export default async function handler(req, res) {
       if (error) {
         console.error('Error updating role:', error);
         return res.status(500).json({ error: 'Failed to update role' });
+      }
+
+      // Invalidate all sessions for users with this role (permissions changed)
+      // First, get all users with this role
+      const { data: usersWithRole } = await supabase
+        .from('admins')
+        .select('id')
+        .eq('role_id', roleId);
+
+      if (usersWithRole && usersWithRole.length > 0) {
+        let totalInvalidated = 0;
+        for (const user of usersWithRole) {
+          const count = sessionCache.invalidateUserSessions(user.id);
+          totalInvalidated += count;
+        }
+        console.log(`Role ${roleId} updated: Invalidated ${totalInvalidated} session(s) for ${usersWithRole.length} user(s)`);
       }
 
       res.status(200).json({ success: true, role: data });
