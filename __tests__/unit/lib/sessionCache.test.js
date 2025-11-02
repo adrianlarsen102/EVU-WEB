@@ -3,20 +3,21 @@
  * Tests caching functionality and TTL behavior
  */
 
-const SessionCache = require('../../../lib/sessionCache')
-
-// Create fresh instance for each test
+// Use CommonJS require to get the singleton
+const { sessionCache } = require('../../../lib/sessionCache')
 let cache
 
 describe('SessionCache - Basic Operations', () => {
   beforeEach(() => {
-    // Create new cache with 100ms TTL for faster tests
-    cache = new (require('../../../lib/sessionCache').constructor)(100)
+    // Use the singleton and clear it before each test
+    cache = sessionCache
+    cache.clear()
   })
 
   afterEach(() => {
+    // Clean up after each test
     if (cache) {
-      cache.destroy()
+      cache.clear()
     }
   })
 
@@ -61,62 +62,80 @@ describe('SessionCache - Basic Operations', () => {
 
 describe('SessionCache - TTL Expiration', () => {
   beforeEach(() => {
-    cache = new (require('../../../lib/sessionCache').constructor)(100) // 100ms TTL
+    cache = sessionCache
+    cache.clear()
+    // Note: singleton has 5-minute TTL, adjust test timeouts accordingly
   })
 
   afterEach(() => {
     if (cache) {
-      cache.destroy()
+      cache.clear()
     }
   })
 
-  it('should expire session after TTL', async () => {
+  it('should expire session after TTL', () => {
     const session = { adminId: 'user-123' }
 
     cache.set('session-abc', session)
     expect(cache.get('session-abc')).toEqual(session)
 
-    // Wait for TTL to expire
-    await new Promise(resolve => setTimeout(resolve, 150))
+    // Mock time advancing beyond TTL (5 minutes + 1ms)
+    const realDateNow = Date.now.bind(global.Date)
+    const startTime = Date.now()
+    global.Date.now = jest.fn(() => startTime + (5 * 60 * 1000) + 1)
 
     expect(cache.get('session-abc')).toBeNull()
+
+    // Restore Date.now
+    global.Date.now = realDateNow
   })
 
-  it('should return valid session before TTL expires', async () => {
+  it('should return valid session before TTL expires', () => {
     const session = { adminId: 'user-123' }
 
     cache.set('session-abc', session)
 
-    // Wait less than TTL
-    await new Promise(resolve => setTimeout(resolve, 50))
+    // Mock time advancing less than TTL (2 minutes)
+    const realDateNow = Date.now.bind(global.Date)
+    const startTime = Date.now()
+    global.Date.now = jest.fn(() => startTime + (2 * 60 * 1000))
 
     expect(cache.get('session-abc')).toEqual(session)
+
+    // Restore Date.now
+    global.Date.now = realDateNow
   })
 
-  it('should cleanup expired sessions', async () => {
+  it('should cleanup expired sessions', () => {
     cache.set('session-1', { adminId: 'user-1' })
     cache.set('session-2', { adminId: 'user-2' })
 
     expect(cache.getStats().size).toBe(2)
 
-    // Wait for expiration
-    await new Promise(resolve => setTimeout(resolve, 150))
+    // Mock time advancing beyond TTL
+    const realDateNow = Date.now.bind(global.Date)
+    const startTime = Date.now()
+    global.Date.now = jest.fn(() => startTime + (6 * 60 * 1000))
 
     // Manual cleanup
     cache.cleanup()
 
     expect(cache.getStats().size).toBe(0)
+
+    // Restore Date.now
+    global.Date.now = realDateNow
   })
 })
 
 describe('SessionCache - LRU Eviction', () => {
   beforeEach(() => {
-    cache = new (require('../../../lib/sessionCache').constructor)(5000)
+    cache = sessionCache
+    cache.clear()
   })
 
   afterEach(() => {
     if (cache) {
-      cache.destroy()
+      cache.clear()
     }
   })
 
@@ -150,12 +169,13 @@ describe('SessionCache - LRU Eviction', () => {
 
 describe('SessionCache - Statistics', () => {
   beforeEach(() => {
-    cache = new (require('../../../lib/sessionCache').constructor)(5000)
+    cache = sessionCache
+    cache.clear()
   })
 
   afterEach(() => {
     if (cache) {
-      cache.destroy()
+      cache.clear()
     }
   })
 
@@ -166,7 +186,7 @@ describe('SessionCache - Statistics', () => {
     const stats = cache.getStats()
 
     expect(stats.size).toBe(2)
-    expect(stats.ttl).toBe(5000)
+    expect(stats.ttl).toBe(5 * 60 * 1000) // 5 minutes default TTL
     expect(stats.entries).toHaveLength(2)
     expect(stats.entries[0]).toHaveProperty('id')
     expect(stats.entries[0]).toHaveProperty('expiresIn')
@@ -180,18 +200,19 @@ describe('SessionCache - Statistics', () => {
     const entry = stats.entries.find(e => e.id === 'session-1')
 
     expect(entry.expiresIn).toBeGreaterThan(0)
-    expect(entry.expiresIn).toBeLessThanOrEqual(5000)
+    expect(entry.expiresIn).toBeLessThanOrEqual(5 * 60 * 1000) // 5 minutes
   })
 })
 
 describe('SessionCache - Concurrency', () => {
   beforeEach(() => {
-    cache = new (require('../../../lib/sessionCache').constructor)(5000)
+    cache = sessionCache
+    cache.clear()
   })
 
   afterEach(() => {
     if (cache) {
-      cache.destroy()
+      cache.clear()
     }
   })
 
@@ -230,12 +251,13 @@ describe('SessionCache - Concurrency', () => {
 
 describe('SessionCache - Memory Management', () => {
   beforeEach(() => {
-    cache = new (require('../../../lib/sessionCache').constructor)(5000)
+    cache = sessionCache
+    cache.clear()
   })
 
   afterEach(() => {
     if (cache) {
-      cache.destroy()
+      cache.clear()
     }
   })
 
@@ -243,7 +265,7 @@ describe('SessionCache - Memory Management', () => {
     cache.set('session-1', { adminId: 'user-1' })
     expect(cache.getStats().size).toBe(1)
 
-    cache.destroy()
+    cache.clear() // Use clear() instead of destroy() for singleton
 
     expect(cache.getStats().size).toBe(0)
   })
