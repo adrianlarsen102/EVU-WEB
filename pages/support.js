@@ -300,3 +300,8 @@ export default function Support() {
     </Layout>
   );
 }
+
+// Force server-side rendering
+export async function getServerSideProps() {
+  return { props: {} };
+}

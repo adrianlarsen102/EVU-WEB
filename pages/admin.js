@@ -4409,3 +4409,8 @@ export default function Admin() {
     </>
   );
 }
+
+// Force server-side rendering
+export async function getServerSideProps() {
+  return { props: {} };
+}

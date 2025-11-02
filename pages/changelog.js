@@ -259,3 +259,8 @@ export default function Changelog() {
     </Layout>
   );
 }
+
+// Force server-side rendering
+export async function getServerSideProps() {
+  return { props: {} };
+}
