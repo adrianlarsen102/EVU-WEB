@@ -1,4 +1,4 @@
-const { createClient } = require('@supabase/supabase-js');
+const { getSupabaseClient } = require('../../../lib/database');
 
 const supabase = getSupabaseClient();
 

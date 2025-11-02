@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import Link from 'next/link';
@@ -13,6 +13,19 @@ export default function CategoryTopics() {
   const [auth, setAuth] = useState(null);
   const [showCreateTopic, setShowCreateTopic] = useState(false);
   const [newTopic, setNewTopic] = useState({ title: '', content: '' });
+
+  // Use useCallback to define fetchTopics before useEffect that calls it
+  const fetchTopics = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/forum/topics?categoryId=${categoryId}`);
+      const data = await res.json();
+      setTopics(data);
+    } catch (err) {
+      console.error('Failed to load topics:', err);
+    }
+    setLoading(false);
+  }, [categoryId]);
 
   useEffect(() => {
     // Fetch content to get category info
@@ -36,19 +49,7 @@ export default function CategoryTopics() {
     if (categoryId !== undefined) {
       fetchTopics();
     }
-  }, [categoryId]);
-
-  const fetchTopics = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/forum/topics?categoryId=${categoryId}`);
-      const data = await res.json();
-      setTopics(data);
-    } catch (err) {
-      console.error('Failed to load topics:', err);
-    }
-    setLoading(false);
-  };
+  }, [categoryId, fetchTopics]);
 
   const handleCreateTopic = async (e) => {
     e.preventDefault();

@@ -43,7 +43,7 @@ export default [
   },
   // Test files configuration
   {
-    files: ["**/__tests__/**/*.{js,jsx}", "**/*.test.{js,jsx}", "**/*.spec.{js,jsx}"],
+    files: ["**/__tests__/**/*.{js,jsx}", "**/*.test.{js,jsx}", "**/*.spec.{js,jsx}", "jest.setup.js"],
     languageOptions: {
       globals: {
         ...globals.jest,
