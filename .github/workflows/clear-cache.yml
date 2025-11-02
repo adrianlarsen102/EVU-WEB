@@ -1,0 +1,54 @@
+name: Clear Build Cache
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  clear-cache:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Clear npm cache
+      run: npm cache clean --force
+
+    - name: Clear GitHub Actions cache
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const caches = await github.rest.actions.getActionsCacheList({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          })
+
+          for (const cache of caches.data.actions_caches) {
+            console.log(`Deleting cache: ${cache.key}`)
+            await github.rest.actions.deleteActionsCacheById({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              cache_id: cache.id,
+            })
+          }
+
+          console.log('All caches cleared!')
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Fresh install
+      run: npm ci
+
+    - name: Test build
+      run: npm run build
+      env:
+        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        CSRF_SECRET: ${{ secrets.CSRF_SECRET }}
+
+    - name: Report success
+      run: echo "✅ Cache cleared and fresh build successful!"
