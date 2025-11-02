@@ -5,6 +5,11 @@ const nextConfig = {
   // Performance optimizations (swcMinify is default in Next.js 15+)
   compress: true,
 
+  // ESLint configuration
+  eslint: {
+    dirs: ['pages', 'components', 'lib'],
+  },
+
   // Optimize production builds
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
