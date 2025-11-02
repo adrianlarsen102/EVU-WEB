@@ -53,9 +53,8 @@ describe('csrf.js - CSRF Token Protection', () => {
       expect(token2).toBeDefined();
     });
 
-    test('should handle empty session ID gracefully', () => {
-      const token = generateCSRFToken('');
-      expect(token).toBeDefined();
+    test('should reject empty session ID', () => {
+      expect(() => generateCSRFToken('')).toThrow('Session ID required to generate CSRF token');
     });
   });
 
@@ -133,19 +132,9 @@ describe('csrf.js - CSRF Token Protection', () => {
       // Token should contain signature part (HMAC)
       expect(token).toContain('.');
       const parts = token.split('.');
-      expect(parts.length).toBe(3); // timestamp.nonce.signature
-    });
-
-    test('should include timestamp in token', () => {
-      const beforeTime = Date.now();
-      const token = generateCSRFToken('session-123');
-      const afterTime = Date.now();
-
-      // Extract timestamp from token
-      const timestamp = parseInt(token.split('.')[0], 10);
-
-      expect(timestamp).toBeGreaterThanOrEqual(beforeTime);
-      expect(timestamp).toBeLessThanOrEqual(afterTime);
+      expect(parts.length).toBe(2); // token.signature (2-part format)
+      expect(parts[0].length).toBe(64); // 32 bytes = 64 hex chars
+      expect(parts[1].length).toBe(64); // HMAC SHA256 = 64 hex chars
     });
 
     test('should prevent token reuse across sessions', () => {
