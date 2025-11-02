@@ -12,7 +12,7 @@ export default function handler(req, res) {
     const data = fs.readFileSync(DATA_FILE, 'utf8');
     const content = JSON.parse(data);
     res.status(200).json(content.serverStatus || {});
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Failed to read status' });
   }
 }

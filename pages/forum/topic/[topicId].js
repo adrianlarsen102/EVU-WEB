@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../../../components/Layout';
 import Link from 'next/link';
@@ -11,7 +11,6 @@ export default function TopicView() {
   const [loading, setLoading] = useState(true);
   const [auth, setAuth] = useState(null);
   const [newComment, setNewComment] = useState('');
-  const [editingComment, setEditingComment] = useState(null);
 
   useEffect(() => {
     // Check authentication
@@ -21,14 +20,7 @@ export default function TopicView() {
       .catch(() => setAuth({ authenticated: false }));
   }, []);
 
-  useEffect(() => {
-    if (topicId) {
-      fetchTopic();
-      fetchComments();
-    }
-  }, [topicId]);
-
-  const fetchTopic = async () => {
+  const fetchTopic = useCallback(async () => {
     try {
       const res = await fetch(`/api/forum/topics?topicId=${topicId}`);
       if (res.ok) {
@@ -41,9 +33,9 @@ export default function TopicView() {
       console.error('Failed to load topic:', err);
     }
     setLoading(false);
-  };
+  }, [topicId, router]);
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     try {
       const res = await fetch(`/api/forum/comments?topicId=${topicId}`);
       const data = await res.json();
@@ -51,7 +43,14 @@ export default function TopicView() {
     } catch (err) {
       console.error('Failed to load comments:', err);
     }
-  };
+  }, [topicId]);
+
+  useEffect(() => {
+    if (topicId) {
+      fetchTopic();
+      fetchComments();
+    }
+  }, [topicId, fetchTopic, fetchComments]);
 
   const handlePostComment = async (e) => {
     e.preventDefault();

@@ -1,0 +1,9 @@
+// Test: Can we import Html at all in the project?
+// This is just for debugging - not a real page
+
+import { Html } from 'next/document';
+
+console.log('Html component:', Html);
+
+// This file intentionally doesn't export anything
+// It's just to test if the import itself works

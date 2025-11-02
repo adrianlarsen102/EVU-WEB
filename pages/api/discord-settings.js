@@ -52,7 +52,7 @@ export default async function handler(req, res) {
         availableEventTypes: eventTypes
       });
 
-    } catch (error) {
+    } catch {
       console.error('Discord settings fetch error:', error);
       res.status(500).json({ error: 'Failed to fetch Discord settings' });
     }
@@ -134,7 +134,7 @@ export default async function handler(req, res) {
         message: 'Discord settings updated successfully'
       });
 
-    } catch (error) {
+    } catch {
       console.error('Discord settings update error:', error);
       res.status(500).json({ error: 'Failed to update Discord settings' });
     }

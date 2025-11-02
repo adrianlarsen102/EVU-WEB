@@ -43,7 +43,7 @@ export default async function handler(req, res) {
       if (error) {
         health.status = 'degraded';
       }
-    } catch (error) {
+    } catch {
       health.checks.database = {
         status: 'error',
         connected: false,

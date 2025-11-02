@@ -108,6 +108,7 @@ export default function Admin() {
 
   useEffect(() => {
     checkAuth();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -115,13 +116,15 @@ export default function Admin() {
       loadDashboardStats();
       loadMetricsHistory(historyRange);
     }
-  }, [activeTab, isAuthenticated]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, isAuthenticated, historyRange]);
 
   useEffect(() => {
     if (activeTab === 'dashboard' && isAuthenticated && historyRange) {
       loadMetricsHistory(historyRange);
     }
-  }, [historyRange]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, isAuthenticated, historyRange]);
 
   useEffect(() => {
     if (activeTab === 'users' && isAuthenticated) {
@@ -134,6 +137,7 @@ export default function Admin() {
     if (activeTab === 'moderation' && isAuthenticated) {
       loadModerationData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, isAuthenticated, moderationView]);
 
   useEffect(() => {
@@ -164,12 +168,14 @@ export default function Admin() {
     if (activeTab === 'logs' && isAuthenticated) {
       loadAuditLogs();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, isAuthenticated, logsPage, logsSeverityFilter, logsEventTypeFilter]);
 
   useEffect(() => {
     if (activeTab === 'error-logs' && isAuthenticated) {
       loadErrorLogs();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, isAuthenticated, errorLogsPage, errorLogsSeverityFilter, errorLogsTypeFilter, errorLogsResolvedFilter]);
 
   useEffect(() => {
@@ -186,7 +192,7 @@ export default function Admin() {
       if (res.ok && data.csrfToken) {
         setCsrfToken(data.csrfToken);
       }
-    } catch (error) {
+    } catch {
       console.error('CSRF token fetch error:', error);
     }
   };
@@ -204,7 +210,7 @@ export default function Admin() {
         loadContent();
         fetchCSRFToken();
       }
-    } catch (error) {
+    } catch {
       console.error('Auth check error:', error);
     }
   };
@@ -234,7 +240,7 @@ export default function Admin() {
       } else {
         setLoginError(data.error || 'Invalid credentials');
       }
-    } catch (error) {
+    } catch {
       setLoginError('Login failed');
     }
   };
@@ -284,7 +290,7 @@ export default function Admin() {
       } else {
         setPasswordError(data.error || 'Failed to change password');
       }
-    } catch (error) {
+    } catch {
       setPasswordError('Failed to change password');
     }
   };
@@ -302,7 +308,7 @@ export default function Admin() {
       const res = await fetchWithTimeout('/api/content', {}, 10000);
       const data = await res.json();
       setContent(data);
-    } catch (error) {
+    } catch {
       console.error('Load error:', error);
       showMessage('error', 'Failed to load content. Please refresh the page.');
     }
@@ -329,7 +335,7 @@ export default function Admin() {
       } else {
         showMessage('error', 'Error saving changes!');
       }
-    } catch (error) {
+    } catch {
       showMessage('error', 'Error saving changes!');
     }
   };
@@ -349,7 +355,7 @@ export default function Admin() {
       } else {
         showMessage('error', 'Failed to load dashboard statistics');
       }
-    } catch (error) {
+    } catch {
       console.error('Dashboard stats error:', error);
       showMessage('error', 'Failed to load dashboard statistics');
     } finally {
@@ -364,7 +370,7 @@ export default function Admin() {
       if (res.ok) {
         setMetricsHistory(data.metrics || []);
       }
-    } catch (error) {
+    } catch {
       console.error('Metrics history error:', error);
     }
   };
@@ -602,7 +608,7 @@ export default function Admin() {
       } else {
         setModerationComments(data);
       }
-    } catch (error) {
+    } catch {
       console.error('Load moderation data error:', error);
     }
   };
@@ -626,7 +632,7 @@ export default function Admin() {
       } else {
         showMessage('error', `Failed to ${action} topic`);
       }
-    } catch (error) {
+    } catch {
       showMessage('error', `Failed to ${action} topic`);
     }
   };
@@ -649,7 +655,7 @@ export default function Admin() {
       } else {
         showMessage('error', `Failed to ${action} comment`);
       }
-    } catch (error) {
+    } catch {
       showMessage('error', `Failed to ${action} comment`);
     }
   };
@@ -660,7 +666,7 @@ export default function Admin() {
       const res = await fetch('/api/support/tickets');
       const data = await res.json();
       setSupportTickets(data);
-    } catch (error) {
+    } catch {
       console.error('Load support tickets error:', error);
     }
   };
@@ -670,7 +676,7 @@ export default function Admin() {
       const res = await fetch('/api/support/notifications');
       const data = await res.json();
       setOpenTicketCount(data.openTickets || 0);
-    } catch (error) {
+    } catch {
       console.error('Load ticket notifications error:', error);
     }
   };
@@ -698,7 +704,7 @@ export default function Admin() {
       } else {
         showMessage('error', 'Failed to update ticket status');
       }
-    } catch (error) {
+    } catch {
       showMessage('error', 'Failed to update ticket status');
     }
   };
@@ -711,7 +717,7 @@ export default function Admin() {
       if (Array.isArray(data)) {
         setUsers(data);
       }
-    } catch (error) {
+    } catch {
       console.error('Load users error:', error);
     }
   };
@@ -734,7 +740,7 @@ export default function Admin() {
           admin_email: data.admin_email || ''
         });
       }
-    } catch (error) {
+    } catch {
       console.error('Load email settings error:', error);
     }
   };
@@ -785,7 +791,7 @@ export default function Admin() {
       } else {
         setEmailError(data.error || 'Failed to save email settings');
       }
-    } catch (error) {
+    } catch {
       setEmailError('Failed to save email settings');
     }
   };
@@ -829,7 +835,7 @@ export default function Admin() {
       } else {
         setTestEmailStatus(`error:${data.error || 'Failed to send test email'}`);
       }
-    } catch (error) {
+    } catch {
       setTestEmailStatus('error:Failed to send test email. Check your settings.');
     } finally {
       setSendingTestEmail(false);
@@ -850,7 +856,7 @@ export default function Admin() {
         });
         setAvailableEventTypes(data.availableEventTypes || {});
       }
-    } catch (error) {
+    } catch {
       console.error('Load Discord settings error:', error);
     }
   };
@@ -894,7 +900,7 @@ export default function Admin() {
       } else {
         setDiscordError(data.error || 'Failed to save Discord settings');
       }
-    } catch (error) {
+    } catch {
       setDiscordError('Failed to save Discord settings');
     }
   };
@@ -936,7 +942,7 @@ export default function Admin() {
       } else {
         setTestDiscordStatus(`error:${data.error || 'Failed to send test notification'}`);
       }
-    } catch (error) {
+    } catch {
       setTestDiscordStatus('error:Failed to send test notification. Check your webhook URL.');
     } finally {
       setSendingTestDiscord(false);
@@ -965,7 +971,7 @@ export default function Admin() {
         setRoles(data.roles || []);
         setAvailablePermissions(data.availablePermissions || {});
       }
-    } catch (error) {
+    } catch {
       console.error('Load roles error:', error);
     }
   };
@@ -989,7 +995,7 @@ export default function Admin() {
       } else {
         showMessage('error', data.error || 'Failed to load audit logs');
       }
-    } catch (error) {
+    } catch {
       console.error('Load audit logs error:', error);
       showMessage('error', 'Failed to load audit logs');
     } finally {
@@ -1017,7 +1023,7 @@ export default function Admin() {
       } else {
         showMessage('error', data.error || 'Failed to load error logs');
       }
-    } catch (error) {
+    } catch {
       console.error('Load error logs error:', error);
       showMessage('error', 'Failed to load error logs');
     } finally {
@@ -1069,7 +1075,7 @@ export default function Admin() {
       } else {
         setRoleError(data.error || 'Failed to create role');
       }
-    } catch (error) {
+    } catch {
       setRoleError('Failed to create role');
     }
   };
@@ -1108,7 +1114,7 @@ export default function Admin() {
       } else {
         setRoleError(data.error || 'Failed to update role');
       }
-    } catch (error) {
+    } catch {
       setRoleError('Failed to update role');
     }
   };
@@ -1141,7 +1147,7 @@ export default function Admin() {
       } else {
         setRoleError(data.error || 'Failed to delete role');
       }
-    } catch (error) {
+    } catch {
       setRoleError('Failed to delete role');
     }
   };
@@ -1215,7 +1221,7 @@ export default function Admin() {
       } else {
         setUserError(data.error || 'Failed to create user');
       }
-    } catch (error) {
+    } catch {
       setUserError('Failed to create user');
     }
   };
@@ -1248,7 +1254,7 @@ export default function Admin() {
       } else {
         showMessage('error', data.error || 'Failed to delete user');
       }
-    } catch (error) {
+    } catch {
       showMessage('error', 'Failed to delete user');
     }
   };
@@ -1284,7 +1290,7 @@ export default function Admin() {
       } else {
         showMessage('error', data.error || 'Failed to reset password');
       }
-    } catch (error) {
+    } catch {
       showMessage('error', 'Failed to reset password');
     }
   };
@@ -1346,7 +1352,7 @@ export default function Admin() {
       } else {
         setUserError(data.error || 'Failed to update user');
       }
-    } catch (error) {
+    } catch {
       setUserError('Failed to update user');
     }
   };
@@ -2411,7 +2417,7 @@ export default function Admin() {
                   {content.forumCategories?.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
                       <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>📁 No categories yet</p>
-                      <p>Click "Add Category" to create your first forum category</p>
+                      <p>Click &ldquo;Add Category&rdquo; to create your first forum category</p>
                     </div>
                   ) : (
                     content.forumCategories?.map((category, index) => (
@@ -3189,7 +3195,7 @@ export default function Admin() {
                     <div className="admin-card">
                       <h3 className="admin-card-title">Resend API Configuration</h3>
                       <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-                        Sign up at <a href="https://resend.com" target="_blank" style={{ color: 'var(--primary-color)' }}>resend.com</a> - Free tier: 3,000 emails/month, 100/day
+                        Sign up at <a href="https://resend.com" target="_blank" rel="noreferrer" style={{ color: 'var(--primary-color)' }}>resend.com</a> - Free tier: 3,000 emails/month, 100/day
                       </p>
 
                       <div className="form-group">
@@ -3404,7 +3410,7 @@ export default function Admin() {
                   <div style={{ marginBottom: '1rem' }}>
                     <strong>Resend (Recommended):</strong>
                     <ol style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-                      <li>Sign up at <a href="https://resend.com" target="_blank" style={{ color: 'var(--primary-color)' }}>resend.com</a></li>
+                      <li>Sign up at <a href="https://resend.com" target="_blank" rel="noreferrer" style={{ color: 'var(--primary-color)' }}>resend.com</a></li>
                       <li>Get your API key from dashboard</li>
                       <li>Paste it above and enable emails</li>
                     </ol>
@@ -3621,10 +3627,10 @@ export default function Admin() {
                     <li>Select the channel where notifications should be sent</li>
                     <li>Optional: Upload a custom avatar image</li>
                     <li>Click <strong>Copy Webhook URL</strong></li>
-                    <li>Paste the URL in the "Webhook URL" field above</li>
+                    <li>Paste the URL in the &ldquo;Webhook URL&rdquo; field above</li>
                     <li>Configure which events you want to receive notifications for</li>
-                    <li>Click "Save Discord Settings"</li>
-                    <li>Use "Send Test Notification" to verify it works</li>
+                    <li>Click &ldquo;Save Discord Settings&rdquo;</li>
+                    <li>Use &ldquo;Send Test Notification&rdquo; to verify it works</li>
                   </ol>
 
                   <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: 'rgba(107, 70, 193, 0.1)', borderRadius: '8px', border: '1px solid var(--primary-color)' }}>

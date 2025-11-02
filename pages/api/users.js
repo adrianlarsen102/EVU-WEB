@@ -40,7 +40,7 @@ export default async function handler(req, res) {
     try {
       const admins = await getAllAdmins();
       res.status(200).json(admins);
-    } catch (error) {
+    } catch {
       res.status(500).json({ error: 'Failed to fetch users' });
     }
   } else if (req.method === 'POST') {
@@ -84,7 +84,7 @@ export default async function handler(req, res) {
       } else {
         res.status(400).json({ error: result.error || 'Failed to create user' });
       }
-    } catch (error) {
+    } catch {
       res.status(500).json({ error: 'Failed to create user' });
     }
   } else if (req.method === 'DELETE') {
@@ -124,7 +124,7 @@ export default async function handler(req, res) {
       } else {
         res.status(400).json({ error: result.error || 'Failed to delete user' });
       }
-    } catch (error) {
+    } catch {
       res.status(500).json({ error: 'Failed to delete user' });
     }
   } else if (req.method === 'PUT') {
@@ -204,7 +204,7 @@ export default async function handler(req, res) {
       }
 
       res.status(200).json({ success: true });
-    } catch (error) {
+    } catch {
       res.status(500).json({ error: 'Failed to update user' });
     }
   } else {
