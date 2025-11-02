@@ -116,7 +116,24 @@ The following test suites are currently failing and need to be updated to match 
 
 ## Medium Priority
 
-### 6. Update CLAUDE.md Documentation
+### 6. Install and Configure ESLint
+**Issue**: `npm run lint` fails because ESLint is not installed
+
+**Action Required**:
+```bash
+npm install --save-dev eslint eslint-config-next
+```
+
+Then create `.eslintrc.json`:
+```json
+{
+  "extends": "next/core-web-vitals"
+}
+```
+
+This will enable proper linting in the CI workflow.
+
+### 7. Update CLAUDE.md Documentation
 - Document the GitHub Actions workflows added in v2.18.1
 - Add CI/CD section explaining automated checks
 - Update test coverage information
