@@ -1,0 +1,131 @@
+name: Code Quality Checks
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  eslint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run ESLint
+      run: npm run lint
+      continue-on-error: true
+
+    - name: Generate ESLint report
+      run: npm run lint -- --format json --output-file eslint-report.json
+      continue-on-error: true
+
+    - name: Upload ESLint report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: eslint-report
+        path: eslint-report.json
+        retention-days: 30
+
+  code-metrics:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Count lines of code
+      run: |
+        echo "📊 Code Statistics:"
+        echo "===================="
+        echo ""
+        echo "JavaScript/JSX files:"
+        find . -name "*.js" -o -name "*.jsx" | grep -v node_modules | grep -v .next | wc -l
+        echo ""
+        echo "Total lines in JS/JSX:"
+        find . -name "*.js" -o -name "*.jsx" | grep -v node_modules | grep -v .next | xargs wc -l | tail -1
+        echo ""
+        echo "API Routes:"
+        find pages/api -name "*.js" | wc -l
+        echo ""
+        echo "React Components:"
+        find components -name "*.js" -o -name "*.jsx" 2>/dev/null | wc -l || echo "0"
+        echo ""
+        echo "Library Files:"
+        find lib -name "*.js" 2>/dev/null | wc -l || echo "0"
+
+    - name: Check for TODO/FIXME comments
+      run: |
+        echo "🔍 TODO/FIXME Items:"
+        echo "===================="
+        grep -rn "TODO\|FIXME" --include="*.js" --include="*.jsx" --exclude-dir=node_modules --exclude-dir=.next . || echo "No TODO/FIXME found"
+      continue-on-error: true
+
+  file-structure-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Verify critical files exist
+      run: |
+        echo "✅ Checking critical files..."
+
+        # Check required config files
+        test -f package.json && echo "✅ package.json exists" || (echo "❌ package.json missing" && exit 1)
+        test -f next.config.js && echo "✅ next.config.js exists" || (echo "❌ next.config.js missing" && exit 1)
+        test -f vercel.json && echo "✅ vercel.json exists" || (echo "❌ vercel.json missing" && exit 1)
+
+        # Check required directories
+        test -d pages && echo "✅ pages/ directory exists" || (echo "❌ pages/ missing" && exit 1)
+        test -d pages/api && echo "✅ pages/api/ directory exists" || (echo "❌ pages/api/ missing" && exit 1)
+        test -d lib && echo "✅ lib/ directory exists" || (echo "❌ lib/ missing" && exit 1)
+        test -d public && echo "✅ public/ directory exists" || (echo "❌ public/ missing" && exit 1)
+
+        # Check critical library files
+        test -f lib/auth.js && echo "✅ lib/auth.js exists" || (echo "❌ lib/auth.js missing" && exit 1)
+        test -f lib/database.js && echo "✅ lib/database.js exists" || (echo "❌ lib/database.js missing" && exit 1)
+        test -f lib/csrf.js && echo "✅ lib/csrf.js exists" || (echo "❌ lib/csrf.js missing" && exit 1)
+        test -f lib/validation.js && echo "✅ lib/validation.js exists" || (echo "❌ lib/validation.js missing" && exit 1)
+        test -f lib/rateLimit.js && echo "✅ lib/rateLimit.js exists" || (echo "❌ lib/rateLimit.js missing" && exit 1)
+
+        echo ""
+        echo "✅ All critical files verified!"
+
+    - name: Check for sensitive files
+      run: |
+        echo "🔒 Checking for sensitive files that should not be committed..."
+
+        if [ -f .env ]; then
+          echo "❌ WARNING: .env file found in repository!"
+          exit 1
+        fi
+
+        if [ -f .env.local ]; then
+          echo "❌ WARNING: .env.local file found in repository!"
+          exit 1
+        fi
+
+        echo "✅ No sensitive files detected"
