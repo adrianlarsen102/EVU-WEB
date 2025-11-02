@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.2.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.1.0...v3.2.0) (2025-11-02)
+
+
+### Features
+
+* implement high-priority security and performance improvements ([8f83ff9](https://github.com/adrianlarsen102/EVU-WEB/commit/8f83ff90d0e156400e5c899af83adfc4619aa9a3))
+
+
+### Bug Fixes
+
+* implement critical security fixes (P0 issues) ([f69ae00](https://github.com/adrianlarsen102/EVU-WEB/commit/f69ae00363c68deecae627da244b164af29b9536))
+
 ## [3.1.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.0.1...v3.1.0) (2025-11-01)
 
 
