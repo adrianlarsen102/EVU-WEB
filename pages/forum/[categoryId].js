@@ -6,7 +6,6 @@ import Link from 'next/link';
 export default function CategoryTopics() {
   const router = useRouter();
   const { categoryId } = router.query;
-  const [content, setContent] = useState(null);
   const [topics, setTopics] = useState([]);
   const [category, setCategory] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -32,7 +31,6 @@ export default function CategoryTopics() {
     fetch('/api/content')
       .then(res => res.json())
       .then(data => {
-        setContent(data);
         const cat = data.forumCategories?.find((c, idx) => idx === parseInt(categoryId));
         setCategory(cat);
       })
@@ -47,6 +45,7 @@ export default function CategoryTopics() {
 
   useEffect(() => {
     if (categoryId !== undefined) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchTopics();
     }
   }, [categoryId, fetchTopics]);

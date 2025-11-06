@@ -1,7 +1,7 @@
 import { validateSession, getSessionFromCookie } from '../../lib/auth';
 import { requireCSRFToken } from '../../lib/csrf';
 import { getSupabaseClient } from '../../lib/database';
-import { testDiscordWebhook, getEventTypes } from '../../lib/discordWebhook';
+import { getEventTypes } from '../../lib/discordWebhook';
 import { auditLog, getClientIP, getUserAgent, AuditEventTypes, AuditSeverity } from '../../lib/auditLog';
 
 // Initialize Supabase client
@@ -52,7 +52,7 @@ export default async function handler(req, res) {
         availableEventTypes: eventTypes
       });
 
-    } catch {
+    } catch (error) {
       console.error('Discord settings fetch error:', error);
       res.status(500).json({ error: 'Failed to fetch Discord settings' });
     }
@@ -80,7 +80,7 @@ export default async function handler(req, res) {
               error: 'Invalid Discord webhook URL format'
             });
           }
-        } catch (e) {
+        } catch {
           return res.status(400).json({
             error: 'Invalid webhook URL'
           });
@@ -134,7 +134,7 @@ export default async function handler(req, res) {
         message: 'Discord settings updated successfully'
       });
 
-    } catch {
+    } catch (error) {
       console.error('Discord settings update error:', error);
       res.status(500).json({ error: 'Failed to update Discord settings' });
     }

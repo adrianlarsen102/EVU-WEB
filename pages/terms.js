@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Layout from '../components/Layout';
 
 export default function Terms() {
@@ -201,10 +202,10 @@ export default function Terms() {
                 <strong>Email:</strong> legal@evulotionary.dk
               </p>
               <p style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-                <strong>Support:</strong> <a href="/support" style={{ color: 'var(--primary-color)' }}>Submit a Support Ticket</a>
+                <strong>Support:</strong> <Link href="/support" style={{ color: 'var(--primary-color)' }}>Submit a Support Ticket</Link>
               </p>
               <p style={{ color: 'var(--text-primary)' }}>
-                <strong>Website:</strong> <a href="/" style={{ color: 'var(--primary-color)' }}>evulotionary.dk</a>
+                <strong>Website:</strong> <Link href="/" style={{ color: 'var(--primary-color)' }}>evulotionary.dk</Link>
               </p>
             </div>
           </section>
@@ -221,7 +222,7 @@ export default function Terms() {
               📜 By using our services, you agree to these terms
             </p>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-              If you have questions or concerns, please <a href="/support" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>contact our support team</a>
+              If you have questions or concerns, please <Link href="/support" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>contact our support team</Link>
             </p>
           </div>
         </div>

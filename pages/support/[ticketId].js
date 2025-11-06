@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import Link from 'next/link';
@@ -12,18 +12,7 @@ export default function TicketDetail() {
   const [loading, setLoading] = useState(true);
   const [newReply, setNewReply] = useState('');
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  useEffect(() => {
-    if (ticketId) {
-      fetchTicket();
-      fetchReplies();
-    }
-  }, [ticketId]);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const res = await fetch('/api/auth/check');
       const data = await res.json();
@@ -31,9 +20,9 @@ export default function TicketDetail() {
     } catch (error) {
       setAuth({ authenticated: false });
     }
-  };
+  }, []);
 
-  const fetchTicket = async () => {
+  const fetchTicket = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/support/tickets?ticketId=${ticketId}`);
@@ -47,9 +36,9 @@ export default function TicketDetail() {
       console.error('Failed to load ticket:', error);
     }
     setLoading(false);
-  };
+  }, [ticketId, router]);
 
-  const fetchReplies = async () => {
+  const fetchReplies = useCallback(async () => {
     try {
       const res = await fetch(`/api/support/replies?ticketId=${ticketId}`);
       if (res.ok) {
@@ -59,7 +48,18 @@ export default function TicketDetail() {
     } catch (error) {
       console.error('Failed to load replies:', error);
     }
-  };
+  }, [ticketId]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  useEffect(() => {
+    if (ticketId) {
+      fetchTicket();
+      fetchReplies();
+    }
+  }, [ticketId, fetchTicket, fetchReplies]);
 
   const handlePostReply = async (e) => {
     e.preventDefault();

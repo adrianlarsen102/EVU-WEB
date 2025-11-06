@@ -192,7 +192,7 @@ export default function Admin() {
       if (res.ok && data.csrfToken) {
         setCsrfToken(data.csrfToken);
       }
-    } catch {
+    } catch (error) {
       console.error('CSRF token fetch error:', error);
     }
   };
@@ -210,7 +210,7 @@ export default function Admin() {
         loadContent();
         fetchCSRFToken();
       }
-    } catch {
+    } catch (error) {
       console.error('Auth check error:', error);
     }
   };
@@ -240,7 +240,7 @@ export default function Admin() {
       } else {
         setLoginError(data.error || 'Invalid credentials');
       }
-    } catch {
+    } catch (error) {
       setLoginError('Login failed');
     }
   };
@@ -290,7 +290,7 @@ export default function Admin() {
       } else {
         setPasswordError(data.error || 'Failed to change password');
       }
-    } catch {
+    } catch (error) {
       setPasswordError('Failed to change password');
     }
   };
@@ -308,7 +308,7 @@ export default function Admin() {
       const res = await fetchWithTimeout('/api/content', {}, 10000);
       const data = await res.json();
       setContent(data);
-    } catch {
+    } catch (error) {
       console.error('Load error:', error);
       showMessage('error', 'Failed to load content. Please refresh the page.');
     }
@@ -335,7 +335,7 @@ export default function Admin() {
       } else {
         showMessage('error', 'Error saving changes!');
       }
-    } catch {
+    } catch (error) {
       showMessage('error', 'Error saving changes!');
     }
   };
@@ -355,7 +355,7 @@ export default function Admin() {
       } else {
         showMessage('error', 'Failed to load dashboard statistics');
       }
-    } catch {
+    } catch (error) {
       console.error('Dashboard stats error:', error);
       showMessage('error', 'Failed to load dashboard statistics');
     } finally {
@@ -370,7 +370,7 @@ export default function Admin() {
       if (res.ok) {
         setMetricsHistory(data.metrics || []);
       }
-    } catch {
+    } catch (error) {
       console.error('Metrics history error:', error);
     }
   };
@@ -608,7 +608,7 @@ export default function Admin() {
       } else {
         setModerationComments(data);
       }
-    } catch {
+    } catch (error) {
       console.error('Load moderation data error:', error);
     }
   };
@@ -632,7 +632,7 @@ export default function Admin() {
       } else {
         showMessage('error', `Failed to ${action} topic`);
       }
-    } catch {
+    } catch (error) {
       showMessage('error', `Failed to ${action} topic`);
     }
   };
@@ -655,7 +655,7 @@ export default function Admin() {
       } else {
         showMessage('error', `Failed to ${action} comment`);
       }
-    } catch {
+    } catch (error) {
       showMessage('error', `Failed to ${action} comment`);
     }
   };
@@ -666,7 +666,7 @@ export default function Admin() {
       const res = await fetch('/api/support/tickets');
       const data = await res.json();
       setSupportTickets(data);
-    } catch {
+    } catch (error) {
       console.error('Load support tickets error:', error);
     }
   };
@@ -676,7 +676,7 @@ export default function Admin() {
       const res = await fetch('/api/support/notifications');
       const data = await res.json();
       setOpenTicketCount(data.openTickets || 0);
-    } catch {
+    } catch (error) {
       console.error('Load ticket notifications error:', error);
     }
   };
@@ -704,7 +704,7 @@ export default function Admin() {
       } else {
         showMessage('error', 'Failed to update ticket status');
       }
-    } catch {
+    } catch (error) {
       showMessage('error', 'Failed to update ticket status');
     }
   };
@@ -717,7 +717,7 @@ export default function Admin() {
       if (Array.isArray(data)) {
         setUsers(data);
       }
-    } catch {
+    } catch (error) {
       console.error('Load users error:', error);
     }
   };
@@ -740,7 +740,7 @@ export default function Admin() {
           admin_email: data.admin_email || ''
         });
       }
-    } catch {
+    } catch (error) {
       console.error('Load email settings error:', error);
     }
   };
@@ -791,7 +791,7 @@ export default function Admin() {
       } else {
         setEmailError(data.error || 'Failed to save email settings');
       }
-    } catch {
+    } catch (error) {
       setEmailError('Failed to save email settings');
     }
   };
@@ -835,7 +835,7 @@ export default function Admin() {
       } else {
         setTestEmailStatus(`error:${data.error || 'Failed to send test email'}`);
       }
-    } catch {
+    } catch (error) {
       setTestEmailStatus('error:Failed to send test email. Check your settings.');
     } finally {
       setSendingTestEmail(false);
@@ -856,7 +856,7 @@ export default function Admin() {
         });
         setAvailableEventTypes(data.availableEventTypes || {});
       }
-    } catch {
+    } catch (error) {
       console.error('Load Discord settings error:', error);
     }
   };
@@ -900,7 +900,7 @@ export default function Admin() {
       } else {
         setDiscordError(data.error || 'Failed to save Discord settings');
       }
-    } catch {
+    } catch (error) {
       setDiscordError('Failed to save Discord settings');
     }
   };
@@ -942,7 +942,7 @@ export default function Admin() {
       } else {
         setTestDiscordStatus(`error:${data.error || 'Failed to send test notification'}`);
       }
-    } catch {
+    } catch (error) {
       setTestDiscordStatus('error:Failed to send test notification. Check your webhook URL.');
     } finally {
       setSendingTestDiscord(false);
@@ -971,7 +971,7 @@ export default function Admin() {
         setRoles(data.roles || []);
         setAvailablePermissions(data.availablePermissions || {});
       }
-    } catch {
+    } catch (error) {
       console.error('Load roles error:', error);
     }
   };
@@ -995,7 +995,7 @@ export default function Admin() {
       } else {
         showMessage('error', data.error || 'Failed to load audit logs');
       }
-    } catch {
+    } catch (error) {
       console.error('Load audit logs error:', error);
       showMessage('error', 'Failed to load audit logs');
     } finally {
@@ -1023,7 +1023,7 @@ export default function Admin() {
       } else {
         showMessage('error', data.error || 'Failed to load error logs');
       }
-    } catch {
+    } catch (error) {
       console.error('Load error logs error:', error);
       showMessage('error', 'Failed to load error logs');
     } finally {
@@ -1075,7 +1075,7 @@ export default function Admin() {
       } else {
         setRoleError(data.error || 'Failed to create role');
       }
-    } catch {
+    } catch (error) {
       setRoleError('Failed to create role');
     }
   };
@@ -1114,7 +1114,7 @@ export default function Admin() {
       } else {
         setRoleError(data.error || 'Failed to update role');
       }
-    } catch {
+    } catch (error) {
       setRoleError('Failed to update role');
     }
   };
@@ -1147,7 +1147,7 @@ export default function Admin() {
       } else {
         setRoleError(data.error || 'Failed to delete role');
       }
-    } catch {
+    } catch (error) {
       setRoleError('Failed to delete role');
     }
   };
@@ -1221,7 +1221,7 @@ export default function Admin() {
       } else {
         setUserError(data.error || 'Failed to create user');
       }
-    } catch {
+    } catch (error) {
       setUserError('Failed to create user');
     }
   };
@@ -1254,7 +1254,7 @@ export default function Admin() {
       } else {
         showMessage('error', data.error || 'Failed to delete user');
       }
-    } catch {
+    } catch (error) {
       showMessage('error', 'Failed to delete user');
     }
   };
@@ -1290,7 +1290,7 @@ export default function Admin() {
       } else {
         showMessage('error', data.error || 'Failed to reset password');
       }
-    } catch {
+    } catch (error) {
       showMessage('error', 'Failed to reset password');
     }
   };
@@ -1352,7 +1352,7 @@ export default function Admin() {
       } else {
         setUserError(data.error || 'Failed to update user');
       }
-    } catch {
+    } catch (error) {
       setUserError('Failed to update user');
     }
   };
@@ -3421,7 +3421,7 @@ export default function Admin() {
                     <ol style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
                       <li>Enable 2-Factor Authentication on your Google account</li>
                       <li>Go to Security → App passwords</li>
-                      <li>Create app password for "Mail"</li>
+                      <li>Create app password for &quot;Mail&quot;</li>
                       <li>Use: smtp.gmail.com, port 587, your email, and app password</li>
                     </ol>
                   </div>
@@ -3623,7 +3623,7 @@ export default function Admin() {
                     <li>Open your Discord server and go to <strong>Server Settings</strong></li>
                     <li>Navigate to <strong>Integrations → Webhooks</strong></li>
                     <li>Click <strong>New Webhook</strong> or <strong>Create Webhook</strong></li>
-                    <li>Give your webhook a name (e.g., "EVU Server Bot")</li>
+                    <li>Give your webhook a name (e.g., &quot;EVU Server Bot&quot;)</li>
                     <li>Select the channel where notifications should be sent</li>
                     <li>Optional: Upload a custom avatar image</li>
                     <li>Click <strong>Copy Webhook URL</strong></li>

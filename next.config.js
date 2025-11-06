@@ -2,11 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  // Disable ESLint during build (linting is done separately in CI)
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-
   // Performance optimizations (swcMinify is default in Next.js 15+)
   compress: true,
 

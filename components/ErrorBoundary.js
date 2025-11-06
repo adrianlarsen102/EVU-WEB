@@ -38,7 +38,7 @@ class ErrorBoundary extends React.Component {
               ⚠️ Something went wrong
             </h1>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
-              We're sorry, but something unexpected happened. Please try refreshing the page.
+              We&apos;re sorry, but something unexpected happened. Please try refreshing the page.
             </p>
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <pre style={{

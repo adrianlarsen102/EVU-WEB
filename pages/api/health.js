@@ -29,7 +29,7 @@ export default async function handler(req, res) {
         process.env.SUPABASE_SERVICE_ROLE_KEY
       );
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('site_content')
         .select('id')
         .limit(1);
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
       if (error) {
         health.status = 'degraded';
       }
-    } catch {
+    } catch (error) {
       health.checks.database = {
         status: 'error',
         connected: false,

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Layout from '../components/Layout';
 
 export default function Privacy() {
@@ -19,7 +20,7 @@ export default function Privacy() {
           <section style={{ marginBottom: '2.5rem' }}>
             <h2 style={{ color: 'var(--primary-color)', marginBottom: '1rem' }}>1. Introduction</h2>
             <p style={{ color: 'var(--text-secondary)', lineHeight: '1.8' }}>
-              EVU Gaming Network ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.
+              EVU Gaming Network (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.
             </p>
           </section>
 
@@ -93,7 +94,7 @@ export default function Privacy() {
               <li><strong>Right to Restriction:</strong> You can request limitation of processing</li>
             </ul>
             <p style={{ color: 'var(--text-secondary)', lineHeight: '1.8', marginTop: '1rem' }}>
-              To exercise these rights, visit your <a href="/profile" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>Profile Page</a> or contact us directly.
+              To exercise these rights, visit your <Link href="/profile" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>Profile Page</Link> or contact us directly.
             </p>
           </section>
 
@@ -156,7 +157,7 @@ export default function Privacy() {
                 <strong>Email:</strong> privacy@evulotionary.dk
               </p>
               <p style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-                <strong>Support:</strong> <a href="/support" style={{ color: 'var(--primary-color)' }}>Submit a Support Ticket</a>
+                <strong>Support:</strong> <Link href="/support" style={{ color: 'var(--primary-color)' }}>Submit a Support Ticket</Link>
               </p>
               <p style={{ color: 'var(--text-primary)' }}>
                 <strong>Response Time:</strong> Within 30 days of your request
@@ -176,7 +177,7 @@ export default function Privacy() {
               🔒 Your Data, Your Control
             </p>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-              You can download or delete all your data anytime from your <a href="/profile" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>Profile Page</a>
+              You can download or delete all your data anytime from your <Link href="/profile" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>Profile Page</Link>
             </p>
           </div>
         </div>

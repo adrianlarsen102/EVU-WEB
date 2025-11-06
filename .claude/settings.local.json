@@ -33,7 +33,9 @@
       "Bash(npm test:*)",
       "Bash(npx eslint:*)",
       "Bash(node node_modules/next/dist/bin/next lint:*)",
-      "Bash(claude mcp add:*)"
+      "Bash(claude mcp add:*)",
+      "Bash(echo:*)",
+      "Bash(tee:*)"
     ],
     "deny": [],
     "ask": []

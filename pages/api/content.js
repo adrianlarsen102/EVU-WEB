@@ -108,7 +108,7 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Failed to save content' });
       }
 
-      // AUDIT LOG: Content updated (non-blocking - don't fail if audit fails)
+      // AUDIT LOG: Content updated (non-blocking - don&apos;t fail if audit fails)
       try {
         await auditLog(
           AuditEventTypes.CONTENT_UPDATED,
@@ -121,7 +121,7 @@ export default async function handler(req, res) {
           getClientIP(req)
         );
       } catch (auditError) {
-        // Log audit failure but don't block the response
+        // Log audit failure but don&apos;t block the response
         console.error('Audit log failed (non-critical):', auditError);
       }
 

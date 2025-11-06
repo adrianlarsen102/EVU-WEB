@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import Link from 'next/link';
 import { SkeletonTable } from '../components/LoadingSkeleton';
@@ -16,12 +16,7 @@ export default function Support() {
     email: ''
   });
 
-  useEffect(() => {
-    checkAuth();
-    fetchTickets();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const res = await fetch('/api/auth/check');
       const data = await res.json();
@@ -29,9 +24,9 @@ export default function Support() {
     } catch (error) {
       setAuth({ authenticated: false });
     }
-  };
+  }, []);
 
-  const fetchTickets = async () => {
+  const fetchTickets = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch('/api/support/tickets');
@@ -43,7 +38,12 @@ export default function Support() {
       console.error('Failed to load tickets:', error);
     }
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    checkAuth();
+    fetchTickets();
+  }, [checkAuth, fetchTickets]);
 
   const handleCreateTicket = async (e) => {
     e.preventDefault();

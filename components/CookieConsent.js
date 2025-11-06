@@ -8,6 +8,7 @@ const CookieConsent = memo(function CookieConsent() {
   useEffect(() => {
     const consent = localStorage.getItem('cookieConsent');
     if (!consent) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowBanner(true);
     }
   }, []);
@@ -69,7 +70,7 @@ const CookieConsent = memo(function CookieConsent() {
             </div>
             <div className="modal-body">
               <h3>1. Data Controller</h3>
-              <p>EVU Server ("we", "our", "us") operates this website.</p>
+              <p>EVU Server ((&quot;we&quot;), (&quot;our&quot;), (&quot;us&quot;)) operates this website.</p>
 
               <h3>2. Data We Collect</h3>
               <p>We collect and process the following data:</p>
@@ -202,7 +203,7 @@ const CookieConsent = memo(function CookieConsent() {
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .cookie-consent-overlay {
           position: fixed;
           bottom: 0;

@@ -21,7 +21,9 @@ const Layout = memo(function Layout({ children, title = 'EVU Gaming Network' }) 
 
       <nav className="navbar">
         <div className="container">
-          <div className="logo">EVU Gaming</div>
+          <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div className="logo">EVU Gaming</div>
+          </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
             <ul className="nav-links">
               <li><Link href="/">Servers</Link></li>

@@ -73,7 +73,7 @@ export default async function handler(req, res) {
     // Track violations for auto-blocking
     trackIPViolation(ip, 'FAILED_LOGIN');
 
-    // Generic error message (don't reveal if username exists)
+    // Generic error message (don&apos;t reveal if username exists)
     return res.status(401).json({ error: 'Invalid credentials' });
   }
 }

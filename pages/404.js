@@ -1,6 +1,12 @@
 import Link from 'next/link';
 import Layout from '../components/Layout';
 
+export async function getStaticProps() {
+  return {
+    props: {},
+  };
+}
+
 export default function Custom404() {
   return (
     <Layout title="404 - Page Not Found">
