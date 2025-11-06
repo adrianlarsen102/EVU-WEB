@@ -31,6 +31,7 @@ const Layout = memo(function Layout({ children, title = 'EVU Gaming Network' }) 
               <li><Link href="/forum">Forum</Link></li>
               <li><Link href="/support">Support</Link></li>
               <li><Link href="/changelog">Changelog</Link></li>
+              <li><Link href="/status">📊 Status</Link></li>
               <li><Link href="/search">🔍 Search</Link></li>
               <li><Link href="/profile" style={loginStyle}>👤 Login</Link></li>
             </ul>

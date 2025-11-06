@@ -65,6 +65,10 @@ export default function Admin() {
   const [metricsHistory, setMetricsHistory] = useState([]);
   const [historyRange, setHistoryRange] = useState('7d');
 
+  // Health monitoring
+  const [healthData, setHealthData] = useState(null);
+  const [healthLoading, setHealthLoading] = useState(false);
+
   // Roles & Permissions
   const [roles, setRoles] = useState([]);
   const [availablePermissions, setAvailablePermissions] = useState({});
@@ -115,6 +119,10 @@ export default function Admin() {
     if (activeTab === 'dashboard' && isAuthenticated) {
       loadDashboardStats();
       loadMetricsHistory(historyRange);
+      loadHealthStatus();
+      // Auto-refresh health status every 30 seconds
+      const healthInterval = setInterval(loadHealthStatus, 30000);
+      return () => clearInterval(healthInterval);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, isAuthenticated, historyRange]);
@@ -372,6 +380,25 @@ export default function Admin() {
       }
     } catch (error) {
       console.error('Metrics history error:', error);
+    }
+  };
+
+  const loadHealthStatus = async () => {
+    setHealthLoading(true);
+    try {
+      const res = await fetchWithTimeout('/api/health', {}, 5000);
+      const data = await res.json();
+      setHealthData(data);
+    } catch (error) {
+      console.error('Health check error:', error);
+      setHealthData({
+        status: 'error',
+        checks: {
+          database: { status: 'error', connected: false, error: 'Failed to fetch health status' }
+        }
+      });
+    } finally {
+      setHealthLoading(false);
     }
   };
 
@@ -1750,26 +1777,162 @@ export default function Admin() {
 
                       {/* System Health */}
                       <div className="admin-card">
-                        <h3 className="admin-card-title">⚡ System Health</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
-                            <span>Database:</span>
-                            <strong style={{ color: 'var(--success-color)' }}>✓ Connected</strong>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                          <h3 className="admin-card-title" style={{ marginBottom: 0 }}>⚡ System Health</h3>
+                          <button
+                            onClick={loadHealthStatus}
+                            disabled={healthLoading}
+                            style={{
+                              padding: '0.4rem 0.8rem',
+                              backgroundColor: 'var(--primary-color)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '5px',
+                              cursor: healthLoading ? 'not-allowed' : 'pointer',
+                              fontSize: '0.85rem',
+                              opacity: healthLoading ? 0.6 : 1
+                            }}
+                          >
+                            {healthLoading ? '⏳' : '🔄'}
+                          </button>
+                        </div>
+
+                        {healthLoading && !healthData ? (
+                          <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--text-secondary)' }}>
+                            <p>Loading health status...</p>
                           </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
-                            <span>Uptime:</span>
-                            <strong>{dashboardStats.system.uptime}</strong>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
-                            <span>Server Time:</span>
-                            <strong>{new Date(dashboardStats.system.serverTime).toLocaleTimeString()}</strong>
-                          </div>
-                          {dashboardStats.system.lastContentUpdate && (
-                            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
-                              <span>Last Update:</span>
-                              <strong>{new Date(dashboardStats.system.lastContentUpdate).toLocaleString()}</strong>
+                        ) : healthData ? (
+                          <>
+                            {/* Overall Status */}
+                            <div style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              padding: '0.75rem',
+                              background: healthData.status === 'ok' ? 'rgba(0, 255, 136, 0.1)' : healthData.status === 'degraded' ? 'rgba(251, 191, 36, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                              borderRadius: '8px',
+                              marginBottom: '1rem',
+                              border: `2px solid ${healthData.status === 'ok' ? 'var(--success-color)' : healthData.status === 'degraded' ? '#fbbf24' : '#ef4444'}`
+                            }}>
+                              <span style={{ fontWeight: 'bold' }}>Overall Status:</span>
+                              <strong style={{
+                                color: healthData.status === 'ok' ? 'var(--success-color)' : healthData.status === 'degraded' ? '#fbbf24' : '#ef4444'
+                              }}>
+                                {healthData.status === 'ok' ? '✅ Operational' : healthData.status === 'degraded' ? '⚠️ Degraded' : '❌ Error'}
+                              </strong>
                             </div>
-                          )}
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                              {/* Database Status */}
+                              {healthData.checks?.database && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                                  <span>Database:</span>
+                                  <strong style={{
+                                    color: healthData.checks.database.connected ? 'var(--success-color)' : '#ef4444'
+                                  }}>
+                                    {healthData.checks.database.connected ? '✓ Connected' : '✗ Disconnected'}
+                                  </strong>
+                                </div>
+                              )}
+
+                              {/* Environment Configuration */}
+                              {healthData.checks?.env && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                                  <span>Configuration:</span>
+                                  <strong style={{
+                                    color: healthData.checks.env.status === 'ok' ? 'var(--success-color)' : '#ef4444'
+                                  }}>
+                                    {healthData.checks.env.status === 'ok' ? '✓ Valid' : '✗ Invalid'}
+                                  </strong>
+                                </div>
+                              )}
+
+                              {/* Uptime */}
+                              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                                <span>Uptime:</span>
+                                <strong>{dashboardStats.system.uptime}</strong>
+                              </div>
+
+                              {/* Server Time */}
+                              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                                <span>Server Time:</span>
+                                <strong>{new Date(dashboardStats.system.serverTime).toLocaleTimeString()}</strong>
+                              </div>
+
+                              {/* Last Content Update */}
+                              {dashboardStats.system.lastContentUpdate && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                                  <span>Last Update:</span>
+                                  <strong>{new Date(dashboardStats.system.lastContentUpdate).toLocaleString()}</strong>
+                                </div>
+                              )}
+
+                              {/* Last Health Check */}
+                              {healthData.timestamp && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--secondary-color)', borderRadius: '8px' }}>
+                                  <span>Last Health Check:</span>
+                                  <strong style={{ fontSize: '0.85rem' }}>{new Date(healthData.timestamp).toLocaleTimeString()}</strong>
+                                </div>
+                              )}
+
+                              {/* Error Details */}
+                              {healthData.checks?.database?.error && (
+                                <div style={{
+                                  padding: '0.75rem',
+                                  background: 'rgba(239, 68, 68, 0.1)',
+                                  borderRadius: '8px',
+                                  border: '1px solid #ef4444'
+                                }}>
+                                  <div style={{ fontSize: '0.85rem', color: '#ef4444', marginBottom: '0.25rem', fontWeight: 'bold' }}>
+                                    Database Error:
+                                  </div>
+                                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                    {healthData.checks.database.error}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* View Full Status Link */}
+                              <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
+                                <Link href="/status" style={{
+                                  color: 'var(--primary-color)',
+                                  textDecoration: 'none',
+                                  fontSize: '0.9rem',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '0.25rem'
+                                }}>
+                                  📊 View Full Status Page →
+                                </Link>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--text-secondary)' }}>
+                            <p>No health data available</p>
+                            <button onClick={loadHealthStatus} style={{
+                              marginTop: '0.5rem',
+                              padding: '0.5rem 1rem',
+                              backgroundColor: 'var(--primary-color)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '5px',
+                              cursor: 'pointer'
+                            }}>
+                              Load Health Status
+                            </button>
+                          </div>
+                        )}
+
+                        <div style={{
+                          marginTop: '1rem',
+                          padding: '0.5rem',
+                          background: 'var(--secondary-color)',
+                          borderRadius: '5px',
+                          fontSize: '0.75rem',
+                          color: 'var(--text-secondary)',
+                          textAlign: 'center'
+                        }}>
+                          Auto-refreshes every 30 seconds
                         </div>
                       </div>
                     </div>
