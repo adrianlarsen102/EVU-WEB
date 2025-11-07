@@ -197,29 +197,37 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Get server configuration from content
-    const fs = await import('fs');
-    const path = await import('path');
-    const DATA_FILE = path.default.join(process.cwd(), 'data', 'content.json');
+    // Get server configuration from Supabase database
+    const { getSupabaseClient } = await import('../../../lib/database');
+    const supabase = getSupabaseClient();
 
     let host = 'localhost';
     let port = 25565;
 
     try {
-      const data = fs.default.readFileSync(DATA_FILE, 'utf8');
-      const content = JSON.parse(data);
+      const { data, error } = await supabase
+        .from('site_content')
+        .select('content')
+        .eq('id', 1)
+        .single();
 
-      if (content.servers?.minecraft?.serverIP) {
-        host = content.servers.minecraft.serverIP;
-        port = content.servers.minecraft.port || 25565;
-      } else if (content.serverInfo?.serverIP) {
-        // Backward compatibility
-        host = content.serverInfo.serverIP;
-        port = content.serverInfo.port || 25565;
+      if (!error && data?.content) {
+        const content = data.content;
+
+        if (content.servers?.minecraft?.serverIP) {
+          host = content.servers.minecraft.serverIP;
+          port = content.servers.minecraft.port || 25565;
+        } else if (content.serverInfo?.serverIP) {
+          // Backward compatibility with legacy single-server structure
+          host = content.serverInfo.serverIP;
+          port = content.serverInfo.port || 25565;
+        }
+      } else {
+        console.error('Could not read server config from database:', error);
       }
     } catch (error) {
-      // Use defaults if content.json doesn't exist
-      console.error('Could not read server config:', error);
+      // Use defaults if database fetch fails
+      console.error('Database error reading server config:', error);
     }
 
     const status = await queryMinecraftServer(host, port);
