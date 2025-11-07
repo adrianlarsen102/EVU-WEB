@@ -4,7 +4,8 @@ import Layout from '../components/Layout';
 
 export default function StatusPage() {
   const [healthData, setHealthData] = useState(null);
-  const [serverData, setServerData] = useState(null);
+  const [minecraftStatus, setMinecraftStatus] = useState(null);
+  const [fivemStatus, setFivemStatus] = useState(null);
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lastChecked, setLastChecked] = useState(null);
@@ -17,7 +18,12 @@ export default function StatusPage() {
   }, []);
 
   const fetchAllData = async () => {
-    await Promise.all([fetchHealth(), fetchServerStatus(), fetchContent()]);
+    await Promise.all([
+      fetchHealth(),
+      fetchMinecraftStatus(),
+      fetchFiveMStatus(),
+      fetchContent()
+    ]);
     setLastChecked(new Date());
     setLoading(false);
   };
@@ -38,13 +44,25 @@ export default function StatusPage() {
     }
   };
 
-  const fetchServerStatus = async () => {
+  const fetchMinecraftStatus = async () => {
     try {
-      const res = await fetch('/api/status');
+      const res = await fetch('/api/servers/minecraft-status');
       const data = await res.json();
-      setServerData(data);
+      setMinecraftStatus(data);
     } catch (error) {
-      console.error('Failed to fetch server status:', error);
+      console.error('Failed to fetch Minecraft status:', error);
+      setMinecraftStatus({ online: false, error: 'Failed to connect' });
+    }
+  };
+
+  const fetchFiveMStatus = async () => {
+    try {
+      const res = await fetch('/api/servers/fivem-status');
+      const data = await res.json();
+      setFivemStatus(data);
+    } catch (error) {
+      console.error('Failed to fetch FiveM status:', error);
+      setFivemStatus({ online: false, error: 'Failed to connect' });
     }
   };
 
@@ -184,12 +202,12 @@ export default function StatusPage() {
                   marginBottom: '3rem'
                 }}>
                   {/* Minecraft Server */}
-                  {content.servers.minecraft?.enabled && (
+                  {content?.servers?.minecraft?.enabled && minecraftStatus && (
                     <div style={{
                       backgroundColor: 'var(--card-bg)',
                       borderRadius: '10px',
                       padding: '1.5rem',
-                      border: `2px solid ${content.servers.minecraft.isOnline ? 'var(--success-color)' : '#ef4444'}`
+                      border: `2px solid ${minecraftStatus.online ? 'var(--success-color)' : '#ef4444'}`
                     }}>
                       <div style={{
                         display: 'flex',
@@ -206,7 +224,7 @@ export default function StatusPage() {
                         <span style={{
                           fontSize: '1.5rem'
                         }}>
-                          {content.servers.minecraft.isOnline ? '✅' : '❌'}
+                          {minecraftStatus.online ? '✅' : '❌'}
                         </span>
                       </div>
                       <div style={{
@@ -222,47 +240,79 @@ export default function StatusPage() {
                         }}>
                           <span>Status:</span>
                           <span style={{
-                            color: content.servers.minecraft.isOnline ? 'var(--success-color)' : '#ef4444',
+                            color: minecraftStatus.online ? 'var(--success-color)' : '#ef4444',
                             fontWeight: 'bold'
                           }}>
-                            {content.servers.minecraft.isOnline ? 'ONLINE' : 'OFFLINE'}
+                            {minecraftStatus.online ? 'ONLINE' : 'OFFLINE'}
                           </span>
                         </div>
-                        <div style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          color: 'var(--text-secondary)',
-                          fontSize: '0.9rem'
-                        }}>
-                          <span>Players:</span>
-                          <span style={{ fontWeight: 'bold' }}>
-                            {content.servers.minecraft.currentPlayers || 0} / {content.servers.minecraft.maxPlayers || 0}
-                          </span>
-                        </div>
-                        {content.servers.minecraft.uptime && (
+                        {minecraftStatus.online ? (
+                          <>
+                            <div style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              color: 'var(--text-secondary)',
+                              fontSize: '0.9rem'
+                            }}>
+                              <span>Players:</span>
+                              <span style={{ fontWeight: 'bold' }}>
+                                {minecraftStatus.players?.online || 0} / {minecraftStatus.players?.max || 0}
+                              </span>
+                            </div>
+                            {minecraftStatus.version && (
+                              <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                color: 'var(--text-secondary)',
+                                fontSize: '0.9rem'
+                              }}>
+                                <span>Version:</span>
+                                <span style={{ fontWeight: 'bold' }}>
+                                  {minecraftStatus.version}
+                                </span>
+                              </div>
+                            )}
+                            {minecraftStatus.latency && (
+                              <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                color: 'var(--text-secondary)',
+                                fontSize: '0.9rem'
+                              }}>
+                                <span>Latency:</span>
+                                <span style={{
+                                  fontWeight: 'bold',
+                                  color: minecraftStatus.latency < 100 ? 'var(--success-color)' : minecraftStatus.latency < 200 ? '#fbbf24' : '#ef4444'
+                                }}>
+                                  {minecraftStatus.latency}ms
+                                </span>
+                              </div>
+                            )}
+                            {minecraftStatus.description && (
+                              <div style={{
+                                marginTop: '0.5rem',
+                                padding: '0.5rem',
+                                backgroundColor: 'var(--secondary-color)',
+                                borderRadius: '5px',
+                                fontSize: '0.8rem',
+                                color: 'var(--text-secondary)',
+                                maxHeight: '3rem',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                              }}>
+                                {minecraftStatus.description}
+                              </div>
+                            )}
+                          </>
+                        ) : (
                           <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            color: 'var(--text-secondary)',
-                            fontSize: '0.9rem'
+                            padding: '0.5rem',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderRadius: '5px',
+                            fontSize: '0.85rem',
+                            color: '#ef4444'
                           }}>
-                            <span>Uptime:</span>
-                            <span style={{ fontWeight: 'bold', color: 'var(--success-color)' }}>
-                              {content.servers.minecraft.uptime}
-                            </span>
-                          </div>
-                        )}
-                        {content.servers.minecraft.version && (
-                          <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            color: 'var(--text-secondary)',
-                            fontSize: '0.9rem'
-                          }}>
-                            <span>Version:</span>
-                            <span style={{ fontWeight: 'bold' }}>
-                              {content.servers.minecraft.version}
-                            </span>
+                            {minecraftStatus.error || 'Server is offline'}
                           </div>
                         )}
                         <div style={{
@@ -274,19 +324,19 @@ export default function StatusPage() {
                           textAlign: 'center',
                           fontFamily: 'monospace'
                         }}>
-                          {content.servers.minecraft.serverIP}:{content.servers.minecraft.port || '25565'}
+                          {minecraftStatus.server?.host || content.servers.minecraft.serverIP}:{minecraftStatus.server?.port || content.servers.minecraft.port || '25565'}
                         </div>
                       </div>
                     </div>
                   )}
 
                   {/* FiveM Server */}
-                  {content.servers.fivem?.enabled && (
+                  {content?.servers?.fivem?.enabled && fivemStatus && (
                     <div style={{
                       backgroundColor: 'var(--card-bg)',
                       borderRadius: '10px',
                       padding: '1.5rem',
-                      border: `2px solid ${content.servers.fivem.isOnline ? 'var(--success-color)' : '#ef4444'}`
+                      border: `2px solid ${fivemStatus.online ? 'var(--success-color)' : '#ef4444'}`
                     }}>
                       <div style={{
                         display: 'flex',
@@ -303,7 +353,7 @@ export default function StatusPage() {
                         <span style={{
                           fontSize: '1.5rem'
                         }}>
-                          {content.servers.fivem.isOnline ? '✅' : '❌'}
+                          {fivemStatus.online ? '✅' : '❌'}
                         </span>
                       </div>
                       <div style={{
@@ -319,47 +369,87 @@ export default function StatusPage() {
                         }}>
                           <span>Status:</span>
                           <span style={{
-                            color: content.servers.fivem.isOnline ? 'var(--success-color)' : '#ef4444',
+                            color: fivemStatus.online ? 'var(--success-color)' : '#ef4444',
                             fontWeight: 'bold'
                           }}>
-                            {content.servers.fivem.isOnline ? 'ONLINE' : 'OFFLINE'}
+                            {fivemStatus.online ? 'ONLINE' : 'OFFLINE'}
                           </span>
                         </div>
-                        <div style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          color: 'var(--text-secondary)',
-                          fontSize: '0.9rem'
-                        }}>
-                          <span>Players:</span>
-                          <span style={{ fontWeight: 'bold' }}>
-                            {content.servers.fivem.currentPlayers || 0} / {content.servers.fivem.maxPlayers || 0}
-                          </span>
-                        </div>
-                        {content.servers.fivem.uptime && (
+                        {fivemStatus.online ? (
+                          <>
+                            <div style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              color: 'var(--text-secondary)',
+                              fontSize: '0.9rem'
+                            }}>
+                              <span>Players:</span>
+                              <span style={{ fontWeight: 'bold' }}>
+                                {fivemStatus.players?.online || 0} / {fivemStatus.players?.max || 0}
+                              </span>
+                            </div>
+                            {fivemStatus.hostname && (
+                              <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                color: 'var(--text-secondary)',
+                                fontSize: '0.9rem'
+                              }}>
+                                <span>Server Name:</span>
+                                <span style={{ fontWeight: 'bold', fontSize: '0.8rem', textAlign: 'right', maxWidth: '60%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {fivemStatus.hostname}
+                                </span>
+                              </div>
+                            )}
+                            {fivemStatus.gametype && (
+                              <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                color: 'var(--text-secondary)',
+                                fontSize: '0.9rem'
+                              }}>
+                                <span>Gametype:</span>
+                                <span style={{ fontWeight: 'bold' }}>
+                                  {fivemStatus.gametype}
+                                </span>
+                              </div>
+                            )}
+                            {fivemStatus.mapname && (
+                              <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                color: 'var(--text-secondary)',
+                                fontSize: '0.9rem'
+                              }}>
+                                <span>Map:</span>
+                                <span style={{ fontWeight: 'bold' }}>
+                                  {fivemStatus.mapname}
+                                </span>
+                              </div>
+                            )}
+                            {fivemStatus.resources > 0 && (
+                              <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                color: 'var(--text-secondary)',
+                                fontSize: '0.9rem'
+                              }}>
+                                <span>Resources:</span>
+                                <span style={{ fontWeight: 'bold', color: 'var(--success-color)' }}>
+                                  {fivemStatus.resources}
+                                </span>
+                              </div>
+                            )}
+                          </>
+                        ) : (
                           <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            color: 'var(--text-secondary)',
-                            fontSize: '0.9rem'
+                            padding: '0.5rem',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderRadius: '5px',
+                            fontSize: '0.85rem',
+                            color: '#ef4444'
                           }}>
-                            <span>Uptime:</span>
-                            <span style={{ fontWeight: 'bold', color: 'var(--success-color)' }}>
-                              {content.servers.fivem.uptime}
-                            </span>
-                          </div>
-                        )}
-                        {content.servers.fivem.version && (
-                          <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            color: 'var(--text-secondary)',
-                            fontSize: '0.9rem'
-                          }}>
-                            <span>Version:</span>
-                            <span style={{ fontWeight: 'bold' }}>
-                              {content.servers.fivem.version}
-                            </span>
+                            {fivemStatus.error || 'Server is offline'}
                           </div>
                         )}
                         <div style={{
@@ -372,7 +462,7 @@ export default function StatusPage() {
                           fontFamily: 'monospace',
                           wordBreak: 'break-all'
                         }}>
-                          {content.servers.fivem.serverIP}
+                          {fivemStatus.server?.address || content.servers.fivem.serverIP}
                         </div>
                       </div>
                     </div>
