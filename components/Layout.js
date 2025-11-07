@@ -50,12 +50,15 @@ const Layout = memo(function Layout({ children, title = 'EVU Gaming Network' }) 
                 </li>
               ))}
             </ul>
+          </div>
+
+          {/* Theme Toggle - Shared by both desktop and mobile */}
+          <div className="nav-theme-toggle">
             <ThemeToggle />
           </div>
 
           {/* Mobile Navigation Toggle */}
           <div className="nav-mobile-controls">
-            <ThemeToggle />
             <button
               className="mobile-menu-toggle"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
