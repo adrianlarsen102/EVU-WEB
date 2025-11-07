@@ -35,7 +35,11 @@
       "Bash(node node_modules/next/dist/bin/next lint:*)",
       "Bash(claude mcp add:*)",
       "Bash(echo:*)",
-      "Bash(tee:*)"
+      "Bash(tee:*)",
+      "Bash(timeout 15 bash:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr edit:*)",
+      "Bash(timeout 5 bash:*)"
     ],
     "deny": [],
     "ask": []
