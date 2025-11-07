@@ -117,22 +117,34 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Get server configuration from content
-    const fs = await import('fs');
-    const path = await import('path');
-    const DATA_FILE = path.default.join(process.cwd(), 'data', 'content.json');
+    // Get server configuration from Supabase database
+    const { getSupabaseClient } = await import('../../../lib/database');
+    const supabase = getSupabaseClient();
 
     let serverIP = 'localhost:30120';
 
     try {
-      const data = fs.default.readFileSync(DATA_FILE, 'utf8');
-      const content = JSON.parse(data);
+      const { data, error } = await supabase
+        .from('site_content')
+        .select('content')
+        .eq('id', 1)
+        .single();
 
-      if (content.servers?.fivem?.serverIP) {
-        serverIP = content.servers.fivem.serverIP;
+      if (!error && data?.content) {
+        const content = data.content;
+
+        if (content.servers?.fivem?.serverIP) {
+          serverIP = content.servers.fivem.serverIP;
+        } else if (content.joinInfo?.fivemConnect) {
+          // Backward compatibility - extract from connect command
+          serverIP = content.joinInfo.fivemConnect;
+        }
+      } else {
+        console.error('Could not read server config from database:', error);
       }
     } catch (error) {
-      console.error('Could not read server config:', error);
+      // Use defaults if database fetch fails
+      console.error('Database error reading server config:', error);
     }
 
     const status = await queryFiveMServer(serverIP);
