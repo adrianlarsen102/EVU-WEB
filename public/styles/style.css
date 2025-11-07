@@ -938,3 +938,99 @@ footer p {
         font-size: 1.5rem;
     }
 }
+
+/* Responsive Navigation */
+.nav-desktop {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.nav-mobile-controls {
+    display: none;
+    align-items: center;
+    gap: 1rem;
+}
+
+.mobile-menu-toggle {
+    transition: transform 0.2s ease;
+}
+
+.mobile-menu-toggle:hover {
+    transform: scale(1.1);
+}
+
+.mobile-menu-toggle:active {
+    transform: scale(0.95);
+}
+
+/* Navigation icons and labels */
+.nav-icon {
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+.nav-label {
+    display: inline-block;
+}
+
+/* Tablet Navigation - Hide labels, show only icons */
+@media (max-width: 1024px) {
+    .nav-links {
+        gap: 1rem;
+    }
+
+    .nav-label {
+        display: none;
+    }
+
+    .nav-icon {
+        margin-right: 0;
+        font-size: 1.2rem;
+    }
+
+    .nav-links a {
+        padding: 0.5rem;
+    }
+}
+
+/* Mobile Navigation - Show hamburger menu */
+@media (max-width: 768px) {
+    .nav-desktop {
+        display: none;
+    }
+
+    .nav-mobile-controls {
+        display: flex;
+    }
+
+    .mobile-menu {
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+/* Improve spacing on very small screens */
+@media (max-width: 480px) {
+    .navbar .container {
+        padding: 0 1rem;
+    }
+
+    .logo {
+        font-size: 1.2rem;
+    }
+
+    .mobile-menu-toggle {
+        font-size: 1.3rem;
+    }
+}
