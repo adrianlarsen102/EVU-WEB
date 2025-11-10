@@ -55,7 +55,6 @@ const Layout = memo(function Layout({ children, title = 'EVU Gaming Network' }) 
 
           {/* Mobile Navigation Toggle */}
           <div className="nav-mobile-controls">
-            <ThemeToggle />
             <button
               className="mobile-menu-toggle"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -123,6 +122,17 @@ const Layout = memo(function Layout({ children, title = 'EVU Gaming Network' }) 
                   </li>
                 ))}
               </ul>
+
+              {/* Theme Toggle in Mobile Menu */}
+              <div style={{
+                padding: '1rem 1rem 0',
+                borderTop: '1px solid var(--secondary-color)',
+                marginTop: '0.5rem',
+                display: 'flex',
+                justifyContent: 'center'
+              }}>
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         )}
