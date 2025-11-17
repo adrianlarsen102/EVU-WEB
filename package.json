@@ -67,5 +67,8 @@
     "jest-environment-jsdom": "^29.7.0",
     "node-mocks-http": "^1.17.2",
     "standard-version": "^9.5.0"
+  },
+  "overrides": {
+    "js-yaml": "^4.1.1"
   }
 }
