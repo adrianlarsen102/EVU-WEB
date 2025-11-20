@@ -39,7 +39,8 @@
       "Bash(timeout 15 bash:*)",
       "Bash(gh pr create:*)",
       "Bash(gh pr edit:*)",
-      "Bash(timeout 5 bash:*)"
+      "Bash(timeout 5 bash:*)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []

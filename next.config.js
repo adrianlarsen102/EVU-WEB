@@ -21,6 +21,11 @@ const nextConfig = {
 
   // Headers for security and caching
   async headers() {
+    // NOTE: 'unsafe-inline' and 'unsafe-eval' are currently required for:
+    // - Usercentrics CMP (GDPR cookie consent - third-party requirement)
+    // - Vercel Analytics/Speed Insights (performance monitoring)
+    // - React dev mode and Next.js hot reload (development only)
+    // Future improvement: Migrate to CSP nonces for stricter inline script control
     const ContentSecurityPolicy = `
       default-src 'self';
       script-src 'self' 'unsafe-eval' 'unsafe-inline' https://web.cmp.usercentrics.eu https://cdn.vercel-insights.com https://va.vercel-scripts.com;
@@ -31,6 +36,7 @@ const nextConfig = {
       frame-ancestors 'none';
       base-uri 'self';
       form-action 'self';
+      upgrade-insecure-requests;
     `.replace(/\s{2,}/g, ' ').trim();
 
     return [
@@ -69,6 +75,18 @@ const nextConfig = {
           {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+          },
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp',
+          },
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+          },
+          {
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'same-origin',
           },
         ],
       },
