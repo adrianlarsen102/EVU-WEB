@@ -101,30 +101,25 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [content]);
 
-  if (!content) {
-    return (
-      <Layout title="EVU - Gaming Network">
-        <div className="hero">
-          <div className="container">
-            <h1>Loading...</h1>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+  // Show skeleton/minimal UI immediately instead of blocking
+  const isLoading = !content;
 
   // Support both old and new content structure
-  const hasServers = content.servers && (content.servers.minecraft || content.servers.fivem);
+  const hasServers = content?.servers && (content.servers.minecraft || content.servers.fivem);
   const currentServer = hasServers ? content.servers[activeServer] : null;
 
   // Fallback to old structure if new structure doesn't exist
-  const displayTitle = hasServers
-    ? (content.general?.websiteTitle || 'EVU Gaming Network')
-    : (content.serverInfo?.title || 'Welcome to EVU Server');
+  const displayTitle = isLoading
+    ? 'EVU Gaming Network'
+    : hasServers
+      ? (content.general?.websiteTitle || 'EVU Gaming Network')
+      : (content.serverInfo?.title || 'Welcome to EVU Server');
 
-  const displaySubtitle = hasServers
-    ? (content.general?.welcomeMessage || 'Your Home for Gaming')
-    : (content.serverInfo?.subtitle || 'Gaming Experience');
+  const displaySubtitle = isLoading
+    ? 'Your Home for Gaming'
+    : hasServers
+      ? (content.general?.welcomeMessage || 'Your Home for Gaming')
+      : (content.serverInfo?.subtitle || 'Gaming Experience');
 
   return (
     <Layout title="EVU - Gaming Network">
