@@ -946,6 +946,11 @@ footer p {
     gap: 1.5rem;
 }
 
+.nav-theme-toggle {
+    display: flex;
+    align-items: center;
+}
+
 .nav-mobile-controls {
     display: none;
     align-items: center;
@@ -1002,6 +1007,10 @@ footer p {
 
     .nav-mobile-controls {
         display: flex;
+    }
+
+    .navbar .container {
+        gap: 1rem;
     }
 
     .mobile-menu {

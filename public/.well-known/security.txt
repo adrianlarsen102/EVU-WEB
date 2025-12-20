@@ -1,0 +1,21 @@
+# Security Policy for EVU Gaming Network
+# RFC 9116: https://www.rfc-editor.org/rfc/rfc9116.html
+
+Contact: https://github.com/adrianlarsen102/EVU-WEB/security/advisories/new
+Contact: mailto:security@evu-gaming.local
+Expires: 2026-12-31T23:59:59.000Z
+Preferred-Languages: en, da
+Canonical: https://evu-gaming.com/.well-known/security.txt
+
+# Policy
+Policy: https://github.com/adrianlarsen102/EVU-WEB/blob/main/SECURITY.md
+
+# Acknowledgments
+Acknowledgments: https://github.com/adrianlarsen102/EVU-WEB/blob/main/SECURITY.md#hall-of-fame
+
+# Encryption
+# If available, please use PGP/GPG encryption for sensitive reports
+# Public key can be provided upon request
+
+# Hiring
+# We occasionally hire security researchers. Contact us for opportunities.

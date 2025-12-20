@@ -4,7 +4,12 @@ import Layout from '../components/Layout';
 export default function Home() {
   const [content, setContent] = useState(null);
   const [activeServer, setActiveServer] = useState('minecraft'); // Default to Minecraft
+  const [liveStatus, setLiveStatus] = useState({
+    minecraft: null,
+    fivem: null
+  });
 
+  // Fetch static content
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
@@ -56,6 +61,45 @@ export default function Home() {
       controller.abort();
     };
   }, []);
+
+  // Fetch live server status
+  useEffect(() => {
+    if (!content) return;
+
+    const fetchServerStatus = async (serverType) => {
+      try {
+        const response = await fetch(`/api/servers/${serverType}-status`);
+        if (!response.ok) throw new Error('Failed to fetch status');
+        const data = await response.json();
+        setLiveStatus(prev => ({
+          ...prev,
+          [serverType]: data
+        }));
+      } catch (error) {
+        console.error(`Failed to fetch ${serverType} status:`, error);
+      }
+    };
+
+    // Fetch status for enabled servers
+    if (content.servers?.minecraft?.enabled) {
+      fetchServerStatus('minecraft');
+    }
+    if (content.servers?.fivem?.enabled) {
+      fetchServerStatus('fivem');
+    }
+
+    // Refresh status every 30 seconds
+    const interval = setInterval(() => {
+      if (content.servers?.minecraft?.enabled) {
+        fetchServerStatus('minecraft');
+      }
+      if (content.servers?.fivem?.enabled) {
+        fetchServerStatus('fivem');
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [content]);
 
   if (!content) {
     return (
@@ -156,43 +200,49 @@ export default function Home() {
           <div className="status-cards">
             <div className="status-card">
               <div className={`status-indicator ${
-                hasServers
-                  ? (currentServer?.isOnline ? 'online' : 'offline')
-                  : (content.serverStatus?.isOnline ? 'online' : 'offline')
+                liveStatus[activeServer]?.online ? 'online' : 'offline'
               }`}></div>
               <h3>Server</h3>
               <p style={{
-                color: (hasServers ? currentServer?.isOnline : content.serverStatus?.isOnline)
+                color: liveStatus[activeServer]?.online
                   ? 'var(--success-color)'
                   : 'var(--accent-color)'
               }}>
-                {(hasServers ? currentServer?.isOnline : content.serverStatus?.isOnline)
-                  ? 'Online'
-                  : 'Offline'}
+                {liveStatus[activeServer]
+                  ? (liveStatus[activeServer].online ? 'Online' : 'Offline')
+                  : 'Checking...'}
               </p>
             </div>
             <div className="status-card">
               <h3>Players</h3>
               <p className="stat-number">
-                {hasServers
-                  ? `${currentServer?.currentPlayers || 0}/${currentServer?.maxPlayers || 100}`
-                  : `0/${content.serverStatus?.maxPlayers || 64}`}
+                {liveStatus[activeServer]?.online
+                  ? `${liveStatus[activeServer].players?.online || 0}/${liveStatus[activeServer].players?.max || 0}`
+                  : liveStatus[activeServer]
+                    ? 'Offline'
+                    : 'Loading...'}
               </p>
             </div>
             <div className="status-card">
-              <h3>Uptime</h3>
+              <h3>{activeServer === 'minecraft' ? 'Latency' : 'Uptime'}</h3>
               <p className="stat-number">
-                {hasServers
-                  ? (currentServer?.uptime || '99.9%')
-                  : (content.serverStatus?.uptime || '99.9%')}
+                {liveStatus[activeServer]?.online
+                  ? (activeServer === 'minecraft'
+                      ? `${liveStatus[activeServer].latency || 0}ms`
+                      : currentServer?.uptime || 'N/A')
+                  : liveStatus[activeServer]
+                    ? 'N/A'
+                    : 'Loading...'}
               </p>
             </div>
             <div className="status-card">
               <h3>Version</h3>
               <p className="stat-number">
-                {hasServers
-                  ? (currentServer?.version || '1.0')
-                  : (content.serverInfo?.version || 'v1.0')}
+                {liveStatus[activeServer]?.online
+                  ? (liveStatus[activeServer].version ||
+                     liveStatus[activeServer].hostname ||
+                     currentServer?.version || 'Unknown')
+                  : currentServer?.version || 'N/A'}
               </p>
             </div>
           </div>
