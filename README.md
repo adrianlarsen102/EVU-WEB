@@ -16,6 +16,7 @@
 - 🎯 **Role-Based Access**: Advanced RBAC system with custom roles and 52+ permissions
 - 📊 **Automatic Versioning**: Git-based changelog generation
 - 💬 **Discord Webhooks**: Real-time notifications for 25+ event types
+- 📊 **Status.io Integration**: Automated incident reporting and status page updates
 - 🎫 **Support Tickets**: Integrated ticket system with email notifications
 - 📧 **Email System**: Resend or SMTP support for automated emails
 - 🛡️ **Enterprise Security**: CSRF protection, audit logging, rate limiting, input validation
@@ -146,6 +147,16 @@ Manage your entire website without touching code:
 - Toggle 25+ individual event types
 - Test webhook with live notification
 - Event categories: User Events, Security Alerts, Forum Activity, Support Tickets, Admin Actions
+
+### 📊 Status.io Integration (v3.1.0)
+- Connect to Status.io status page service
+- Configure API credentials (API ID, API Key, Status Page ID)
+- Map servers to Status.io components
+- Automatic incident reporting on server outages
+- Automatic status updates when servers recover
+- Test connection and create test incidents
+- Configurable outage thresholds
+- Subscriber notification controls
 
 ### 🔐 Roles & Permissions
 - Create custom roles

@@ -45,6 +45,7 @@
 - **Complete forum system** with topics, comments, and moderation
 - **Support ticket system** with email notifications
 - **Discord webhook notifications** with 25+ event types and admin UI
+- **Status.io integration** for automated incident reporting and status page updates
 - **Automated changelog** generation from Git commits
 - **GDPR-compliant** data management with export/delete
 - **Performance metrics** tracking and analytics
@@ -624,6 +625,23 @@ EVU-WEB/
 - updated_at (timestamp)
 ```
 
+#### **statusio_settings** table (v3.1.0)
+```sql
+- id (integer, primary key)     -- Always 1 (singleton)
+- enabled (boolean)             -- Global Status.io integration toggle
+- api_id (text)                 -- Status.io API ID
+- api_key (text)                -- Status.io API Key (encrypted)
+- statuspage_id (text)          -- Status.io Status Page ID
+- component_mapping (jsonb)     -- Server to component mapping
+- auto_report_outages (boolean) -- Auto-create incidents on outages
+- auto_report_maintenance (boolean) -- Auto-report maintenance windows
+- notify_subscribers_on_outage (boolean) -- Notify subscribers on outages
+- notify_subscribers_on_recovery (boolean) -- Notify on recovery
+- outage_threshold_minutes (integer) -- Minutes before reporting outage
+- created_at (timestamp)
+- updated_at (timestamp)
+```
+
 ### Database Functions
 
 **Initialization** (`lib/database.js:initializeDatabase`)
@@ -1022,6 +1040,69 @@ EVU-WEB/
 **Requires**: Admin authentication + CSRF token
 **Request**: `{ "webhook_url": "https://discord.com/api/webhooks/..." }`
 **Response**: `{ "success": true, "message": "Test notification sent successfully!" }`
+
+### Status.io Integration APIs (v3.1.0)
+
+#### `GET /api/statusio-settings`
+**Purpose**: Get Status.io configuration
+**Requires**: `settings.view` permission
+**Response**:
+```json
+{
+  "enabled": boolean,
+  "api_id": "string",
+  "api_key": "••••••••",  // Masked for security
+  "statuspage_id": "string",
+  "component_mapping": {
+    "minecraft": "component-id",
+    "fivem": "component-id"
+  },
+  "auto_report_outages": boolean,
+  "notify_subscribers_on_outage": boolean,
+  "outage_threshold_minutes": number
+}
+```
+
+#### `POST /api/statusio-settings`
+**Purpose**: Update Status.io configuration
+**Requires**: `settings.edit` permission + CSRF token
+**Request**:
+```json
+{
+  "enabled": boolean,
+  "api_id": "string",
+  "api_key": "string",
+  "statuspage_id": "string",
+  "component_mapping": {
+    "minecraft": "component-id",
+    "fivem": "component-id"
+  },
+  "auto_report_outages": boolean,
+  "notify_subscribers_on_outage": boolean,
+  "outage_threshold_minutes": number
+}
+```
+
+#### `POST /api/test-statusio`
+**Purpose**: Test Status.io connection
+**Requires**: `settings.edit` permission + CSRF token
+**Request**:
+```json
+{
+  "testType": "connection" | "listComponents" | "testIncident"
+}
+```
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Successfully connected to Status.io!",
+  "data": {
+    "statusPageName": "EVU Gaming Network",
+    "componentCount": 3
+  }
+}
+```
 
 ### Analytics & Metrics APIs
 
