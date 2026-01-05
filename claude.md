@@ -28,8 +28,8 @@
 **EVU-WEB** is a full-stack gaming community website built with Next.js, designed specifically for managing both Minecraft and FiveM gaming servers from a single unified platform.
 
 ### Key Information
-- **Version**: 3.0.1
-- **Framework**: Next.js 16.0.1 (with Turbopack)
+- **Version**: 3.1.0
+- **Framework**: Next.js 16.1.0 (with Webpack for Windows compatibility)
 - **Runtime**: Node.js 22.x (LTS)
 - **Database**: Supabase (PostgreSQL)
 - **Deployment**: Vercel
@@ -62,28 +62,28 @@
 ### Core Dependencies
 ```json
 {
-  "next": "^16.0.1",                    // React framework with SSR & Turbopack
-  "react": "^19.2.0",                   // UI library
-  "react-dom": "^19.2.0",               // React DOM rendering
-  "@supabase/supabase-js": "^2.39.0",  // Database client
+  "next": "^16.1.0",                    // React framework with SSR & Webpack
+  "react": "^19.2.3",                   // UI library
+  "react-dom": "^19.2.3",               // React DOM rendering
+  "@supabase/supabase-js": "^2.89.0",  // Database client
   "bcrypt": "^6.0.0",                   // Password hashing
-  "@vercel/speed-insights": "^1.2.0",  // Performance monitoring
-  "@vercel/analytics": "^1.5.0",       // Analytics tracking
+  "@vercel/speed-insights": "^1.3.1",  // Performance monitoring
+  "@vercel/analytics": "^1.6.1",       // Analytics tracking
   "formidable": "^3.5.4",              // File upload handling
-  "nodemailer": "^7.0.9"               // Email sending (SMTP)
+  "nodemailer": "^7.0.11"              // Email sending (SMTP)
 }
 ```
 
 ### Development Dependencies
 ```json
 {
-  "@types/node": "^22",
-  "@types/react": "^19.2.2",
-  "@types/react-dom": "^19.2.2",
+  "@types/node": "^22.19.3",
+  "@types/react": "^19.2.7",
+  "@types/react-dom": "^19.2.3",
   "@types/bcrypt": "^6.0.0",
   "standard-version": "^9.5.0",         // Semantic versioning
-  "@playwright/test": "^1.40.0",        // E2E testing
-  "@testing-library/react": "^16.3.0",  // React component testing
+  "@playwright/test": "^1.57.0",        // E2E testing
+  "@testing-library/react": "^16.3.1",  // React component testing
   "@testing-library/jest-dom": "^6.1.4", // Jest matchers
   "jest": "^29.7.0",                    // Unit testing framework
   "jest-environment-jsdom": "^29.7.0",  // Browser environment for tests
@@ -92,14 +92,20 @@
 ```
 
 ### Key Technologies
-- **Next.js 16** - React framework with Pages Router and Turbopack bundler
-- **React 19** - Latest React with enhanced performance and features
+- **Next.js 16.1** - React framework with Pages Router and Webpack bundler (Windows compatible)
+- **React 19.2** - Latest React with enhanced performance and features
 - **Supabase** - PostgreSQL database with real-time capabilities
 - **Bcrypt** - Industry-standard password hashing (10 salt rounds)
 - **Vercel** - Serverless deployment platform with Analytics
 - **Standard Version** - Automated versioning and CHANGELOG generation
 - **Nodemailer** - Email sending via SMTP
 - **Formidable** - Multipart form data parsing for file uploads
+
+### Build Configuration
+- **Webpack Mode**: Configured to use Webpack instead of Turbopack for Windows compatibility
+- **Reason**: Turbopack has symlink permission issues on Windows without admin privileges
+- **Scripts**: `npm run dev --webpack` and `npm run build --webpack`
+- **Production**: Can use Turbopack on Linux/Mac servers (Vercel deployment)
 
 ---
 
@@ -1874,6 +1880,19 @@ npm run build
 
 ## Version History
 
+### v3.1.0 (2025-01-05)
+- **Major security updates** - Fixed all critical vulnerabilities
+- Updated Next.js from 15.5.6 to 16.1.0 (fixes RCE, DoS, source code exposure)
+- Updated @supabase/supabase-js from 2.39.0 to 2.89.0 (50 versions!)
+- Updated nodemailer from 7.0.10 to 7.0.11 (fixes DoS vulnerabilities)
+- Updated React from 19.2.0 to 19.2.3
+- Updated Vercel Analytics and Speed Insights to latest versions
+- Updated all development dependencies (@playwright/test, @types/*, eslint)
+- **Webpack configuration** added for Windows compatibility (Turbopack symlink fix)
+- Enhanced security headers (COEP, COOP, CORP)
+- Comprehensive CSP with upgrade-insecure-requests
+- npm audit: **0 vulnerabilities** ✅
+
 ### v2.18.0 (2025-11-01)
 - **Discord webhook notification system** with admin UI
 - 25+ event types with individual toggles
@@ -2050,6 +2069,6 @@ ISC License - See package.json
 
 ---
 
-**Last Updated**: 2025-11-01
+**Last Updated**: 2025-01-05
 **Maintained By**: EVU Development Team
-**Documentation Version**: 2.18.0
+**Documentation Version**: 3.1.0

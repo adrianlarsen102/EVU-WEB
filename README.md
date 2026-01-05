@@ -1,6 +1,6 @@
 # EVU Gaming Network Website
 
-**Version 2.18.0** - A modern, secure, and feature-rich website for your gaming community built with Next.js. Supports both Minecraft and FiveM servers with seamless switching.
+**Version 3.1.0** - A modern, secure, and feature-rich website for your gaming community built with Next.js. Supports both Minecraft and FiveM servers with seamless switching.
 
 ## ✨ Features
 
@@ -53,10 +53,23 @@ See [Installation Guide](docs/guides/installation.md) for detailed installation 
 
 This website uses **enterprise-level security**:
 
+### 🛡️ Security Status (v3.1.0)
+- ✅ **npm audit: 0 vulnerabilities**
+- ✅ All dependencies up-to-date with security patches
+- ✅ Next.js 16.1.0 (critical RCE & DoS vulnerabilities fixed)
+- ✅ React 19.2.3 (latest stable)
+- ✅ Supabase 2.89.0 (50+ security patches)
+
+### 🔒 Security Features
 - ✅ Supabase PostgreSQL database for credential storage
 - ✅ Bcrypt password hashing (10 salt rounds)
+- ✅ CSRF token protection on all state-changing operations
+- ✅ Rate limiting (15+ endpoint-specific limiters)
+- ✅ Input validation & sanitization (XSS/SQL injection prevention)
+- ✅ Comprehensive audit logging (25+ event types)
+- ✅ Session-based authentication with caching
 - ✅ Forced password change on first login
-- ✅ Session-based authentication
+- ✅ Enhanced security headers (CSP, HSTS, COEP, COOP, CORP)
 - ✅ No plain-text passwords anywhere
 - ✅ Environment variables for secrets
 
@@ -142,12 +155,15 @@ Manage your entire website without touching code:
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 15
-- **Frontend**: React 18
-- **Database**: Supabase (PostgreSQL)
-- **Security**: bcrypt
-- **Styling**: Custom CSS
+- **Framework**: Next.js 16.1 (Webpack mode for Windows compatibility)
+- **Frontend**: React 19.2
+- **Database**: Supabase (PostgreSQL) v2.89
+- **Security**: bcrypt, CSRF protection, rate limiting, input validation
+- **Styling**: Custom CSS with 5 theme options
 - **API**: Next.js API Routes
+- **Email**: Nodemailer v7.0.11 (SMTP/Resend)
+- **Analytics**: Vercel Analytics & Speed Insights
+- **Testing**: Jest + Playwright
 - **Hosting**: Vercel (optimized)
 
 ## 📁 Project Structure
@@ -289,16 +305,23 @@ const response = await fetch('YOUR_FIVEM_API');
 **Deployment issues?**
 - See [Deployment Checklist](docs/guides/deployment-checklist.md)
 
-## 🆕 What's New in v2.18.0
+## 🆕 What's New in v3.1.0
 
-### Latest Features
-- ✅ **Discord Webhook Notifications** - Real-time alerts for 25+ event types
-- ✅ **User Edit Modal** - Full profile editing in admin panel
-- ✅ **Database Security Fixes** - Resolved all duplicate index warnings
-- ✅ **Enhanced Audit Logging** - Discord integration for security events
+### Latest Updates (January 2025)
+- 🔒 **Major Security Updates** - All critical vulnerabilities fixed
+- ⬆️ **Next.js 16.1.0** - Updated from 15.5.6 (fixes RCE, DoS, source code exposure)
+- 📦 **Supabase 2.89.0** - Massive update from 2.39.0 (50+ versions)
+- 📧 **Nodemailer 7.0.11** - Fixed DoS vulnerabilities
+- ⚛️ **React 19.2.3** - Latest stable version
+- 📊 **Vercel Analytics** - Updated to latest versions
+- 🛠️ **Webpack Configuration** - Added for Windows compatibility (Turbopack symlink fix)
+- 🔐 **Enhanced Security Headers** - COEP, COOP, CORP added
+- 📝 **Comprehensive CSP** - Added upgrade-insecure-requests
+- ✅ **npm audit: 0 vulnerabilities**
 
 ### Previous Major Updates (v2.0+)
-- ✅ Migrated to Next.js 15 framework
+- ✅ **Discord Webhook Notifications** - Real-time alerts for 25+ event types
+- ✅ **User Edit Modal** - Full profile editing in admin panel
 - ✅ **Vercel-ready deployment** with Supabase
 - ✅ Advanced RBAC system with custom roles
 - ✅ Multi-theme system (5 themes)
