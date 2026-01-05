@@ -1,0 +1,50 @@
+# TruffleHog ignore patterns
+# Exclude false positives from secret scanning
+
+# Documentation files with example API keys
+paths:
+  - docs/guides/statusio-integration.md
+  - docs/database/statusio-setup.sql
+  - CLAUDE.md
+  - README.md
+
+# Test files and example configurations
+  - __tests__/**
+  - tests/**
+  - **/*.test.js
+  - **/*.spec.js
+
+# Configuration examples
+  - .env.example
+  - .env.local.example
+
+# Lock files and dependencies
+  - package-lock.json
+  - node_modules/**
+
+# Build output
+  - .next/**
+  - dist/**
+  - build/**
+
+# Example strings that are not real secrets
+rules:
+  # Ignore example/placeholder API keys
+  - id: example-api-keys
+    pattern: '(api[_-]?key|api[_-]?id|statuspage[_-]?id).*[:=]\s*["\']?(your-|example-|test-|component-|abc123|def456|ghi789)'
+    reason: "Example/placeholder API keys in documentation"
+
+  # Ignore masked API keys
+  - id: masked-keys
+    pattern: '••••••••'
+    reason: "Masked API keys for display purposes"
+
+  # Ignore component IDs
+  - id: component-ids
+    pattern: 'component-(abc123|def456|ghi789|id-123|id-456)'
+    reason: "Example component IDs in documentation"
+
+  # Ignore example credentials
+  - id: example-credentials
+    pattern: '(admin123|password123|test123)'
+    reason: "Example credentials in documentation (not real secrets)"
