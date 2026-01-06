@@ -2,10 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  // Use webpack instead of Turbopack (for Windows compatibility)
-  webpack: (config) => {
-    return config;
-  },
+  // Turbopack configuration (Next.js 16+ default)
+  turbopack: {},
 
   // Performance optimizations (swcMinify is default in Next.js 15+)
   compress: true,
