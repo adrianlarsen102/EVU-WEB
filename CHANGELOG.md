@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.2.2](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.2.1...v3.2.2) (2026-01-13)
+
+
+### Bug Fixes
+
+* update password reset tokens table to support both UUID and integer IDs ([343f4f3](https://github.com/adrianlarsen102/EVU-WEB/commit/343f4f30a3f882507c01d822240bef1f868d68ea))
+
 ### [3.2.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.2.0...v3.2.1) (2026-01-13)
 
 
