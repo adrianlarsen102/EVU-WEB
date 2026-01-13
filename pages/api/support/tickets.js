@@ -70,6 +70,17 @@ export default async function handler(req, res) {
     const sessionId = getSessionFromCookie(req.headers.cookie);
     const session = await validateSession(sessionId);
 
+    // CSRF protection for authenticated users creating tickets
+    if (session) {
+      const csrfCheck = requireCSRFToken(req, res, sessionId);
+      if (csrfCheck !== true) {
+        return res.status(csrfCheck.status).json({
+          error: csrfCheck.error,
+          message: csrfCheck.message
+        });
+      }
+    }
+
     let authorId = null;
     let authorUsername = 'Guest';
     let authorEmail = sanitizedEmail;

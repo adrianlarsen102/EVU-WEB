@@ -1,5 +1,6 @@
 import { validateSession, getSessionFromCookie } from '../../lib/auth';
 import { getEmailSettings, updateEmailSettings } from '../../lib/database';
+import { encrypt, isEncrypted } from '../../lib/encryption';
 
 export default async function handler(req, res) {
   // Check authentication for all methods
@@ -78,14 +79,23 @@ export default async function handler(req, res) {
       }
     }
 
+    // SECURITY: Encrypt SMTP password and Resend API key before storage
+    const encryptedSmtpPass = smtp_pass && smtp_pass !== '***'
+      ? (isEncrypted(smtp_pass) ? smtp_pass : encrypt(smtp_pass))
+      : null;
+
+    const encryptedResendKey = resend_api_key && !resend_api_key.startsWith('***')
+      ? (isEncrypted(resend_api_key) ? resend_api_key : encrypt(resend_api_key))
+      : null;
+
     const settings = {
       provider,
       enabled: enabled === true,
-      resend_api_key: resend_api_key || null,
+      resend_api_key: encryptedResendKey,
       smtp_host: smtp_host || null,
       smtp_port: smtp_port ? parseInt(smtp_port) : 587,
       smtp_user: smtp_user || null,
-      smtp_pass: smtp_pass || null,
+      smtp_pass: encryptedSmtpPass,
       smtp_secure: smtp_secure === true,
       email_from: email_from || 'noreply@yourdomain.com',
       admin_email: admin_email || null

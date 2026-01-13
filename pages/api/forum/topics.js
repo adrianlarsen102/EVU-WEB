@@ -47,6 +47,15 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    // CSRF protection for POST requests
+    const csrfCheck = requireCSRFToken(req, res, sessionId);
+    if (csrfCheck !== true) {
+      return res.status(csrfCheck.status).json({
+        error: csrfCheck.error,
+        message: csrfCheck.message
+      });
+    }
+
     const { categoryId, title, content } = req.body;
 
     if (categoryId === undefined || categoryId === null || !title || !content) {

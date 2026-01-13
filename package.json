@@ -42,6 +42,7 @@
     "bcrypt": "^6.0.0",
     "file-type": "^16.5.4",
     "formidable": "^3.5.4",
+    "isomorphic-dompurify": "^2.35.0",
     "next": "^16.1.0",
     "nodemailer": "^7.0.11",
     "pg": "^8.16.3",

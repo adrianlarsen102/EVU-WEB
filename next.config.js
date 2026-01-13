@@ -91,6 +91,14 @@ const nextConfig = {
             key: 'Cross-Origin-Resource-Policy',
             value: 'same-origin',
           },
+          {
+            key: 'X-Download-Options',
+            value: 'noopen',
+          },
+          {
+            key: 'X-Permitted-Cross-Domain-Policies',
+            value: 'none',
+          },
         ],
       },
       // Cache headers for static assets

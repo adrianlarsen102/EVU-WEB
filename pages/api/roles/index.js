@@ -2,7 +2,6 @@ import { getSupabaseClient } from '../../../lib/database';
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 import { hasPermission } from '../../../lib/permissions';
 import { requireCSRFToken } from '../../../lib/csrf';
-import { sessionCache } from '../../../lib/sessionCache';
 import { rateLimiters } from '../../../lib/rateLimit';
 
 const supabase = getSupabaseClient();
@@ -233,8 +232,8 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to update role' });
     }
   } else if (req.method === 'DELETE') {
-    // Delete role
-    const canDelete = await checkPermission(session.adminId, 'roles.delete');
+    // Delete role - use imported hasPermission function
+    const canDelete = await hasPermission(session.adminId, 'roles.delete');
     if (!canDelete) {
       return res.status(403).json({ error: 'Forbidden: You do not have permission to delete roles' });
     }
@@ -289,34 +288,5 @@ export default async function handler(req, res) {
   }
 }
 
-// Helper function to check if user has a specific permission
-async function checkPermission(userId, permission) {
-  try {
-    // Get user's role
-    const { data: user } = await supabase
-      .from('admins')
-      .select('role_id')
-      .eq('id', userId)
-      .single();
-
-    if (!user || !user.role_id) {
-      return false;
-    }
-
-    // Get role permissions
-    const { data: role } = await supabase
-      .from('user_roles')
-      .select('permissions')
-      .eq('id', user.role_id)
-      .single();
-
-    if (!role || !role.permissions) {
-      return false;
-    }
-
-    return role.permissions.includes(permission);
-  } catch (error) {
-    console.error('Permission check error:', error);
-    return false;
-  }
-}
+// NOTE: Permission checking is now handled by the imported hasPermission function from lib/permissions.js
+// This ensures consistent permission logic across the entire application
