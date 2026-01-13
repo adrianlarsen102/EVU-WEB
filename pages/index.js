@@ -106,9 +106,73 @@ export default function Home() {
       <Layout title="EVU - Gaming Network">
         <div className="hero">
           <div className="container">
-            <h1>Loading...</h1>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+              alignItems: 'center'
+            }}>
+              {/* Skeleton for title */}
+              <div style={{
+                width: '400px',
+                maxWidth: '90%',
+                height: '48px',
+                background: 'linear-gradient(90deg, var(--card-bg) 25%, var(--secondary-color) 50%, var(--card-bg) 75%)',
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 1.5s infinite',
+                borderRadius: '8px'
+              }} />
+              {/* Skeleton for subtitle */}
+              <div style={{
+                width: '250px',
+                maxWidth: '70%',
+                height: '24px',
+                background: 'linear-gradient(90deg, var(--card-bg) 25%, var(--secondary-color) 50%, var(--card-bg) 75%)',
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 1.5s infinite',
+                borderRadius: '8px'
+              }} />
+            </div>
           </div>
         </div>
+        <div className="container main-content">
+          {/* Skeleton for status cards */}
+          <section className="status-section">
+            <div style={{
+              width: '200px',
+              height: '32px',
+              background: 'linear-gradient(90deg, var(--card-bg) 25%, var(--secondary-color) 50%, var(--card-bg) 75%)',
+              backgroundSize: '200% 100%',
+              animation: 'shimmer 1.5s infinite',
+              borderRadius: '8px',
+              marginBottom: '2rem'
+            }} />
+            <div className="status-cards">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="status-card" style={{ minHeight: '180px' }}>
+                  <div style={{
+                    width: '100%',
+                    height: '80px',
+                    background: 'linear-gradient(90deg, var(--card-bg) 25%, var(--secondary-color) 50%, var(--card-bg) 75%)',
+                    backgroundSize: '200% 100%',
+                    animation: 'shimmer 1.5s infinite',
+                    borderRadius: '8px'
+                  }} />
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+        <style jsx>{`
+          @keyframes shimmer {
+            0% {
+              background-position: -200% 0;
+            }
+            100% {
+              background-position: 200% 0;
+            }
+          }
+        `}</style>
       </Layout>
     );
   }

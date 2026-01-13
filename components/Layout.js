@@ -30,6 +30,16 @@ const Layout = memo(function Layout({ children, title = 'EVU Gaming Network' }) 
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta charSet="UTF-8" />
         <meta name="description" content="EVU Gaming Network - Minecraft & FiveM Servers" />
+
+        {/* Performance: Preload critical CSS */}
+        <link rel="preload" href="/styles/style.css" as="style" />
+
+        {/* Performance: DNS prefetch for external resources */}
+        <link rel="dns-prefetch" href="https://vitals.vercel-insights.com" />
+        <link rel="dns-prefetch" href="https://cdn.vercel-insights.com" />
+
+        {/* Performance: Preconnect to Supabase */}
+        <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://supabase.co'} crossOrigin="anonymous" />
       </Head>
 
       <nav className="navbar">

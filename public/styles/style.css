@@ -327,6 +327,10 @@ body {
     padding: 4rem 0;
     text-align: center;
     border-bottom: 3px solid var(--primary-color);
+    min-height: 200px; /* Prevent CLS */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .hero h1 {
@@ -335,11 +339,13 @@ body {
     color: var(--primary-color);
     text-transform: uppercase;
     letter-spacing: 3px;
+    line-height: 1.2; /* Explicit line-height to prevent shift */
 }
 
 .hero p {
     font-size: 1.2rem;
     color: var(--text-secondary);
+    line-height: 1.5; /* Explicit line-height to prevent shift */
 }
 
 /* Main Content */
@@ -375,6 +381,10 @@ section h2 {
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border: 2px solid transparent;
+    min-height: 180px; /* Prevent CLS by reserving space */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .status-card:hover {
@@ -435,6 +445,7 @@ section h2 {
     border-radius: 10px;
     border-left: 4px solid var(--primary-color);
     transition: transform 0.3s ease;
+    min-height: 150px; /* Prevent CLS by reserving space */
 }
 
 .info-card:hover {
