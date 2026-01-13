@@ -16,9 +16,21 @@ export default async function handler(req, res) {
 
   const { q, type = 'all', limit = 20 } = req.query;
 
-  if (!q || q.length < 2) {
+  // SECURITY: Validate query type to prevent type confusion
+  if (!q || typeof q !== 'string' || q.length < 2) {
     return res.status(400).json({ error: 'Search query must be at least 2 characters' });
   }
+
+  // SECURITY: Validate type parameter
+  const validTypes = ['all', 'forum', 'users', 'changelog'];
+  const sanitizedType = typeof type === 'string' ? type : 'all';
+  if (!validTypes.includes(sanitizedType)) {
+    return res.status(400).json({ error: 'Invalid search type' });
+  }
+
+  // SECURITY: Validate and sanitize limit
+  const numericLimit = parseInt(limit, 10);
+  const sanitizedLimit = (!isNaN(numericLimit) && numericLimit > 0 && numericLimit <= 100) ? numericLimit : 20;
 
   try {
     const results = {
@@ -30,10 +42,11 @@ export default async function handler(req, res) {
       changelog: []
     };
 
-    const searchTerm = `%${q}%`;
+    // SECURITY: Sanitize search term to prevent SQL injection
+    const searchTerm = `%${q.replace(/[%_]/g, '\\$&')}%`;
 
     // Search forum topics
-    if (type === 'all' || type === 'forum') {
+    if (sanitizedType === 'all' || sanitizedType === 'forum') {
       try {
         const { data: topics, error: topicsError } = await supabase
           .from('forum_topics')
@@ -103,7 +116,7 @@ export default async function handler(req, res) {
     }
 
     // Search site content for changelog
-    if (type === 'all' || type === 'changelog') {
+    if (sanitizedType === 'all' || sanitizedType === 'changelog') {
       try {
         const { data: content, error: contentError } = await supabase
           .from('site_content')

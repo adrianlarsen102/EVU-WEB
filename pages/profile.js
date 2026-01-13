@@ -397,7 +397,7 @@ export default function Profile() {
         <div className="info-card" style={{ marginBottom: '2rem' }}>
           <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative' }}>
-              {avatarUrl ? (
+              {avatarUrl && (avatarUrl.startsWith('https://') || avatarUrl.startsWith('http://')) ? (
                 <img
                   src={avatarUrl}
                   alt="Avatar"
@@ -408,6 +408,7 @@ export default function Profile() {
                     border: '3px solid var(--primary-color)',
                     objectFit: 'cover'
                   }}
+                  onError={(e) => { e.target.style.display = 'none'; }}
                 />
               ) : (
                 <div style={{

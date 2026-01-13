@@ -169,7 +169,9 @@ export default async function handler(req, res) {
         // This forces permission re-check on next request
         if (roleChanged) {
           const invalidatedCount = sessionCache.invalidateUserSessions(userId);
-          console.log(`Invalidated ${invalidatedCount} session(s) for user ${userId} due to role change`);
+          // SECURITY: Sanitize userId in log to prevent log injection
+          const sanitizedUserId = userId.replace(/[\r\n]/g, '');
+          console.log(`Invalidated ${invalidatedCount} session(s) for user ${sanitizedUserId} due to role change`);
         }
       }
 

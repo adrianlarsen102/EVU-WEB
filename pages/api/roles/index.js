@@ -222,7 +222,9 @@ export default async function handler(req, res) {
           const count = sessionCache.invalidateUserSessions(user.id);
           totalInvalidated += count;
         }
-        console.log(`Role ${roleId} updated: Invalidated ${totalInvalidated} session(s) for ${usersWithRole.length} user(s)`);
+        // SECURITY: Sanitize roleId in log to prevent log injection
+        const sanitizedRoleId = String(roleId).replace(/[\r\n]/g, '');
+        console.log(`Role ${sanitizedRoleId} updated: Invalidated ${totalInvalidated} session(s) for ${usersWithRole.length} user(s)`);
       }
 
       res.status(200).json({ success: true, role: data });

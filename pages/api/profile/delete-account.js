@@ -107,8 +107,10 @@ export default async function handler(req, res) {
 
     if (deleteError) throw deleteError;
 
-    // Clear session cookie
-    res.setHeader('Set-Cookie', 'sessionId=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict');
+    // SECURITY: Clear session cookie with Secure flag for production
+    const isProduction = process.env.NODE_ENV === 'production';
+    const secureCookie = isProduction ? '; Secure' : '';
+    res.setHeader('Set-Cookie', `sessionId=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict${secureCookie}`);
 
     res.status(200).json({
       success: true,

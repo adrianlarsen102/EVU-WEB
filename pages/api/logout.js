@@ -16,6 +16,9 @@ export default async function handler(req, res) {
     invalidateSessionTokens(sessionId);
   }
 
-  res.setHeader('Set-Cookie', 'sessionId=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0');
+  // SECURITY: Add Secure flag for production (HTTPS only)
+  const isProduction = process.env.NODE_ENV === 'production';
+  const secureCookie = isProduction ? '; Secure' : '';
+  res.setHeader('Set-Cookie', `sessionId=; Path=/; HttpOnly; SameSite=Strict${secureCookie}; Max-Age=0`);
   res.status(200).json({ success: true });
 }
