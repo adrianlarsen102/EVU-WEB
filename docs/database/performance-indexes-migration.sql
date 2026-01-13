@@ -88,37 +88,57 @@ CREATE INDEX IF NOT EXISTS idx_support_ticket_replies_ticket_id
   ON support_ticket_replies(ticket_id);
 
 -- ====================================================================================
--- AUDIT LOG PERFORMANCE INDEXES
+-- AUDIT LOG PERFORMANCE INDEXES (Optional - only if table exists)
 -- ====================================================================================
+-- Note: Run these only if you have the audit_logs table from docs/database/audit-logs-setup.sql
 
--- Index for querying audit logs by event type
-CREATE INDEX IF NOT EXISTS idx_audit_logs_event_type
-  ON audit_logs(event_type);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'audit_logs') THEN
+    -- Index for querying audit logs by event type
+    CREATE INDEX IF NOT EXISTS idx_audit_logs_event_type
+      ON audit_logs(event_type);
 
--- Index for querying audit logs by severity
-CREATE INDEX IF NOT EXISTS idx_audit_logs_severity
-  ON audit_logs(severity);
+    -- Index for querying audit logs by severity
+    CREATE INDEX IF NOT EXISTS idx_audit_logs_severity
+      ON audit_logs(severity);
 
--- Index for querying audit logs by timestamp (recent activity)
-CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp
-  ON audit_logs(timestamp DESC);
+    -- Index for querying audit logs by timestamp (recent activity)
+    CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp
+      ON audit_logs(timestamp DESC);
 
--- Index for querying audit logs by user
-CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id
-  ON audit_logs(user_id)
-  WHERE user_id IS NOT NULL;
+    -- Index for querying audit logs by user
+    CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id
+      ON audit_logs(user_id)
+      WHERE user_id IS NOT NULL;
 
--- Compound index for filtering by severity + timestamp
-CREATE INDEX IF NOT EXISTS idx_audit_logs_severity_timestamp
-  ON audit_logs(severity, timestamp DESC);
+    -- Compound index for filtering by severity + timestamp
+    CREATE INDEX IF NOT EXISTS idx_audit_logs_severity_timestamp
+      ON audit_logs(severity, timestamp DESC);
+
+    RAISE NOTICE 'Created audit_logs indexes';
+  ELSE
+    RAISE NOTICE 'Skipping audit_logs indexes (table does not exist)';
+  END IF;
+END $$;
 
 -- ====================================================================================
--- PLATFORM METRICS PERFORMANCE INDEXES
+-- PLATFORM METRICS PERFORMANCE INDEXES (Optional - only if table exists)
 -- ====================================================================================
+-- Note: Run these only if you have the platform_metrics table
 
--- Index for querying metrics by date (dashboard charts)
-CREATE INDEX IF NOT EXISTS idx_platform_metrics_recorded_at
-  ON platform_metrics(recorded_at DESC);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'platform_metrics') THEN
+    -- Index for querying metrics by date (dashboard charts)
+    CREATE INDEX IF NOT EXISTS idx_platform_metrics_recorded_at
+      ON platform_metrics(recorded_at DESC);
+
+    RAISE NOTICE 'Created platform_metrics indexes';
+  ELSE
+    RAISE NOTICE 'Skipping platform_metrics indexes (table does not exist)';
+  END IF;
+END $$;
 
 -- ====================================================================================
 -- VERIFICATION & STATISTICS
