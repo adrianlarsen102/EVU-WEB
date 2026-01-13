@@ -1,7 +1,6 @@
 import { getSupabaseClient } from '../../../lib/database';
 import { rateLimiters } from '../../../lib/rateLimit';
 import { validatePassword } from '../../../lib/validation';
-import { requireCSRFToken } from '../../../lib/csrf';
 import logger from '../../../lib/logger';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
