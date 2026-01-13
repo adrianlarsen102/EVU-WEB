@@ -1,5 +1,6 @@
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 import { getSupabaseClient } from '../../../lib/database';
+import { requireCSRFToken } from '../../../lib/csrf';
 
 const supabase = getSupabaseClient();
 
@@ -14,6 +15,15 @@ export default async function handler(req, res) {
 
   if (req.method !== 'DELETE') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // SECURITY FIX H2: Validate CSRF token for account deletion
+  const csrfCheck = requireCSRFToken(req, res, sessionId);
+  if (csrfCheck !== true) {
+    return res.status(csrfCheck.status).json({
+      error: csrfCheck.error,
+      message: csrfCheck.message
+    });
   }
 
   try {

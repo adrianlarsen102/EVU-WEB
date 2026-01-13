@@ -353,6 +353,11 @@ export default function Profile() {
                   Login
                 </button>
               </form>
+              <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                <Link href="/forgot-password" style={{ color: 'var(--primary-color)', fontSize: '0.9rem' }}>
+                  Forgot your password?
+                </Link>
+              </div>
               <div style={{ marginTop: '2rem', textAlign: 'center', paddingTop: '1.5rem', borderTop: '1px solid rgba(0, 212, 255, 0.2)' }}>
                 <p style={{ color: 'var(--text-secondary)' }}>
                   Don't have an account?{' '}
