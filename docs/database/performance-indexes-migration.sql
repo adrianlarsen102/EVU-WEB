@@ -83,8 +83,9 @@ CREATE INDEX IF NOT EXISTS idx_support_tickets_status_created
   ON support_tickets(status, created_at DESC);
 
 -- Index for querying ticket replies
-CREATE INDEX IF NOT EXISTS idx_support_replies_ticket_id
-  ON support_replies(ticket_id);
+-- Note: Table is named support_ticket_replies in the schema
+CREATE INDEX IF NOT EXISTS idx_support_ticket_replies_ticket_id
+  ON support_ticket_replies(ticket_id);
 
 -- ====================================================================================
 -- AUDIT LOG PERFORMANCE INDEXES
