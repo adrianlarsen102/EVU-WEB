@@ -3,6 +3,7 @@ import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 import { hasPermission } from '../../../lib/permissions';
 import { requireCSRFToken } from '../../../lib/csrf';
 import { rateLimiters } from '../../../lib/rateLimit';
+import { invalidateRolePermissions, invalidateUserPermissions } from '../../../lib/permissionCache';
 
 const supabase = getSupabaseClient();
 
@@ -208,8 +209,10 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Failed to update role' });
       }
 
-      // Invalidate all sessions for users with this role (permissions changed)
-      // First, get all users with this role
+      // Invalidate permission cache for all users with this role
+      invalidateRolePermissions(roleId);
+
+      // Invalidate sessions for users with this role (permissions changed)
       const { data: usersWithRole } = await supabase
         .from('admins')
         .select('id')
@@ -223,7 +226,7 @@ export default async function handler(req, res) {
         }
         // SECURITY: Sanitize roleId in log to prevent log injection
         const sanitizedRoleId = String(roleId).replace(/[\r\n]/g, '');
-        console.log(`Role ${sanitizedRoleId} updated: Invalidated ${totalInvalidated} session(s) for ${usersWithRole.length} user(s)`);
+        console.log(`Role ${sanitizedRoleId} updated: Invalidated ${totalInvalidated} session(s) and permissions cache for ${usersWithRole.length} user(s)`);
       }
 
       res.status(200).json({ success: true, role: data });

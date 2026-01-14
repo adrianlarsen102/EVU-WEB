@@ -21,14 +21,28 @@ export default async function handler(req, res) {
 
   // GET - Get comments by topic
   if (req.method === 'GET') {
-    const { topicId } = req.query;
+    const { topicId, limit, offset, page } = req.query;
 
     if (!topicId) {
       return res.status(400).json({ error: 'Topic ID required' });
     }
 
-    const comments = await getCommentsByTopic(topicId);
-    return res.status(200).json(comments);
+    // Parse pagination parameters
+    const paginationOptions = {};
+
+    // Support both offset-based and page-based pagination
+    if (page !== undefined) {
+      const pageNum = parseInt(page) || 1;
+      const perPage = parseInt(limit) || 50;
+      paginationOptions.limit = perPage;
+      paginationOptions.offset = (pageNum - 1) * perPage;
+    } else {
+      if (limit !== undefined) paginationOptions.limit = parseInt(limit) || 50;
+      if (offset !== undefined) paginationOptions.offset = parseInt(offset) || 0;
+    }
+
+    const result = await getCommentsByTopic(topicId, paginationOptions);
+    return res.status(200).json(result);
   }
 
   // POST - Create new comment (requires authentication)

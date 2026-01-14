@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
   // GET - Get topics by category or specific topic by ID
   if (req.method === 'GET') {
-    const { categoryId, topicId } = req.query;
+    const { categoryId, topicId, limit, offset, page } = req.query;
 
     if (topicId) {
       const topic = await getTopicById(topicId);
@@ -31,8 +31,22 @@ export default async function handler(req, res) {
     }
 
     if (categoryId) {
-      const topics = await getTopicsByCategory(parseInt(categoryId));
-      return res.status(200).json(topics);
+      // Parse pagination parameters
+      const paginationOptions = {};
+
+      // Support both offset-based and page-based pagination
+      if (page !== undefined) {
+        const pageNum = parseInt(page) || 1;
+        const perPage = parseInt(limit) || 20;
+        paginationOptions.limit = perPage;
+        paginationOptions.offset = (pageNum - 1) * perPage;
+      } else {
+        if (limit !== undefined) paginationOptions.limit = parseInt(limit) || 20;
+        if (offset !== undefined) paginationOptions.offset = parseInt(offset) || 0;
+      }
+
+      const result = await getTopicsByCategory(parseInt(categoryId), paginationOptions);
+      return res.status(200).json(result);
     }
 
     return res.status(400).json({ error: 'Category ID or Topic ID required' });
