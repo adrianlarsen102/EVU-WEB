@@ -3,7 +3,7 @@ import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 import { hasPermission } from '../../../lib/permissions';
 import { requireCSRFToken } from '../../../lib/csrf';
 import { rateLimiters } from '../../../lib/rateLimit';
-import { invalidateRolePermissions, invalidateUserPermissions } from '../../../lib/permissionCache';
+import { invalidateRolePermissions } from '../../../lib/permissionCache';
 
 const supabase = getSupabaseClient();
 
