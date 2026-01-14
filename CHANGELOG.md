@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.3.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.2.2...v3.3.0) (2026-01-14)
+
+
+### Features
+
+* comprehensive performance and feature improvements (v3.2.3) ([5232cdf](https://github.com/adrianlarsen102/EVU-WEB/commit/5232cdf55d6e188568d0b42b5f6ddc3add7fff0f))
+
+
+### Bug Fixes
+
+* correct table name in performance indexes migration (support_ticket_replies) ([37618f1](https://github.com/adrianlarsen102/EVU-WEB/commit/37618f156104b05fdf5424306587b282f60a3400))
+* make audit_logs and platform_metrics indexes conditional ([2f98963](https://github.com/adrianlarsen102/EVU-WEB/commit/2f98963ad175f5fb3dfac5afe7803e0e996099c5))
+
 ### [3.2.2](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.2.1...v3.2.2) (2026-01-13)
 
 
