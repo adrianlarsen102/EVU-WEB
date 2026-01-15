@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.3.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.3.0...v3.3.1) (2026-01-14)
+
+
+### Bug Fixes
+
+* remove unused invalidateUserPermissions import ([0468be7](https://github.com/adrianlarsen102/EVU-WEB/commit/0468be7c0f77db25507a49e916c5213e994faf29)), closes [#69](https://github.com/adrianlarsen102/EVU-WEB/issues/69)
+
 ## [3.3.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.2.2...v3.3.0) (2026-01-14)
 
 
