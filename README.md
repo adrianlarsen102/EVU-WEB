@@ -1,6 +1,6 @@
 # EVU Gaming Network Website
 
-**Version 3.1.0** - A modern, secure, and feature-rich website for your gaming community built with Next.js. Supports both Minecraft and FiveM servers with seamless switching.
+**Version 3.3.1** - A modern, secure, and feature-rich website for your gaming community built with Next.js. Supports both Minecraft and FiveM servers with seamless switching.
 
 ## ✨ Features
 
@@ -54,12 +54,12 @@ See [Installation Guide](docs/guides/installation.md) for detailed installation 
 
 This website uses **enterprise-level security**:
 
-### 🛡️ Security Status (v3.1.0)
+### 🛡️ Security Status (v3.3.1)
 - ✅ **npm audit: 0 vulnerabilities**
 - ✅ All dependencies up-to-date with security patches
-- ✅ Next.js 16.1.0 (critical RCE & DoS vulnerabilities fixed)
-- ✅ React 19.2.3 (latest stable)
-- ✅ Supabase 2.89.0 (50+ security patches)
+- ✅ Next.js 16.1.6 (critical RCE & DoS vulnerabilities fixed)
+- ✅ React 19.2.4 (latest stable)
+- ✅ Supabase 2.93.3 (50+ security patches)
 
 ### 🔒 Security Features
 - ✅ Supabase PostgreSQL database for credential storage
@@ -166,13 +166,13 @@ Manage your entire website without touching code:
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 16.1 (Webpack mode for Windows compatibility)
-- **Frontend**: React 19.2
-- **Database**: Supabase (PostgreSQL) v2.89
+- **Framework**: Next.js 16.1.6 (Webpack mode for Windows compatibility)
+- **Frontend**: React 19.2.4
+- **Database**: Supabase (PostgreSQL) v2.93.3
 - **Security**: bcrypt, CSRF protection, rate limiting, input validation
 - **Styling**: Custom CSS with 5 theme options
 - **API**: Next.js API Routes
-- **Email**: Nodemailer v7.0.11 (SMTP/Resend)
+- **Email**: Nodemailer v7.0.13 (SMTP/Resend)
 - **Analytics**: Vercel Analytics & Speed Insights
 - **Testing**: Jest + Playwright
 - **Hosting**: Vercel (optimized)
@@ -316,14 +316,15 @@ const response = await fetch('YOUR_FIVEM_API');
 **Deployment issues?**
 - See [Deployment Checklist](docs/guides/deployment-checklist.md)
 
-## 🆕 What's New in v3.1.0
+## 🆕 What's New in v3.3.1
 
-### Latest Updates (January 2025)
+### Latest Updates (January 2026)
 - 🔒 **Major Security Updates** - All critical vulnerabilities fixed
-- ⬆️ **Next.js 16.1.0** - Updated from 15.5.6 (fixes RCE, DoS, source code exposure)
-- 📦 **Supabase 2.89.0** - Massive update from 2.39.0 (50+ versions)
-- 📧 **Nodemailer 7.0.11** - Fixed DoS vulnerabilities
-- ⚛️ **React 19.2.3** - Latest stable version
+- ⬆️ **Next.js 16.1.6** - Updated from 16.1.0 (fixes DoS vulnerabilities)
+- 📦 **Supabase 2.93.3** - Updated from 2.89.0 (latest security patches)
+- 📧 **Nodemailer 7.0.13** - Latest stable version
+- ⚛️ **React 19.2.4** - Latest stable version
+- 🗃️ **PostgreSQL 8.17.2** - Updated pg driver
 - 📊 **Vercel Analytics** - Updated to latest versions
 - 🛠️ **Webpack Configuration** - Added for Windows compatibility (Turbopack symlink fix)
 - 🔐 **Enhanced Security Headers** - COEP, COOP, CORP added
