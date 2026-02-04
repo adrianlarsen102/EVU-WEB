@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.3.3](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.3.2...v3.3.3) (2026-02-04)
+
+
+### Bug Fixes
+
+* resolve all ESLint errors and warnings ([4b0d406](https://github.com/adrianlarsen102/EVU-WEB/commit/4b0d406466eee81745f4ff305341e98ddc543549))
+
 ### [3.3.2](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.3.1...v3.3.2) (2026-01-30)
 
 ### [3.3.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.3.0...v3.3.1) (2026-01-14)
