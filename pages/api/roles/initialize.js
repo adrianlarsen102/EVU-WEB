@@ -102,7 +102,8 @@ export default async function handler(req, res) {
 
     if (insertError) {
       console.error('Error inserting roles:', insertError);
-      return res.status(500).json({ error: 'Failed to create default roles', details: insertError.message });
+      // SECURITY: Never expose error details in production responses
+      return res.status(500).json({ error: 'Failed to create default roles' });
     }
 
     // Get Administrator role ID
@@ -135,6 +136,7 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error('Role initialization error:', error);
-    res.status(500).json({ error: 'Failed to initialize roles', details: error.message });
+    // SECURITY: Never expose error details in production responses
+    res.status(500).json({ error: 'Failed to initialize roles' });
   }
 }

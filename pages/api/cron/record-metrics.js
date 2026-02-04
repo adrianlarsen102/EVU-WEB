@@ -1,6 +1,22 @@
 import { getSupabaseClient } from '../../../lib/database';
+import crypto from 'crypto';
 
 const supabase = getSupabaseClient();
+
+// SECURITY: Timing-safe string comparison to prevent timing attacks
+function timingSafeEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') {
+    return false;
+  }
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) {
+    // Perform comparison anyway to prevent length-based timing attacks
+    crypto.timingSafeEqual(bufA, Buffer.alloc(bufA.length));
+    return false;
+  }
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 
 export default async function handler(req, res) {
   // Verify this is an authorized cron request
@@ -11,13 +27,13 @@ export default async function handler(req, res) {
   if (!cronSecret) {
     console.error('CRON_SECRET not configured - metrics recording disabled for security');
     return res.status(503).json({
-      error: 'Service unavailable',
-      message: 'CRON_SECRET environment variable must be configured'
+      error: 'Service unavailable'
     });
   }
 
-  // Validate authorization header
-  if (!authHeader || authHeader !== `Bearer ${cronSecret}`) {
+  // SECURITY: Use timing-safe comparison to prevent timing attacks
+  const expectedHeader = `Bearer ${cronSecret}`;
+  if (!authHeader || !timingSafeEqual(authHeader, expectedHeader)) {
     console.warn('Unauthorized cron access attempt:', {
       ip: req.headers['x-forwarded-for'] || req.socket?.remoteAddress,
       timestamp: new Date().toISOString()
@@ -58,7 +74,8 @@ export default async function handler(req, res) {
 
     if (error) {
       console.error('Error recording metrics:', error);
-      return res.status(500).json({ error: 'Failed to record metrics', details: error.message });
+      // SECURITY: Never expose error details in production responses
+      return res.status(500).json({ error: 'Failed to record metrics' });
     }
 
     console.log('Metrics recorded successfully:', metricsSnapshot);
@@ -69,6 +86,7 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error('Metrics recording error:', error);
-    res.status(500).json({ error: 'Failed to record metrics', details: error.message });
+    // SECURITY: Never expose error details in production responses
+    res.status(500).json({ error: 'Failed to record metrics' });
   }
 }

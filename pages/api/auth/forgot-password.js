@@ -39,8 +39,11 @@ export default async function handler(req, res) {
     // SECURITY: Always return success to prevent user enumeration
     // Don't reveal whether email exists or not
     if (userError || !user) {
-      logger.security('Password reset requested for non-existent email', {
-        email: emailValidation.sanitized
+      // SECURITY: Don't log the actual email to prevent info disclosure via log scraping
+      // Only log a generic event for monitoring purposes
+      logger.security('Password reset requested - account lookup negative', {
+        ip: req.headers['x-forwarded-for'] || req.socket?.remoteAddress,
+        timestamp: new Date().toISOString()
       });
       return res.status(200).json({
         success: true,

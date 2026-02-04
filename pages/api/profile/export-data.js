@@ -1,5 +1,6 @@
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 import { getSupabaseClient } from '../../../lib/database';
+import { rateLimiters } from '../../../lib/rateLimit';
 
 const supabase = getSupabaseClient();
 
@@ -15,6 +16,10 @@ export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  // SECURITY: Apply rate limiting to prevent abuse (5 exports per hour)
+  const rateLimitResult = await rateLimiters.read(req, res, null);
+  if (rateLimitResult !== true) return;
 
   try {
     // Get user data

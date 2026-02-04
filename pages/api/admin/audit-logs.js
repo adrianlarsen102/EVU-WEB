@@ -1,5 +1,6 @@
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 import { getSupabaseClient } from '../../../lib/database';
+import { rateLimiters } from '../../../lib/rateLimit';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -14,6 +15,10 @@ export default async function handler(req, res) {
     if (!session || !session.isAdmin) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
+
+    // SECURITY: Apply rate limiting to prevent excessive querying
+    const rateLimitResult = await rateLimiters.read(req, res, null);
+    if (rateLimitResult !== true) return;
 
     // Get query parameters
     const {
