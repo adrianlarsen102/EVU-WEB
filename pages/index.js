@@ -163,6 +163,7 @@ export default function Home() {
             </div>
           </section>
         </div>
+        {/* eslint-disable-next-line react/no-unknown-property */}
         <style jsx>{`
           @keyframes shimmer {
             0% {

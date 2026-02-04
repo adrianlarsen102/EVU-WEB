@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Layout from '../components/Layout';
 
@@ -10,14 +10,7 @@ export default function StatusPage() {
   const [loading, setLoading] = useState(true);
   const [lastChecked, setLastChecked] = useState(null);
 
-  useEffect(() => {
-    fetchAllData();
-    // Refresh status every 30 seconds
-    const interval = setInterval(fetchAllData, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchAllData = async () => {
+  const fetchAllData = useCallback(async () => {
     await Promise.all([
       fetchHealth(),
       fetchMinecraftStatus(),
@@ -26,7 +19,14 @@ export default function StatusPage() {
     ]);
     setLastChecked(new Date());
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAllData();
+    // Refresh status every 30 seconds
+    const interval = setInterval(fetchAllData, 30000);
+    return () => clearInterval(interval);
+  }, [fetchAllData]);
 
   const fetchHealth = async () => {
     try {

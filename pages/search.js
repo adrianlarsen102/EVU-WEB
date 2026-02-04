@@ -26,7 +26,7 @@ export default function Search() {
       setSearchQuery(q);
       performSearch(q, filterType);
     }
-  }, [q]);
+  }, [q, filterType]);
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function Search() {
       } else {
         setError(data.error || 'Search failed');
       }
-    } catch (error) {
+    } catch {
       setError('Search failed. Please try again.');
     } finally {
       setLoading(false);
@@ -443,7 +443,7 @@ export default function Search() {
               color: 'var(--text-secondary)',
               fontSize: '1.1rem'
             }}>
-              Found {results.totalResults} result{results.totalResults !== 1 ? 's' : ''} for "{results.query}"
+              Found {results.totalResults} result{results.totalResults !== 1 ? 's' : ''} for &quot;{results.query}&quot;
             </div>
 
             {/* Forum Topics */}

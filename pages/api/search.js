@@ -53,7 +53,7 @@ export default async function handler(req, res) {
           .select('id, title, content, created_at, author_username, category_id, views_count')
           .or(`title.ilike.${searchTerm},content.ilike.${searchTerm}`)
           .order('created_at', { ascending: false })
-          .limit(parseInt(limit));
+          .limit(sanitizedLimit);
 
         if (!topicsError && topics) {
           results.forum.topics = topics;
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
           .select('id, content, created_at, author_username, topic_id')
           .ilike('content', searchTerm)
           .order('created_at', { ascending: false })
-          .limit(parseInt(limit));
+          .limit(sanitizedLimit);
 
         if (!commentsError && comments) {
           results.forum.comments = comments;
@@ -94,7 +94,7 @@ export default async function handler(req, res) {
             .from('admins')
             .select('id, username, display_name, created_at, role')
             .or(`username.ilike.${searchTerm},display_name.ilike.${searchTerm}`)
-            .limit(parseInt(limit));
+            .limit(sanitizedLimit);
 
           if (!usersError && users) {
             // Filter sensitive information based on user role

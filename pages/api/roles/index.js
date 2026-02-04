@@ -4,6 +4,7 @@ import { hasPermission } from '../../../lib/permissions';
 import { requireCSRFToken } from '../../../lib/csrf';
 import { rateLimiters } from '../../../lib/rateLimit';
 import { invalidateRolePermissions } from '../../../lib/permissionCache';
+import { sessionCache } from '../../../lib/sessionCache';
 
 const supabase = getSupabaseClient();
 

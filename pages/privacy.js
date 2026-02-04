@@ -121,7 +121,7 @@ export default function Privacy() {
           </section>
 
           <section style={{ marginBottom: '2.5rem' }}>
-            <h2 style={{ color: 'var(--primary-color)', marginBottom: '1rem' }}>8. Children's Privacy</h2>
+            <h2 style={{ color: 'var(--primary-color)', marginBottom: '1rem' }}>8. Children&apos;s Privacy</h2>
             <p style={{ color: 'var(--text-secondary)', lineHeight: '1.8' }}>
               Our services are not directed to children under 13 years of age. We do not knowingly collect personal information from children under 13. If you believe we have collected information from a child under 13, please contact us immediately.
             </p>
@@ -137,7 +137,7 @@ export default function Privacy() {
           <section style={{ marginBottom: '2.5rem' }}>
             <h2 style={{ color: 'var(--primary-color)', marginBottom: '1rem' }}>10. Changes to This Policy</h2>
             <p style={{ color: 'var(--text-secondary)', lineHeight: '1.8' }}>
-              We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the "Last Updated" date. Continued use of our services after changes constitutes acceptance of the updated policy.
+              We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the &quot;Last Updated&quot; date. Continued use of our services after changes constitutes acceptance of the updated policy.
             </p>
           </section>
 

@@ -21,7 +21,7 @@ export default function Support() {
       const res = await fetch('/api/auth/check');
       const data = await res.json();
       setAuth(data);
-    } catch (error) {
+    } catch {
       setAuth({ authenticated: false });
     }
   }, []);
@@ -244,7 +244,7 @@ export default function Support() {
             ) : tickets.length === 0 ? (
               <div className="connection-box">
                 <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
-                  You haven't submitted any tickets yet. Click "New Ticket" to get started.
+                  You haven&apos;t submitted any tickets yet. Click &quot;New Ticket&quot; to get started.
                 </p>
               </div>
             ) : (

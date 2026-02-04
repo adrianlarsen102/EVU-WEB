@@ -24,7 +24,7 @@ export default function Register() {
         }
       })
       .catch(() => {});
-  }, []);
+  }, [router]);
 
   const validatePassword = (password) => {
     if (password.length < 8) {
@@ -89,7 +89,7 @@ export default function Register() {
       } else {
         setError(data.error || 'Registration failed');
       }
-    } catch (error) {
+    } catch {
       setError('Registration failed. Please try again.');
     } finally {
       setLoading(false);

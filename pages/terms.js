@@ -20,7 +20,7 @@ export default function Terms() {
           <section style={{ marginBottom: '2.5rem' }}>
             <h2 style={{ color: 'var(--primary-color)', marginBottom: '1rem' }}>1. Acceptance of Terms</h2>
             <p style={{ color: 'var(--text-secondary)', lineHeight: '1.8' }}>
-              By accessing and using EVU Gaming Network's website and services ("Services"), you accept and agree to be bound by these Terms and Conditions ("Terms"). If you do not agree to these Terms, please do not use our Services.
+              By accessing and using EVU Gaming Network&apos;s website and services (&quot;Services&quot;), you accept and agree to be bound by these Terms and Conditions (&quot;Terms&quot;). If you do not agree to these Terms, please do not use our Services.
             </p>
           </section>
 
@@ -92,12 +92,12 @@ export default function Terms() {
               <li>Follow instructions from moderators and administrators</li>
               <li>Use appropriate language in chat and voice communications</li>
               <li>Report bugs and exploits rather than abuse them</li>
-              <li>Respect other players' property and creations</li>
+              <li>Respect other players&apos; property and creations</li>
             </ul>
 
             <h3 style={{ color: 'var(--text-primary)', marginTop: '1.5rem', marginBottom: '0.75rem' }}>5.2 Prohibited Actions</h3>
             <ul style={{ color: 'var(--text-secondary)', lineHeight: '1.8', marginLeft: '2rem' }}>
-              <li>Griefing or destroying other players' builds</li>
+              <li>Griefing or destroying other players&apos; builds</li>
               <li>Stealing from other players</li>
               <li>PvP harassment or spawn killing</li>
               <li>Building inappropriate structures</li>
@@ -141,7 +141,7 @@ export default function Terms() {
 
             <h3 style={{ color: 'var(--text-primary)', marginTop: '1.5rem', marginBottom: '0.75rem' }}>8.1 Service Availability</h3>
             <p style={{ color: 'var(--text-secondary)', lineHeight: '1.8' }}>
-              Our Services are provided "as is" and "as available." We do not guarantee uninterrupted access or error-free operation. Server maintenance, updates, and technical issues may cause temporary service disruptions.
+              Our Services are provided &quot;as is&quot; and &quot;as available.&quot; We do not guarantee uninterrupted access or error-free operation. Server maintenance, updates, and technical issues may cause temporary service disruptions.
             </p>
 
             <h3 style={{ color: 'var(--text-primary)', marginTop: '1.5rem', marginBottom: '0.75rem' }}>8.2 No Warranties</h3>

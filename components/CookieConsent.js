@@ -8,7 +8,6 @@ const CookieConsent = memo(function CookieConsent() {
   useEffect(() => {
     const consent = localStorage.getItem('cookieConsent');
     if (!consent) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowBanner(true);
     }
   }, []);
@@ -172,7 +171,7 @@ const CookieConsent = memo(function CookieConsent() {
               <p>Admin panel access is restricted to authorized personnel only. Unauthorized access attempts will be logged and may result in legal action.</p>
 
               <h3>4. Disclaimer</h3>
-              <p>The materials on this website are provided on an 'as is' basis. We make no warranties, expressed or implied, and hereby disclaim all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property.</p>
+              <p>The materials on this website are provided on an &apos;as is&apos; basis. We make no warranties, expressed or implied, and hereby disclaim all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property.</p>
 
               <h3>5. Limitations</h3>
               <p>In no event shall EVU Server or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use this website.</p>

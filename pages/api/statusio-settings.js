@@ -3,7 +3,7 @@ import { getSupabaseClient } from '../../lib/database';
 import { requireCSRFToken } from '../../lib/csrf';
 import { hasPermission } from '../../lib/permissions';
 import { auditLog, AuditEventTypes, AuditSeverity } from '../../lib/auditLog';
-import { validateRequestBody, sanitizeString } from '../../lib/validation';
+import { sanitizeString } from '../../lib/validation';
 
 const supabase = getSupabaseClient();
 

@@ -103,7 +103,7 @@ describe('rateLimit.js - Rate Limiting', () => {
 
     test('should allow request within limit', async () => {
       const limiter = createRateLimiter({ maxRequests: 10, windowMs: 60000 });
-      const result = await limiter(mockReq, mockRes);
+      await limiter(mockReq, mockRes);
 
       // Should return true or call next() (doesn't set response)
       expect(mockRes.status).not.toHaveBeenCalled();
@@ -117,7 +117,7 @@ describe('rateLimit.js - Rate Limiting', () => {
         headers: {}
       };
 
-      const result = await limiter(noIpReq, mockRes);
+      await limiter(noIpReq, mockRes);
 
       // Should still work (logs warning but allows request)
       expect(mockRes.status).not.toHaveBeenCalled();

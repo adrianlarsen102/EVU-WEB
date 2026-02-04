@@ -131,7 +131,6 @@ export default function Admin() {
     if (activeTab === 'dashboard' && isAuthenticated && historyRange) {
       loadMetricsHistory(historyRange);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, isAuthenticated, historyRange]);
 
   useEffect(() => {
@@ -248,7 +247,7 @@ export default function Admin() {
       } else {
         setLoginError(data.error || 'Invalid credentials');
       }
-    } catch (error) {
+    } catch {
       setLoginError('Login failed');
     }
   };
@@ -298,7 +297,7 @@ export default function Admin() {
       } else {
         setPasswordError(data.error || 'Failed to change password');
       }
-    } catch (error) {
+    } catch {
       setPasswordError('Failed to change password');
     }
   };
@@ -343,7 +342,7 @@ export default function Admin() {
       } else {
         showMessage('error', 'Error saving changes!');
       }
-    } catch (error) {
+    } catch {
       showMessage('error', 'Error saving changes!');
     }
   };
@@ -659,7 +658,7 @@ export default function Admin() {
       } else {
         showMessage('error', `Failed to ${action} topic`);
       }
-    } catch (error) {
+    } catch {
       showMessage('error', `Failed to ${action} topic`);
     }
   };
@@ -682,7 +681,7 @@ export default function Admin() {
       } else {
         showMessage('error', `Failed to ${action} comment`);
       }
-    } catch (error) {
+    } catch {
       showMessage('error', `Failed to ${action} comment`);
     }
   };
@@ -731,7 +730,7 @@ export default function Admin() {
       } else {
         showMessage('error', 'Failed to update ticket status');
       }
-    } catch (error) {
+    } catch {
       showMessage('error', 'Failed to update ticket status');
     }
   };
@@ -818,7 +817,7 @@ export default function Admin() {
       } else {
         setEmailError(data.error || 'Failed to save email settings');
       }
-    } catch (error) {
+    } catch {
       setEmailError('Failed to save email settings');
     }
   };
@@ -862,7 +861,7 @@ export default function Admin() {
       } else {
         setTestEmailStatus(`error:${data.error || 'Failed to send test email'}`);
       }
-    } catch (error) {
+    } catch {
       setTestEmailStatus('error:Failed to send test email. Check your settings.');
     } finally {
       setSendingTestEmail(false);
@@ -927,7 +926,7 @@ export default function Admin() {
       } else {
         setDiscordError(data.error || 'Failed to save Discord settings');
       }
-    } catch (error) {
+    } catch {
       setDiscordError('Failed to save Discord settings');
     }
   };
@@ -969,7 +968,7 @@ export default function Admin() {
       } else {
         setTestDiscordStatus(`error:${data.error || 'Failed to send test notification'}`);
       }
-    } catch (error) {
+    } catch {
       setTestDiscordStatus('error:Failed to send test notification. Check your webhook URL.');
     } finally {
       setSendingTestDiscord(false);
@@ -1102,7 +1101,7 @@ export default function Admin() {
       } else {
         setRoleError(data.error || 'Failed to create role');
       }
-    } catch (error) {
+    } catch {
       setRoleError('Failed to create role');
     }
   };
@@ -1141,7 +1140,7 @@ export default function Admin() {
       } else {
         setRoleError(data.error || 'Failed to update role');
       }
-    } catch (error) {
+    } catch {
       setRoleError('Failed to update role');
     }
   };
@@ -1174,7 +1173,7 @@ export default function Admin() {
       } else {
         setRoleError(data.error || 'Failed to delete role');
       }
-    } catch (error) {
+    } catch {
       setRoleError('Failed to delete role');
     }
   };
@@ -1248,7 +1247,7 @@ export default function Admin() {
       } else {
         setUserError(data.error || 'Failed to create user');
       }
-    } catch (error) {
+    } catch {
       setUserError('Failed to create user');
     }
   };
@@ -1281,7 +1280,7 @@ export default function Admin() {
       } else {
         showMessage('error', data.error || 'Failed to delete user');
       }
-    } catch (error) {
+    } catch {
       showMessage('error', 'Failed to delete user');
     }
   };
@@ -1317,7 +1316,7 @@ export default function Admin() {
       } else {
         showMessage('error', data.error || 'Failed to reset password');
       }
-    } catch (error) {
+    } catch {
       showMessage('error', 'Failed to reset password');
     }
   };
@@ -1379,7 +1378,7 @@ export default function Admin() {
       } else {
         setUserError(data.error || 'Failed to update user');
       }
-    } catch (error) {
+    } catch {
       setUserError('Failed to update user');
     }
   };

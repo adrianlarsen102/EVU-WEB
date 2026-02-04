@@ -80,7 +80,7 @@ export default function ResetPassword() {
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to reset password' });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Network error. Please try again.' });
     } finally {
       setLoading(false);

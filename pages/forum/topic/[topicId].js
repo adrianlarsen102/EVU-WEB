@@ -47,9 +47,7 @@ export default function TopicView() {
 
   useEffect(() => {
     if (topicId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchTopic();
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchComments();
     }
   }, [topicId, fetchTopic, fetchComments]);

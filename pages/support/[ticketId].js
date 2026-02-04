@@ -17,7 +17,7 @@ export default function TicketDetail() {
       const res = await fetch('/api/auth/check');
       const data = await res.json();
       setAuth(data);
-    } catch (error) {
+    } catch {
       setAuth({ authenticated: false });
     }
   }, []);

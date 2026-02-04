@@ -45,7 +45,6 @@ export default function CategoryTopics() {
 
   useEffect(() => {
     if (categoryId !== undefined) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchTopics();
     }
   }, [categoryId, fetchTopics]);

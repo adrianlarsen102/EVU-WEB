@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import Link from 'next/link';
 import { fetchWithTimeout } from '../lib/fetchWithTimeout';
@@ -83,7 +83,7 @@ export default function Profile() {
       } else {
         setLoginError(data.error || 'Invalid credentials');
       }
-    } catch (error) {
+    } catch {
       setLoginError('Login failed');
     }
   };
@@ -115,7 +115,7 @@ export default function Profile() {
         const data = await res.json();
         showMessage('error', data.error || 'Failed to update profile');
       }
-    } catch (error) {
+    } catch {
       showMessage('error', 'Failed to update profile');
     }
   };
@@ -152,7 +152,7 @@ export default function Profile() {
       } else {
         setPasswordError(data.error || 'Failed to change password');
       }
-    } catch (error) {
+    } catch {
       setPasswordError('Failed to change password');
     }
   };
@@ -194,7 +194,7 @@ export default function Profile() {
       } else {
         showMessage('error', data.error || 'Failed to upload avatar');
       }
-    } catch (error) {
+    } catch {
       showMessage('error', 'Failed to upload avatar');
     } finally {
       setUploadingImage(false);
@@ -220,7 +220,7 @@ export default function Profile() {
         const data = await res.json();
         showMessage('error', data.error || 'Failed to export data');
       }
-    } catch (error) {
+    } catch {
       showMessage('error', 'Failed to export data');
     }
   };
@@ -254,7 +254,7 @@ export default function Profile() {
       } else {
         setDeleteError(data.error || 'Failed to delete account');
       }
-    } catch (error) {
+    } catch {
       setDeleteError('Failed to delete account');
     }
   };
@@ -360,7 +360,7 @@ export default function Profile() {
               </div>
               <div style={{ marginTop: '2rem', textAlign: 'center', paddingTop: '1.5rem', borderTop: '1px solid rgba(0, 212, 255, 0.2)' }}>
                 <p style={{ color: 'var(--text-secondary)' }}>
-                  Don't have an account?{' '}
+                  Don&apos;t have an account?{' '}
                   <Link href="/register" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>
                     Create one here
                   </Link>

@@ -82,7 +82,7 @@ export default async function handler(req, res) {
           }
         });
 
-      case 'testIncident':
+      case 'testIncident': {
         // Create a test incident (will be visible on status page!)
         const testIncident = await client.createIncident({
           name: 'EVU-WEB Test Incident',
@@ -108,6 +108,7 @@ export default async function handler(req, res) {
             incidentId: testIncident.result?.incident_id
           }
         });
+      }
 
       default:
         return res.status(400).json({

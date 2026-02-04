@@ -33,7 +33,7 @@ export default function ForgotPassword() {
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to process request' });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Network error. Please try again.' });
     } finally {
       setLoading(false);
@@ -70,7 +70,7 @@ export default function ForgotPassword() {
             {!submitted ? (
               <>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-                  Enter the email address associated with your account and we'll send you a link to reset your password.
+                  Enter the email address associated with your account and we&apos;ll send you a link to reset your password.
                 </p>
 
                 <form onSubmit={handleSubmit}>
@@ -145,10 +145,10 @@ export default function ForgotPassword() {
                   Check Your Email
                 </h3>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-                  If an account with email <strong>{email}</strong> exists, we've sent instructions to reset your password.
+                  If an account with email <strong>{email}</strong> exists, we&apos;ve sent instructions to reset your password.
                 </p>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '2rem' }}>
-                  The link will expire in 1 hour. Check your spam folder if you don't see it.
+                  The link will expire in 1 hour. Check your spam folder if you don&apos;t see it.
                 </p>
                 <button
                   onClick={() => router.push('/profile')}
