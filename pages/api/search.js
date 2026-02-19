@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '../../lib/database';
 import { rateLimiters } from '../../lib/rateLimit';
+import { validateSession, getSessionFromCookie } from '../../lib/auth';
 
 const supabase = getSupabaseClient();
 
@@ -81,9 +82,7 @@ export default async function handler(req, res) {
 
     // Search users (SECURITY: Require authentication for user search)
     if ((type === 'all' || type === 'users')) {
-      // SECURITY FIX: Only allow authenticated users to search users
-      // Get session to verify authentication
-      const { validateSession, getSessionFromCookie } = require('../../lib/auth');
+      // SECURITY: Only allow authenticated users to search users
       const sessionId = getSessionFromCookie(req.headers.cookie);
       const session = sessionId ? await validateSession(sessionId) : null;
 

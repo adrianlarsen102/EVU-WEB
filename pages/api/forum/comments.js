@@ -32,13 +32,13 @@ export default async function handler(req, res) {
 
     // Support both offset-based and page-based pagination
     if (page !== undefined) {
-      const pageNum = parseInt(page) || 1;
-      const perPage = parseInt(limit) || 50;
+      const pageNum = parseInt(page, 10) || 1;
+      const perPage = parseInt(limit, 10) || 50;
       paginationOptions.limit = perPage;
       paginationOptions.offset = (pageNum - 1) * perPage;
     } else {
-      if (limit !== undefined) paginationOptions.limit = parseInt(limit) || 50;
-      if (offset !== undefined) paginationOptions.offset = parseInt(offset) || 0;
+      if (limit !== undefined) paginationOptions.limit = parseInt(limit, 10) || 50;
+      if (offset !== undefined) paginationOptions.offset = parseInt(offset, 10) || 0;
     }
 
     const result = await getCommentsByTopic(topicId, paginationOptions);
@@ -121,7 +121,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Comment ID and content are required' });
     }
 
-    if (content.length < 1 || content.length > 5000) {
+    // SECURITY: Sanitize before length check to prevent bypass via HTML encoding
+    const sanitizedContent = sanitizeHTML(content);
+    if (sanitizedContent.length < 1 || sanitizedContent.length > 5000) {
       return res.status(400).json({ error: 'Content must be between 1 and 5000 characters' });
     }
 
@@ -137,7 +139,7 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Forbidden: You can only edit your own comments' });
     }
 
-    const result = await updateComment(commentId, content);
+    const result = await updateComment(commentId, sanitizedContent);
 
     if (result.success) {
       return res.status(200).json({ success: true });

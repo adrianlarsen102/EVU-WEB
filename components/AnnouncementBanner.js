@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import styles from './AnnouncementBanner.module.css';
 
 /**
@@ -101,7 +102,7 @@ export default function AnnouncementBanner({ target = 'all' }) {
               <strong className={styles.title}>{announcement.title}</strong>
               <div
                 className={styles.message}
-                dangerouslySetInnerHTML={{ __html: announcement.message }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(announcement.message) }}
               />
             </div>
 

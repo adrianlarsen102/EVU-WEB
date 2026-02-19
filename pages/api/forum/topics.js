@@ -36,16 +36,16 @@ export default async function handler(req, res) {
 
       // Support both offset-based and page-based pagination
       if (page !== undefined) {
-        const pageNum = parseInt(page) || 1;
-        const perPage = parseInt(limit) || 20;
+        const pageNum = parseInt(page, 10) || 1;
+        const perPage = parseInt(limit, 10) || 20;
         paginationOptions.limit = perPage;
         paginationOptions.offset = (pageNum - 1) * perPage;
       } else {
-        if (limit !== undefined) paginationOptions.limit = parseInt(limit) || 20;
-        if (offset !== undefined) paginationOptions.offset = parseInt(offset) || 0;
+        if (limit !== undefined) paginationOptions.limit = parseInt(limit, 10) || 20;
+        if (offset !== undefined) paginationOptions.offset = parseInt(offset, 10) || 0;
       }
 
-      const result = await getTopicsByCategory(parseInt(categoryId), paginationOptions);
+      const result = await getTopicsByCategory(parseInt(categoryId, 10), paginationOptions);
       return res.status(200).json(result);
     }
 

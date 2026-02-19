@@ -58,11 +58,6 @@ export default async function handler(req, res) {
     });
   }
 
-  // Prevent use of default password
-  if (newPassword === 'admin123') {
-    return res.status(400).json({ error: 'Please choose a different password than the default' });
-  }
-
   try {
     await changePassword(session.adminId, newPassword);
     res.status(200).json({ success: true });

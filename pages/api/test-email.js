@@ -1,5 +1,6 @@
 import { validateSession, getSessionFromCookie } from '../../lib/auth';
 import { sendTestEmail } from '../../lib/email';
+import { validateEmail } from '../../lib/validation';
 
 export default async function handler(req, res) {
   // Check authentication
@@ -22,9 +23,10 @@ export default async function handler(req, res) {
 
   const { email } = req.body;
 
-  // Validate email
-  if (!email || !email.includes('@')) {
-    return res.status(400).json({ error: 'Valid email address required' });
+  // SECURITY: Use proper email validation instead of naive '@' check
+  const emailValidation = validateEmail(email);
+  if (!emailValidation.valid) {
+    return res.status(400).json({ error: emailValidation.errors[0] || 'Valid email address required' });
   }
 
   try {
@@ -46,7 +48,7 @@ export default async function handler(req, res) {
     console.error('Test email error:', error);
     return res.status(500).json({
       success: false,
-      error: error.message || 'Failed to send test email'
+      error: 'Failed to send test email'
     });
   }
 }
