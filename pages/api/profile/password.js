@@ -2,6 +2,7 @@ import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 import { getSupabaseClient } from '../../../lib/database';
 import bcrypt from 'bcrypt';
 import { rateLimiters } from '../../../lib/rateLimit';
+import { requireCSRFToken } from '../../../lib/csrf';
 
 const supabase = getSupabaseClient();
 const SALT_ROUNDS = 10;
@@ -21,6 +22,15 @@ export default async function handler(req, res) {
 
   if (!session) {
     return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // SECURITY: Validate CSRF token for state-changing operation
+  const csrfCheck = requireCSRFToken(req, res, sessionId);
+  if (csrfCheck !== true) {
+    return res.status(csrfCheck.status).json({
+      error: csrfCheck.error,
+      message: csrfCheck.message
+    });
   }
 
   try {

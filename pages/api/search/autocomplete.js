@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '../../../lib/database';
 import { rateLimiters } from '../../../lib/rateLimit';
+import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 
 const supabase = getSupabaseClient();
 
@@ -21,7 +22,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const searchTerm = `%${q.trim()}%`;
+    // SECURITY: Escape wildcards to prevent enumeration via LIKE patterns
+    const searchTerm = `%${q.trim().replace(/[%_]/g, '\\$&')}%`;
     const limit = 5; // Top 5 per category for quick results
 
     // Search forum topics (titles only for speed)
@@ -32,13 +34,20 @@ export default async function handler(req, res) {
       .order('created_at', { ascending: false })
       .limit(limit);
 
-    // Search users (usernames and display names)
-    const { data: users } = await supabase
-      .from('admins')
-      .select('id, username, display_name, role')
-      .or(`username.ilike.${searchTerm},display_name.ilike.${searchTerm}`)
-      .order('created_at', { ascending: false })
-      .limit(limit);
+    // SECURITY: Only return user data to authenticated users
+    const sessionId = getSessionFromCookie(req.headers.cookie);
+    const session = sessionId ? await validateSession(sessionId) : null;
+
+    let users = [];
+    if (session) {
+      const { data: userData } = await supabase
+        .from('admins')
+        .select('id, username, display_name')
+        .or(`username.ilike.${searchTerm},display_name.ilike.${searchTerm}`)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+      users = userData || [];
+    }
 
     // Search changelog (from site_content)
     const { data: contentData } = await supabase

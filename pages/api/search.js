@@ -81,7 +81,7 @@ export default async function handler(req, res) {
     }
 
     // Search users (SECURITY: Require authentication for user search)
-    if ((type === 'all' || type === 'users')) {
+    if ((sanitizedType === 'all' || sanitizedType === 'users')) {
       // SECURITY: Only allow authenticated users to search users
       const sessionId = getSessionFromCookie(req.headers.cookie);
       const session = sessionId ? await validateSession(sessionId) : null;
@@ -132,7 +132,7 @@ export default async function handler(req, res) {
               entry.changes.improvements?.some(i => i.toLowerCase().includes(searchLower)) ||
               entry.changes.fixes?.some(f => f.toLowerCase().includes(searchLower))
             );
-          }).slice(0, parseInt(limit));
+          }).slice(0, sanitizedLimit);
 
           results.changelog = filteredChangelog;
         }

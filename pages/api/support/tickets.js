@@ -26,13 +26,18 @@ export default async function handler(req, res) {
 
     // Get specific ticket
     if (ticketId) {
+      // Require authentication to view any ticket
+      if (!session) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
       const ticket = await getTicketById(ticketId);
       if (!ticket) {
         return res.status(404).json({ error: 'Ticket not found' });
       }
 
       // Check if user has access to this ticket
-      if (session && !session.isAdmin && ticket.author_id !== session.adminId) {
+      if (!session.isAdmin && ticket.author_id !== session.adminId) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
