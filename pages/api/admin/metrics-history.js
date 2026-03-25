@@ -55,25 +55,35 @@ export default async function handler(req, res) {
   } else if (req.method === 'POST') {
     // Record current metrics snapshot
     try {
-      // Fetch current metrics
-      const { data: allUsers } = await supabase.from('admins').select('*');
-      const { data: sessions } = await supabase
-        .from('sessions')
-        .select('*')
-        .gte('expires_at', new Date().toISOString());
-      const { data: forumTopics } = await supabase.from('forum_topics').select('*');
-      const { data: forumComments } = await supabase.from('forum_comments').select('*');
-      const { data: supportTickets } = await supabase.from('support_tickets').select('*');
+      // PERFORMANCE: Use count queries instead of fetching all rows
+      const now = new Date().toISOString();
+      const [
+        { count: totalUsers },
+        { count: totalAdmins },
+        { count: activeSessions },
+        { count: totalTopics },
+        { count: totalComments },
+        { count: totalTickets },
+        { count: openTickets }
+      ] = await Promise.all([
+        supabase.from('admins').select('*', { count: 'exact', head: true }),
+        supabase.from('admins').select('*', { count: 'exact', head: true }).eq('role', 'admin'),
+        supabase.from('sessions').select('*', { count: 'exact', head: true }).gte('expires_at', now),
+        supabase.from('forum_topics').select('*', { count: 'exact', head: true }),
+        supabase.from('forum_comments').select('*', { count: 'exact', head: true }),
+        supabase.from('support_tickets').select('*', { count: 'exact', head: true }),
+        supabase.from('support_tickets').select('*', { count: 'exact', head: true }).eq('status', 'open')
+      ]);
 
       const metricsSnapshot = {
-        total_users: allUsers?.length || 0,
-        total_admins: allUsers?.filter(u => u.role === 'admin').length || 0,
-        active_sessions: sessions?.length || 0,
-        total_forum_topics: forumTopics?.length || 0,
-        total_forum_comments: forumComments?.length || 0,
-        total_support_tickets: supportTickets?.length || 0,
-        open_tickets: supportTickets?.filter(t => t.status === 'open').length || 0,
-        recorded_at: new Date().toISOString()
+        total_users: totalUsers || 0,
+        total_admins: totalAdmins || 0,
+        active_sessions: activeSessions || 0,
+        total_forum_topics: totalTopics || 0,
+        total_forum_comments: totalComments || 0,
+        total_support_tickets: totalTickets || 0,
+        open_tickets: openTickets || 0,
+        recorded_at: now
       };
 
       const { error } = await supabase

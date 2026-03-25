@@ -111,15 +111,16 @@ async function queryFiveMServer(serverIP, timeout = 5000) {
   }
 }
 
+import { getSupabaseClient } from '../../../lib/database';
+
+const supabase = getSupabaseClient();
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    // Get server configuration from Supabase database
-    const { getSupabaseClient } = await import('../../../lib/database');
-    const supabase = getSupabaseClient();
 
     let serverIP = 'localhost:30120';
 

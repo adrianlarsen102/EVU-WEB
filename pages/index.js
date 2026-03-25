@@ -88,8 +88,9 @@ export default function Home() {
       fetchServerStatus('fivem');
     }
 
-    // Refresh status every 30 seconds
+    // Refresh status every 30 seconds, but only when the tab is visible
     const interval = setInterval(() => {
+      if (document.visibilityState === 'hidden') return;
       if (content.servers?.minecraft?.enabled) {
         fetchServerStatus('minecraft');
       }
