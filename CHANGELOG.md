@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.3.5](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.3.4...v3.3.5) (2026-03-25)
+
+
+### Performance Improvements
+
+* eliminate full-table scans and fix performance issues ([99dd815](https://github.com/adrianlarsen102/EVU-WEB/commit/99dd8150dcd41e49b06f4135e21cd12842a56b0b))
+
 ### [3.3.4](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.3.3...v3.3.4) (2026-03-25)
 
 
