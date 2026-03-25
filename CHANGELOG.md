@@ -9,6 +9,13 @@ All notable changes to this project will be documented in this file. See [standa
 
 * patch multiple security vulnerabilities across API routes ([a6741a5](https://github.com/adrianlarsen102/EVU-WEB/commit/a6741a5ee7c3ff9462f94d4c68bc75747bc70175))
 
+### [3.3.4](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.3.3...v3.3.4) (2026-03-25)
+
+
+### Bug Fixes
+
+* patch multiple security vulnerabilities across API routes ([a6741a5](https://github.com/adrianlarsen102/EVU-WEB/commit/a6741a5ee7c3ff9462f94d4c68bc75747bc70175))
+
 ### [3.3.3](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.3.2...v3.3.3) (2026-02-19)
 
 
