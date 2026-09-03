@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.5.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.5.0...v3.5.1) (2026-09-03)
+
 ## [3.5.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.3.5...v3.5.0) (2026-09-03)
 
 
