@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.5.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.3.5...v3.5.0) (2026-09-03)
+
+
+### Features
+
+* add admin dashboard and setup pages for system configuration and management ([a4f719f](https://github.com/adrianlarsen102/EVU-WEB/commit/a4f719fce870d0a3dd9713c1d8ec4423bb5ada3e))
+* add script to reset admin account password to default value ([371ceef](https://github.com/adrianlarsen102/EVU-WEB/commit/371ceef9626cae421d74ac219449d74056749e08))
+* implement automated CI/CD workflows for code quality, releases, security scanning, and cache management. ([a7ffd0d](https://github.com/adrianlarsen102/EVU-WEB/commit/a7ffd0d756e53d30e83fe93aa2b2ecd8f32c78f4))
+* implement initial system setup workflow with administrator account creation and database initialization ([de0940e](https://github.com/adrianlarsen102/EVU-WEB/commit/de0940e9c32e0db0a0e22082bc420f1659dfa885))
+* implement permission system with caching and add comprehensive unit tests ([210c4ed](https://github.com/adrianlarsen102/EVU-WEB/commit/210c4ed2c0f561a8cef1e8dae659c3edc91bd6fd))
+* implement Supabase database layer with authentication and session management utilities ([9e49a7c](https://github.com/adrianlarsen102/EVU-WEB/commit/9e49a7c0b73e399cc0b86087245ce55497a5ca0c))
+* implement user profile management pages and integrate Vercel analytics, error boundaries, and custom document configuration ([13385d6](https://github.com/adrianlarsen102/EVU-WEB/commit/13385d6884a9e3b9c9c56d52f947a4c7f6d36180))
+
 ## [3.4.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.3.5...v3.4.0) (2026-09-03)
 
 
