@@ -20,7 +20,7 @@ describe('validation.js - Input Validation & Sanitization', () => {
   describe('sanitizeString', () => {
     test('should remove HTML tags to prevent XSS', () => {
       expect(sanitizeString('<script>alert("XSS")</script>'))
-        .toBe('scriptalert("XSS")/script');
+        .toBe('alert("XSS")');
     });
 
     test('should handle null and undefined', () => {
@@ -266,7 +266,7 @@ describe('validation.js - Input Validation & Sanitization', () => {
         bio: 'Normal text'
       };
       const result = sanitizeObject(input);
-      expect(result.name).toBe('scriptalert(1)/script');
+      expect(result.name).toBe('alert(1)');
       expect(result.bio).toBe('Normal text');
     });
 
@@ -277,7 +277,7 @@ describe('validation.js - Input Validation & Sanitization', () => {
         }
       };
       const result = sanitizeObject(input);
-      expect(result.user.name).toBe('bTest/b');
+      expect(result.user.name).toBe('Test');
     });
 
     test('should handle arrays', () => {
@@ -285,7 +285,7 @@ describe('validation.js - Input Validation & Sanitization', () => {
         tags: ['<script>xss</script>', 'normal']
       };
       const result = sanitizeObject(input);
-      expect(result.tags[0]).toBe('scriptxss/script');
+      expect(result.tags[0]).toBe('xss');
       expect(result.tags[1]).toBe('normal');
     });
   });

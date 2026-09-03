@@ -2,11 +2,19 @@
  * @jest-environment node
  */
 
-// Create shared mock functions
 const mockSingle = jest.fn();
-const mockEq = jest.fn().mockImplementation(() => ({ single: mockSingle }));
-const mockSelect = jest.fn().mockImplementation(() => ({ eq: mockEq }));
-const mockFrom = jest.fn().mockImplementation(() => ({ select: mockSelect }));
+const mockLimit = jest.fn().mockImplementation(() => ({ single: mockSingle }));
+const mockOrder = jest.fn().mockImplementation(() => ({ limit: mockLimit }));
+const mockEq = jest.fn().mockImplementation(() => ({ 
+  single: mockSingle,
+  order: mockOrder,
+  limit: mockLimit
+}));
+const mockLt = jest.fn().mockImplementation(() => ({ single: mockSingle }));
+const mockSelect = jest.fn().mockImplementation(() => ({ eq: mockEq, limit: mockLimit, order: mockOrder, single: mockSingle }));
+const mockInsert = jest.fn().mockImplementation(() => ({ select: mockSelect, single: mockSingle }));
+const mockDelete = jest.fn().mockImplementation(() => ({ lt: mockLt }));
+const mockFrom = jest.fn().mockImplementation(() => ({ select: mockSelect, insert: mockInsert, update: mockInsert, delete: mockDelete }));
 
 // Mock Supabase before any imports
 jest.mock('@supabase/supabase-js');
@@ -24,10 +32,12 @@ const {
   getUserPermissions,
   isAdmin
 } = require('../../../lib/permissions');
+const { permissionCacheInstance } = require('../../../lib/permissionCache');
 
 describe('Permission System - hasPermission', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    permissionCacheInstance.clearPermissionCache();
   });
 
   it('should return true when user has the permission', async () => {
@@ -95,6 +105,7 @@ describe('Permission System - hasPermission', () => {
 describe('Permission System - hasAnyPermission', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    permissionCacheInstance.clearPermissionCache();
   });
 
   it('should return true when user has at least one permission', async () => {
@@ -150,6 +161,7 @@ describe('Permission System - hasAnyPermission', () => {
 describe('Permission System - hasAllPermissions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    permissionCacheInstance.clearPermissionCache();
   });
 
   it('should return true when user has all permissions', async () => {
@@ -211,6 +223,7 @@ describe('Permission System - hasAllPermissions', () => {
 describe('Permission System - getUserPermissions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    permissionCacheInstance.clearPermissionCache();
   });
 
   it('should return array of permissions', async () => {
@@ -256,6 +269,7 @@ describe('Permission System - getUserPermissions', () => {
 describe('Permission System - isAdmin', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    permissionCacheInstance.clearPermissionCache();
   });
 
   it('should return true for Administrator system role', async () => {
@@ -317,6 +331,7 @@ describe('Permission System - isAdmin', () => {
 describe('Permission System - Edge Cases', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    permissionCacheInstance.clearPermissionCache();
   });
 
   it('should handle case-sensitive permission names', async () => {

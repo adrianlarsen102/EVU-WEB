@@ -14,9 +14,14 @@ import { generateCSRFToken, validateCSRFToken } from '../../lib/csrf';
 describe('csrf.js - CSRF Token Protection', () => {
 
   beforeEach(() => {
+    jest.useFakeTimers();
     jest.clearAllMocks();
     // Ensure CSRF_SECRET is set for tests
     process.env.CSRF_SECRET = 'test-csrf-secret-minimum-32-characters-long-for-security';
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   describe('generateCSRFToken', () => {
