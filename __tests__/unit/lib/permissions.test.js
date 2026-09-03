@@ -35,6 +35,15 @@ const {
 const { permissionCacheInstance } = require('../../../lib/permissionCache');
 
 describe('Permission System - hasPermission', () => {
+  beforeAll(() => {
+    // Silence expected console errors from simulating database failures
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterAll(() => {
+    console.error.mockRestore();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     permissionCacheInstance.clearPermissionCache();
@@ -103,6 +112,15 @@ describe('Permission System - hasPermission', () => {
 });
 
 describe('Permission System - hasAnyPermission', () => {
+  beforeAll(() => {
+    // Silence expected console errors from simulating database failures
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterAll(() => {
+    console.error.mockRestore();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     permissionCacheInstance.clearPermissionCache();
