@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.5.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.3.5...v3.5.0) (2026-09-03)
+
+
+### Features
+
+* implement automated CI/CD workflows for code quality, releases, security scanning, and cache management. ([a7ffd0d](https://github.com/adrianlarsen102/EVU-WEB/commit/a7ffd0d756e53d30e83fe93aa2b2ecd8f32c78f4))
+* implement permission system with caching and add comprehensive unit tests ([210c4ed](https://github.com/adrianlarsen102/EVU-WEB/commit/210c4ed2c0f561a8cef1e8dae659c3edc91bd6fd))
+* implement user profile management pages and integrate Vercel analytics, error boundaries, and custom document configuration ([13385d6](https://github.com/adrianlarsen102/EVU-WEB/commit/13385d6884a9e3b9c9c56d52f947a4c7f6d36180))
+
 ## [3.4.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.3.5...v3.4.0) (2026-09-03)
 
 
