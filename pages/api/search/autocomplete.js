@@ -22,8 +22,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    // SECURITY: Escape wildcards to prevent enumeration via LIKE patterns
-    const searchTerm = `%${q.trim().replace(/[%_]/g, '\\$&')}%`;
+    // SECURITY: Escape backslashes and wildcards to prevent LIKE pattern abuse
+    const escapedQuery = q.trim().replace(/\\/g, '\\\\').replace(/[%_]/g, '\\$&');
+    const searchTerm = `%${escapedQuery}%`;
     const limit = 5; // Top 5 per category for quick results
 
     // Search forum topics (titles only for speed)
