@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { fetchWithTimeout } from '../lib/fetchWithTimeout';
+import { checkIsSetup } from '../lib/database';
 
 export default function Setup() {
   const router = useRouter();
@@ -301,7 +302,6 @@ export default function Setup() {
 }
 
 export async function getServerSideProps() {
-  const { checkIsSetup } = require('../lib/database');
   const isSetup = await checkIsSetup();
 
   if (isSetup) {

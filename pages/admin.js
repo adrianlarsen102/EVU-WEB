@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { fetchWithTimeout } from '../lib/fetchWithTimeout';
+import { checkIsSetup } from '../lib/database';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -4580,7 +4581,6 @@ export default function Admin() {
 
 // Force server-side rendering
 export async function getServerSideProps() {
-  const { checkIsSetup } = require('../lib/database');
   const isSetup = await checkIsSetup();
 
   if (!isSetup) {
