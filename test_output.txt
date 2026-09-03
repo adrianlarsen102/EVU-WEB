@@ -1,0 +1,239 @@
+
+> evu-web@3.3.5 test
+> jest --coverage
+
+FAIL __tests__/lib/validation.test.js
+  ΓùÅ validation.js - Input Validation & Sanitization ΓÇ║ sanitizeString ΓÇ║ should remove HTML tags to prevent XSS
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "scriptalert(\"XSS\")/script"
+    Received: "alert(\"XSS\")"
+
+      21 |     test('should remove HTML tags to prevent XSS', () => {
+      22 |       expect(sanitizeString('<script>alert("XSS")</script>'))
+    > 23 |         .toBe('scriptalert("XSS")/script');
+         |          ^
+      24 |     });
+      25 |
+      26 |     test('should handle null and undefined', () => {
+
+      at Object.toBe (__tests__/lib/validation.test.js:23:10)
+
+  ΓùÅ validation.js - Input Validation & Sanitization ΓÇ║ sanitizeString ΓÇ║ should remove javascript: protocol
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "alert(1)"
+    Received: "javascript:alert(1)"
+
+      42 |
+      43 |     test('should remove javascript: protocol', () => {
+    > 44 |       expect(sanitizeString('javascript:alert(1)')).toBe('alert(1)');
+         |                                                     ^
+      45 |     });
+      46 |
+      47 |     test('should remove event handlers', () => {
+
+      at Object.toBe (__tests__/lib/validation.test.js:44:53)
+
+  ΓùÅ validation.js - Input Validation & Sanitization ΓÇ║ sanitizeString ΓÇ║ should remove event handlers
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "text alert(1)"
+    Received: "text onclick=alert(1)"
+
+      46 |
+      47 |     test('should remove event handlers', () => {
+    > 48 |       expect(sanitizeString('text onclick=alert(1)')).toBe('text alert(1)');
+         |                                                       ^
+      49 |     });
+      50 |
+      51 |     test('should limit length to 1000 characters', () => {
+
+      at Object.toBe (__tests__/lib/validation.test.js:48:55)
+
+  ΓùÅ validation.js - Input Validation & Sanitization ΓÇ║ sanitizeHTML ΓÇ║ should encode quotes
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "&quot;"
+    Received string:    "&lt;p class=\"test\"&gt;text&lt;/p&gt;"
+
+      67 |       const html = '<p class="test">text</p>';
+      68 |       const result = sanitizeHTML(html);
+    > 69 |       expect(result).toContain('&quot;');
+         |                      ^
+      70 |     });
+      71 |
+      72 |     test('should remove event handlers', () => {
+
+      at Object.toContain (__tests__/lib/validation.test.js:69:22)
+
+  ΓùÅ validation.js - Input Validation & Sanitization ΓÇ║ sanitizeObject ΓÇ║ should sanitize object values
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "scriptalert(1)/script"
+    Received: "alert(1)"
+
+      267 |       };
+      268 |       const result = sanitizeObject(input);
+    > 269 |       expect(result.name).toBe('scriptalert(1)/script');
+          |                           ^
+      270 |       expect(result.bio).toBe('Normal text');
+      271 |     });
+      272 |
+
+      at Object.toBe (__tests__/lib/validation.test.js:269:27)
+
+PASS __tests__/unit/lib/permissions.test.js
+  ΓùÅ Console
+
+    console.error
+      Permission cache fetch error: Error: Database connection failed
+          at Object.<anonymous> (C:\Users\sysadmin\git\EVU-WEB\__tests__\unit\lib\permissions.test.js:97:7)
+          at Promise.then.completed (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\utils.js:298:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\utils.js:231:10)
+          at _callCircusTest (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\run.js:316:40)
+          at _runTest (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\run.js:252:3)
+          at _runTestsForDescribeBlock (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\run.js:126:9)
+          at _runTestsForDescribeBlock (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\run.js:121:9)
+          at run (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\run.js:71:3)
+          at runAndTransformResultsToJestFormat (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+          at jestAdapter (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+          at runTestInternal (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-runner\build\runTest.js:367:16)
+          at runTest (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-runner\build\runTest.js:444:34)
+
+      60 |     };
+      61 |   } catch (error) {
+    > 62 |     console.error('Permission cache fetch error:', error);
+         |             ^
+      63 |     return null;
+      64 |   }
+      65 | }
+
+      at error (lib/permissionCache.js:62:13)
+      at hasPermissionCached (lib/permissionCache.js:74:21)
+      at hasPermission (lib/permissions.js:22:10)
+      at Object.<anonymous> (__tests__/unit/lib/permissions.test.js:100:20)
+
+    console.error
+      Permission cache fetch error: Error: Database error
+          at Object.<anonymous> (C:\Users\sysadmin\git\EVU-WEB\__tests__\unit\lib\permissions.test.js:261:7)
+          at Promise.then.completed (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\utils.js:298:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\utils.js:231:10)
+          at _callCircusTest (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\run.js:316:40)
+          at _runTest (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\run.js:252:3)
+          at _runTestsForDescribeBlock (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\run.js:126:9)
+          at _runTestsForDescribeBlock (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\run.js:121:9)
+          at run (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\run.js:71:3)
+          at runAndTransformResultsToJestFormat (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+          at jestAdapter (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+          at runTestInternal (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-runner\build\runTest.js:367:16)
+          at runTest (C:\Users\sysadmin\git\EVU-WEB\node_modules\jest-runner\build\runTest.js:444:34)
+
+      60 |     };
+      61 |   } catch (error) {
+    > 62 |     console.error('Permission cache fetch error:', error);
+         |             ^
+      63 |     return null;
+      64 |   }
+      65 | }
+
+      at error (lib/permissionCache.js:62:13)
+      at getUserPermissions (lib/permissions.js:51:17)
+      at Object.<anonymous> (__tests__/unit/lib/permissions.test.js:264:20)
+
+PASS __tests__/api/login.test.js
+
+  ΓùÅ  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "Γ£à Default admin created. Username: admin".
+
+    
+
+      at console.log (node_modules/@jest/console/build/BufferedConsole.js:156:10)
+      at initializeDatabase (lib/database.js:11020:17)
+
+
+  ΓùÅ  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "ΓÜá∩╕Å  IMPORTANT: Initial password stored in ADMIN_INITIAL_PASSWORD env var or check secure logs".
+
+    
+
+      at console.log (node_modules/@jest/console/build/BufferedConsole.js:156:10)
+      at initializeDatabase (lib/database.js:11023:17)
+
+PASS __tests__/lib/csrf.test.js
+PASS __tests__/unit/lib/sessionCache.test.js
+PASS __tests__/lib/rateLimit.test.js
+------------------------|---------|----------|---------|---------|----------------------------------------------------
+File                    | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                  
+------------------------|---------|----------|---------|---------|----------------------------------------------------
+All files               |    7.19 |     3.46 |     4.9 |    7.14 |                                                    
+ components             |       0 |        0 |       0 |       0 |                                                    
+  AnnouncementBanner.js |       0 |        0 |       0 |       0 | 1-111                                              
+  CookieConsent.js      |       0 |        0 |       0 |       0 | 1-465                                              
+  ErrorBoundary.js      |       0 |        0 |       0 |       0 | 1-81                                               
+  Layout.js             |       0 |        0 |       0 |       0 | 1-195                                              
+  LoadingSkeleton.js    |       0 |        0 |       0 |       0 | 4-233                                              
+  ThemePreview.js       |       0 |        0 |       0 |       0 | 1-231                                              
+  ThemeToggle.js        |       0 |        0 |       0 |       0 | 1-118                                              
+ contexts               |       0 |        0 |       0 |       0 |                                                    
+  ThemeContext.js       |       0 |        0 |       0 |       0 | 1-51                                               
+ lib                    |   15.58 |    10.05 |   16.59 |   15.58 |                                                    
+  auditLog.js           |       0 |        0 |       0 |       0 | 9-316                                              
+  auth.js               |       0 |        0 |       0 |       0 | 1-63                                               
+  cspNonce.js           |       0 |        0 |       0 |       0 | 7-54                                               
+  csrf.js               |   54.41 |    36.36 |   42.85 |   54.41 | 13,20,27,115,125-136,148-208                       
+  database.js           |    4.67 |     2.87 |    4.54 |    5.06 | 50-51,60-279,288-1133,1140-1178                    
+  discordWebhook.js     |       0 |        0 |       0 |       0 | 11-410                                             
+  email.js              |       0 |        0 |       0 |       0 | 6-384                                              
+  emailLogger.js        |       0 |        0 |       0 |       0 | 34-381                                             
+  encryption.js         |       0 |        0 |       0 |       0 | 6-141                                              
+  errorHandler.js       |       0 |        0 |       0 |       0 | 6-286                                              
+  errorLog.js           |       0 |        0 |       0 |       0 | 8-126                                              
+  fetchWithTimeout.js   |       0 |        0 |       0 |       0 | 6-43                                               
+  logger.js             |       0 |        0 |       0 |       0 | 6-109                                              
+  permissionCache.js    |   54.28 |    33.33 |   63.63 |   55.73 | 31,111-136,144-181                                 
+  permissions.js        |   44.44 |       50 |   55.55 |   44.44 | 60-103,124-125                                     
+  processManager.js     |       0 |        0 |       0 |       0 | 7-93                                               
+  rateLimit.js          |   43.33 |       40 |      50 |   42.37 | 14-17,43-44,63-102,129,140,245-249                 
+  security.js           |       0 |        0 |       0 |       0 | 9-254                                              
+  securityHeaders.js    |       0 |        0 |       0 |       0 | 10-174                                             
+  sessionCache.js       |   74.46 |    63.63 |   69.23 |   79.54 | 76-83,144-147                                      
+  statusMonitor.js      |       0 |        0 |       0 |       0 | 6-132                                              
+  statusio.js           |       0 |        0 |       0 |       0 | 13-423                                             
+  validation.js         |   68.38 |    53.65 |      80 |   67.85 | 50-51,88-89,98,163,168,185-186,202,216-243,306-346 
+ pages                  |       0 |        0 |       0 |       0 |                                                    
+  404.js                |       0 |      100 |       0 |       0 | 1-10                                               
+  admin.js              |       0 |        0 |       0 |       0 | 1-4583                                             
+  changelog.js          |       0 |        0 |       0 |       0 | 1-265                                              
+  forgot-password.js    |       0 |        0 |       0 |       0 | 1-154                                              
+  forum.js              |       0 |        0 |       0 |       0 | 1-197                                              
+  index.js              |       0 |        0 |       0 |       0 | 1-359                                              
+  join.js               |       0 |        0 |       0 |       0 | 1-140                                              
+  privacy.js            |       0 |      100 |       0 |       0 | 1-191                                              
+  profile.js            |       0 |        0 |       0 |       0 | 1-851                                              
+  register.js           |       0 |        0 |       0 |       0 | 1-268                                              
+  reset-password.js     |       0 |        0 |       0 |       0 | 1-257                                              
+  search.js             |       0 |        0 |       0 |       0 | 1-597                                              
+  status.js             |       0 |        0 |       0 |       0 | 1-669                                              
+  support.js            |       0 |        0 |       0 |       0 | 1-306                                              
+  terms.js              |       0 |      100 |       0 |       0 | 1-236                                              
+ pages/forum            |       0 |        0 |       0 |       0 |                                                    
+  [categoryId].js       |       0 |        0 |       0 |       0 | 1-241                                              
+ pages/forum/topic      |       0 |        0 |       0 |       0 |                                                    
+  [topicId].js          |       0 |        0 |       0 |       0 | 1-335                                              
+ pages/support          |       0 |        0 |       0 |       0 |                                                    
+  [ticketId].js         |       0 |        0 |       0 |       0 | 1-279                                              
+------------------------|---------|----------|---------|---------|----------------------------------------------------
+
+Test Suites: 1 failed, 5 passed, 6 total
+Tests:       5 failed, 123 passed, 128 total
+Snapshots:   0 total
+Time:        3.131 s
+Ran all test suites.

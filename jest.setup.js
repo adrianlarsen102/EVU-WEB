@@ -7,7 +7,12 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key'
 process.env.CSRF_SECRET = 'test-csrf-secret-minimum-32-characters-long-for-security'
 process.env.NODE_ENV = 'test'
 
-// Mock Next.js router
+jest.mock('./lib/processManager', () => ({
+  createManagedInterval: jest.fn(),
+  createManagedTimeout: jest.fn(),
+  registerCleanup: jest.fn(),
+}))
+
 jest.mock('next/router', () => ({
   useRouter() {
     return {
