@@ -50,8 +50,8 @@
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^16.1.0",
-    "@playwright/test": "^1.62.1",
+    "@next/eslint-plugin-next": "^16.3.3",
+    "@playwright/test": "^1.57.0",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^16.3.1",
     "@testing-library/user-event": "^14.6.1",
