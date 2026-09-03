@@ -4,9 +4,6 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        {/* Global stylesheets */}
-        <link rel="stylesheet" href="/styles/style.css" />
-        <link rel="stylesheet" href="/styles/admin.css" />
 
         {/* Favicon - SVG preferred, fallback to SVG for ICO */}
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import Link from 'next/link';
+import Image from 'next/image';
 import { fetchWithTimeout } from '../lib/fetchWithTimeout';
 
 export default function Profile() {
@@ -403,12 +404,13 @@ export default function Profile() {
           <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative' }}>
               {avatarUrl && (avatarUrl.startsWith('https://') || avatarUrl.startsWith('http://')) ? (
-                <img
+                <Image
                   src={avatarUrl}
                   alt="Avatar"
+                  width={120}
+                  height={120}
+                  unoptimized={true}
                   style={{
-                    width: '120px',
-                    height: '120px',
                     borderRadius: '50%',
                     border: '3px solid var(--primary-color)',
                     objectFit: 'cover'
