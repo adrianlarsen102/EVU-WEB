@@ -4580,5 +4580,17 @@ export default function Admin() {
 
 // Force server-side rendering
 export async function getServerSideProps() {
+  const { checkIsSetup } = require('../lib/database');
+  const isSetup = await checkIsSetup();
+
+  if (!isSetup) {
+    return {
+      redirect: {
+        destination: '/setup',
+        permanent: false,
+      },
+    };
+  }
+
   return { props: {} };
 }
