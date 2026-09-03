@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.4.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.3.5...v3.4.0) (2026-09-03)
+
+
+### Features
+
+* implement user profile management pages and integrate Vercel analytics, error boundaries, and custom document configuration ([13385d6](https://github.com/adrianlarsen102/EVU-WEB/commit/13385d6884a9e3b9c9c56d52f947a4c7f6d36180))
+
 ### [3.3.5](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.3.4...v3.3.5) (2026-09-03)
 
 
