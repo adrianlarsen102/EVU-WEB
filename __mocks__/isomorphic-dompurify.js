@@ -7,8 +7,14 @@ const sanitize = (html, options) => {
     .replace(/on\w+=/gi, 'blocked=');
 
   if (options && options.ALLOWED_TAGS && options.ALLOWED_TAGS.length === 0) {
-    // Strip all tags, keeping content
-    return sanitized.replace(/<[^>]+>/gm, '');
+    // Strip all tags, keeping content.
+    // Apply repeatedly to avoid incomplete multi-character sanitization.
+    let previous;
+    do {
+      previous = sanitized;
+      sanitized = sanitized.replace(/<[^>]+>/gm, '');
+    } while (sanitized !== previous);
+    return sanitized;
   }
   
   // Simple encode for HTML to pass tests expecting &lt; and &quot;
