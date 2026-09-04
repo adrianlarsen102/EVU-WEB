@@ -1,5 +1,11 @@
 # Changelog
 
+# [3.6.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.5.2...v3.6.0) (2026-09-04)
+
+### Features
+
+* add automated SQL migration script and master schema definition for Supabase deployment ([ed828a7](https://github.com/adrianlarsen102/EVU-WEB/commit/ed828a7629786ec14d807aff14cdcbfaaa6a8ed9))
+
 ## [3.5.2](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.5.1...v3.5.2) (2026-09-04)
 
 ### Bug Fixes
