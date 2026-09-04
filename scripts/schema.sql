@@ -275,27 +275,6 @@ CREATE TRIGGER update_email_settings_updated_at
   BEFORE UPDATE ON email_settings
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
-
--- ============================================
--- 9. DEFAULT DATA (Optional)
--- ============================================
-
--- Create default admin account (password: admin123)
--- WARNING: Change this password immediately after first login!
-INSERT INTO admins (username, password_hash, role, is_admin, is_default_password)
-VALUES (
-  'admin',
-  '$2b$10$rH8ZQXqJ9pX.b9K3nZ.8Z.XH9.ZC7W1vF8vZ.8Z.8Z.8Z.8Z.8Z.8',
-  'admin',
-  true,
-  true
-)
-ON CONFLICT (username) DO NOTHING;
-
--- ============================================
--- 10. CLEANUP AND MAINTENANCE
--- ============================================
-
 -- Drop and recreate cleanup function
 DROP FUNCTION IF EXISTS cleanup_expired_sessions();
 
