@@ -21,7 +21,8 @@
     "db:init": "node scripts/init-content.js",
     "db:init:force": "node scripts/init-content.js --force",
     "db:migrate": "node scripts/apply-migrations.js",
-    "db:push": "node scripts/push-to-supabase.js"
+    "db:push": "node scripts/push-to-supabase.js",
+    "db:setup": "node scripts/push-to-supabase.js scripts/schema.sql && npm run db:init"
   },
   "keywords": [
     "fivem",

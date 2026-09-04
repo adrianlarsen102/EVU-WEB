@@ -140,15 +140,12 @@ async function executeSQLDirectly(sql) {
   console.log('🔄 Attempting direct PostgreSQL execution...\n');
 
   try {
-    // Extract connection details from Supabase URL
-    const projectRef = supabaseUrl.match(/https:\/\/([^.]+)/)?.[1];
-
-    if (!projectRef) {
-      throw new Error('Could not extract project reference from Supabase URL');
+    if (!process.env.SUPABASE_DB_URL) {
+      throw new Error('Missing SUPABASE_DB_URL in .env.local');
     }
 
     // Connection string format for Supabase
-    const connectionString = `postgresql://postgres:${process.env.SUPABASE_DB_PASSWORD}@db.${projectRef}.supabase.co:5432/postgres`;
+    const connectionString = process.env.SUPABASE_DB_URL;
 
     console.log('📡 Connecting to Supabase PostgreSQL...');
 
