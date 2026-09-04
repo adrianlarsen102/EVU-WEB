@@ -46,13 +46,13 @@ async function populateDemoData() {
   }
 
   // Add forum categories
-  if (!content.forum) content.forum = {};
-  if (!content.forum.categories || content.forum.categories.length === 0) {
-    content.forum.categories = [
-      { name: 'General Discussion', serverType: 'all', icon: '💬', topicCount: 0, postCount: 0 },
-      { name: 'Minecraft Server', serverType: 'minecraft', icon: '⛏️', topicCount: 0, postCount: 0 },
-      { name: 'FiveM Server', serverType: 'fivem', icon: '🚗', topicCount: 0, postCount: 0 },
-      { name: 'Announcements', serverType: 'all', icon: '📢', topicCount: 0, postCount: 0 }
+  if (!content.forumCategories || content.forumCategories.length === 0) {
+    content.forumCategories = [
+      { name: 'General Discussion', description: 'Talk about anything related to the server', icon: '💬', topics: 1, posts: 1, serverType: 'all', visibility: 'public', permissions: 'all', order: 0 },
+      { name: 'News & Announcements', description: 'Official server news and updates', icon: '📢', topics: 0, posts: 0, serverType: 'all', visibility: 'public', permissions: 'admin', order: 1 },
+      { name: 'Minecraft Server', description: 'Discussion specific to the Minecraft server', icon: '🎮', topics: 0, posts: 0, serverType: 'minecraft', visibility: 'public', permissions: 'all', order: 2 },
+      { name: 'FiveM Server', description: 'Discussion specific to the FiveM server', icon: '🚓', topics: 0, posts: 0, serverType: 'fivem', visibility: 'public', permissions: 'all', order: 3 },
+      { name: 'Support', description: 'Get help from the community and staff', icon: '❓', topics: 0, posts: 0, serverType: 'all', visibility: 'public', permissions: 'all', order: 4 }
     ];
   }
 
