@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.2](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.5.1...v3.5.2) (2026-09-04)
+
+### Bug Fixes
+
+* **admin:** correct forumCategories key in populate script ([46abe32](https://github.com/adrianlarsen102/EVU-WEB/commit/46abe324bbafbe4077b56dfe8d362b4cc04fb591))
+* disable auto-push in release-it to support protected branches in CI ([c3a40d9](https://github.com/adrianlarsen102/EVU-WEB/commit/c3a40d9a5f80601febed840dab58466d74a97701))
+
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 ### [3.5.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.5.0...v3.5.1) (2026-09-03)
