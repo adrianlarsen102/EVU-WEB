@@ -8,13 +8,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Apply rate limiting (prevents brute forcing the setup endpoint)
-  const rateLimitResult = await rateLimiters.api(req, res, null);
-  if (rateLimitResult !== true) {
-    return;
-  }
-
   try {
+    // Apply rate limiting (prevents brute forcing the setup endpoint)
+    const rateLimitResult = await rateLimiters.api(req, res, null);
+    if (rateLimitResult !== true) {
+      return;
+    }
+
     // 1. SECURITY CHECK: Verify the system is NOT already set up
     const isSetup = await checkIsSetup();
     if (isSetup) {
