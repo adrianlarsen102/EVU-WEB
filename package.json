@@ -22,6 +22,7 @@
     "db:init:force": "node scripts/init-content.js --force",
     "db:migrate": "node scripts/apply-migrations.js",
     "db:push": "node scripts/push-to-supabase.js",
+    "db:reset": "node scripts/push-to-supabase.js scripts/drop-tables.sql && npm run db:setup",
     "db:setup": "node scripts/push-to-supabase.js scripts/schema.sql && npm run db:init -- --force"
   },
   "keywords": [
