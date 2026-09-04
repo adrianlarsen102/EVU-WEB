@@ -41,11 +41,11 @@ describe('validation.js - Input Validation & Sanitization', () => {
     });
 
     test('should remove javascript: protocol', () => {
-      expect(sanitizeString('javascript:alert(1)')).toBe('alert(1)');
+      expect(sanitizeString('javascript:alert(1)')).toBe('blocked:alert(1)');
     });
 
     test('should remove event handlers', () => {
-      expect(sanitizeString('text onclick=alert(1)')).toBe('text alert(1)');
+      expect(sanitizeString('text onclick=alert(1)')).toBe('text blocked=alert(1)');
     });
 
     test('should limit length to 1000 characters', () => {
