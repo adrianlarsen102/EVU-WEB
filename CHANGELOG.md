@@ -1,5 +1,13 @@
 # Changelog
 
+# [3.6.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.5.2...v3.6.0) (2026-09-04)
+
+### Features
+
+* add automated SQL migration script and master schema definition for Supabase deployment ([ed828a7](https://github.com/adrianlarsen102/EVU-WEB/commit/ed828a7629786ec14d807aff14cdcbfaaa6a8ed9))
+* add consolidated database schema script for authentication, forum, and support ticket systems ([0f1267d](https://github.com/adrianlarsen102/EVU-WEB/commit/0f1267d7cf0a81c83bcd4372bbe6a2c229936c78))
+* add db:reset script and SQL utility to clear all public schema objects ([3050109](https://github.com/adrianlarsen102/EVU-WEB/commit/3050109af109b288823f325c2478b16284c675b8))
+
 ## [3.5.2](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.5.1...v3.5.2) (2026-09-04)
 
 ### Bug Fixes
