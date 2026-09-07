@@ -1,5 +1,11 @@
 # Changelog
 
+# [3.7.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.6.0...v3.7.0) (2026-09-07)
+
+### Features
+
+* implement database utilities, setup and profile management pages, and configure ESLint rule for JSX properties. ([e49b435](https://github.com/adrianlarsen102/EVU-WEB/commit/e49b4358a028f88bbde6c844c26860bde2011a6a))
+
 # [3.6.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.5.2...v3.6.0) (2026-09-04)
 
 ### Features
