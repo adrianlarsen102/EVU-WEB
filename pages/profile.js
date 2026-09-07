@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import Link from 'next/link';
 import Image from 'next/image';
 import { fetchWithTimeout } from '../lib/fetchWithTimeout';
 
 export default function Profile() {
+  const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState('');
@@ -250,7 +252,7 @@ export default function Profile() {
       if (res.ok) {
         showMessage('success', 'Account deleted successfully. Redirecting...');
         setTimeout(() => {
-          window.location.href = '/';
+          router.push('/');
         }, 2000);
       } else {
         setDeleteError(data.error || 'Failed to delete account');

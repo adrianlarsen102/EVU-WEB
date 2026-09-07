@@ -33,6 +33,7 @@ export default [
       ...nextPlugin.configs["core-web-vitals"].rules,
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
+      "react/no-unknown-property": ["error", { "ignore": ["jsx"] }],
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       // Downgrade these to warnings to allow build to pass
       "react/no-unescaped-entities": "warn",

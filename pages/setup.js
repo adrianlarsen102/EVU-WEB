@@ -137,7 +137,7 @@ export default function Setup() {
       <div className="glass-panel">
         <div className="logo-placeholder">🎮</div>
         <h1>Welcome to EVU Gaming</h1>
-        <p className="subtitle">Let's create your administrator account to get started.</p>
+        <p className="subtitle">Let&apos;s create your administrator account to get started.</p>
 
         {error && <div className="error-message">{error}</div>}
 
