@@ -289,7 +289,7 @@ const response = await fetch('YOUR_FIVEM_API');
 
 ## ❓ Troubleshooting
 
-**Getting errors?** See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for quick solutions.
+**Getting errors?** See [Troubleshooting Guide](docs/guides/troubleshooting.md) for quick solutions.
 
 **Common Issues:**
 
