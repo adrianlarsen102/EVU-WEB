@@ -1,5 +1,6 @@
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 import { getSupabaseClient } from '../../../lib/database';
+import bcrypt from 'bcryptjs';
 import { requireCSRFToken } from '../../../lib/csrf';
 
 const supabase = getSupabaseClient();
@@ -44,7 +45,6 @@ export default async function handler(req, res) {
     }
 
     // Verify password
-    const bcrypt = require('bcrypt');
     const passwordMatch = await bcrypt.compare(confirmPassword, user.password_hash);
 
     if (!passwordMatch) {

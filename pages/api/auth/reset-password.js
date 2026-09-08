@@ -3,7 +3,7 @@ import { rateLimiters } from '../../../lib/rateLimit';
 import { validatePassword } from '../../../lib/validation';
 import logger from '../../../lib/logger';
 import crypto from 'crypto';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const supabase = getSupabaseClient();
 const SALT_ROUNDS = 10;

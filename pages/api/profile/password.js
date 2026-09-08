@@ -1,6 +1,6 @@
 import { validateSession, getSessionFromCookie } from '../../../lib/auth';
 import { getSupabaseClient } from '../../../lib/database';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { rateLimiters } from '../../../lib/rateLimit';
 import { requireCSRFToken } from '../../../lib/csrf';
 
