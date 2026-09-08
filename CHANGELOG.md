@@ -1,5 +1,19 @@
 # Changelog
 
+# [3.7.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.6.0...v3.7.0) (2026-09-08)
+
+### Bug Fixes
+
+* clean up lint warnings and switch to xss for Vercel deployment ([230d57b](https://github.com/adrianlarsen102/EVU-WEB/commit/230d57be78b67f52196a21d5c73d5201bc92756f))
+* replace isomorphic-dompurify with sanitize-html to fix Vercel ESM crash ([196cf44](https://github.com/adrianlarsen102/EVU-WEB/commit/196cf44f6fd6f3a48844ff0e6d7a65808641b384))
+* wrap process event listeners in try-catch to prevent Vercel lambda crash ([a896b26](https://github.com/adrianlarsen102/EVU-WEB/commit/a896b268a8e6567f1c51a360c972e6462d9f7e6b))
+
+### Features
+
+* implement database utilities, setup and profile management pages, and configure ESLint rule for JSX properties. ([e49b435](https://github.com/adrianlarsen102/EVU-WEB/commit/e49b4358a028f88bbde6c844c26860bde2011a6a))
+* implement input validation and sanitization utilities using xss library ([5f3c509](https://github.com/adrianlarsen102/EVU-WEB/commit/5f3c50939fce62a6e4677a71ced8e64159ac9c0b))
+* implement Supabase-based database service with admin authentication and session management APIs ([6176615](https://github.com/adrianlarsen102/EVU-WEB/commit/617661583fda3f7ba58d016835d7f71048a4b71b))
+
 # [3.6.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.5.2...v3.6.0) (2026-09-04)
 
 ### Features
