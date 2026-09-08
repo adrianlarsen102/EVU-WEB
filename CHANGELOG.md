@@ -1,5 +1,7 @@
 # Changelog
 
+## [3.7.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.7.0...v3.7.1) (2026-09-08)
+
 # [3.7.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.6.0...v3.7.0) (2026-09-08)
 
 ### Bug Fixes
