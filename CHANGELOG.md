@@ -1,5 +1,12 @@
 # Changelog
 
+# [3.8.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.7.0...v3.8.0) (2026-09-09)
+
+### Features
+
+* implement stateless CSRF token generation and validation utilities ([d5eb437](https://github.com/adrianlarsen102/EVU-WEB/commit/d5eb437ba81da055c9637fca968b141c623a79ad))
+* implement user profile management page with authentication, avatar upload, and account deletion functionality ([31d83da](https://github.com/adrianlarsen102/EVU-WEB/commit/31d83da5822687fa86095a556125b81f849b1c2d))
+
 # [3.7.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.6.0...v3.7.0) (2026-09-08)
 
 ### Bug Fixes
