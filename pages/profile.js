@@ -9,6 +9,7 @@ export default function Profile() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [csrfToken, setCsrfToken] = useState(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
@@ -51,6 +52,18 @@ export default function Profile() {
     }
   }, []);
 
+  const fetchCSRFToken = useCallback(async () => {
+    try {
+      const res = await fetch('/api/csrf-token');
+      const data = await res.json();
+      if (res.ok && data.csrfToken) {
+        setCsrfToken(data.csrfToken);
+      }
+    } catch (error) {
+      console.error('CSRF token fetch error:', error);
+    }
+  }, []);
+
   const checkAuth = useCallback(async () => {
     try {
       const res = await fetchWithTimeout('/api/auth/check', {}, 8000);
@@ -58,11 +71,12 @@ export default function Profile() {
       if (data.authenticated) {
         setIsAuthenticated(true);
         loadProfile();
+        fetchCSRFToken();
       }
     } catch (error) {
       console.error('Auth check error:', error);
     }
-  }, [loadProfile]);
+  }, [loadProfile, fetchCSRFToken]);
 
   useEffect(() => {
     checkAuth();
@@ -83,6 +97,7 @@ export default function Profile() {
         setIsAuthenticated(true);
         setLoginError('');
         loadProfile();
+        fetchCSRFToken();
       } else {
         setLoginError(data.error || 'Invalid credentials');
       }
@@ -92,17 +107,28 @@ export default function Profile() {
   };
 
   const handleLogout = async () => {
-    await fetch('/api/logout', { method: 'POST' });
+    await fetch('/api/logout', { 
+      method: 'POST',
+      headers: { 'X-CSRF-Token': csrfToken }
+    });
     setIsAuthenticated(false);
     setUser(null);
   };
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
+    if (!csrfToken) {
+      showMessage('error', 'Security token missing. Please refresh the page.');
+      fetchCSRFToken();
+      return;
+    }
     try {
       const res = await fetch('/api/profile', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken 
+        },
         body: JSON.stringify({
           display_name: displayName,
           email,
@@ -137,10 +163,19 @@ export default function Profile() {
       return;
     }
 
+    if (!csrfToken) {
+      setPasswordError('Security token missing. Please refresh the page.');
+      fetchCSRFToken();
+      return;
+    }
+
     try {
       const res = await fetch('/api/profile/password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken 
+        },
         body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
       });
 
@@ -183,8 +218,16 @@ export default function Profile() {
       const formData = new FormData();
       formData.append('avatar', file);
 
+      if (!csrfToken) {
+        showMessage('error', 'Security token missing. Please refresh the page.');
+        fetchCSRFToken();
+        setUploadingImage(false);
+        return;
+      }
+
       const res = await fetch('/api/profile/upload-avatar', {
         method: 'POST',
+        headers: { 'X-CSRF-Token': csrfToken },
         body: formData
       });
 
@@ -237,10 +280,19 @@ export default function Profile() {
       return;
     }
 
+    if (!csrfToken) {
+      setDeleteError('Security token missing. Please refresh the page.');
+      fetchCSRFToken();
+      return;
+    }
+
     try {
       const res = await fetch('/api/profile/delete-account', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken 
+        },
         body: JSON.stringify({
           confirmUsername: deleteUsername,
           confirmPassword: deletePassword
