@@ -1,6 +1,6 @@
 # EVU Gaming Network Website
 
-**Version 3.3.1** - A modern, secure, and feature-rich website for your gaming community built with Next.js. Supports both Minecraft and FiveM servers with seamless switching.
+**Version 3.7.0** - A modern, secure, and feature-rich website for your gaming community built with Next.js. Supports both Minecraft and FiveM servers with seamless switching.
 
 ## ✨ Features
 
@@ -30,10 +30,9 @@ npm install
 # 2. Start the server
 npm run dev
 
-# 3. Open admin panel
-# Navigate to http://localhost:3000/admin
-# Login with password: admin123
-# You'll be prompted to change it immediately
+# 3. Complete Initial Setup
+# Navigate to http://localhost:3000/setup
+# Register your first administrator account securely
 ```
 
 See [Installation Guide](docs/guides/installation.md) for detailed installation instructions.
@@ -54,31 +53,30 @@ See [Installation Guide](docs/guides/installation.md) for detailed installation 
 
 This website uses **enterprise-level security**:
 
-### 🛡️ Security Status (v3.3.1)
+### 🛡️ Security Status (v3.7.0)
 - ✅ **npm audit: 0 vulnerabilities**
 - ✅ All dependencies up-to-date with security patches
-- ✅ Next.js 16.1.6 (critical RCE & DoS vulnerabilities fixed)
-- ✅ React 19.2.4 (latest stable)
-- ✅ Supabase 2.93.3 (50+ security patches)
+- ✅ Next.js 16.3.4 (critical RCE & DoS vulnerabilities fixed)
+- ✅ React 19.2.8 (latest stable)
+- ✅ Supabase 2.112.4 (50+ security patches)
+- ✅ Node.js >=22.0.0 support (including Node 25.x)
 
 ### 🔒 Security Features
 - ✅ Supabase PostgreSQL database for credential storage
 - ✅ Bcrypt password hashing (10 salt rounds)
-- ✅ CSRF token protection on all state-changing operations
+- ✅ Stateless Cryptographic CSRF token protection on all state-changing operations
 - ✅ Rate limiting (15+ endpoint-specific limiters)
 - ✅ Input validation & sanitization (XSS/SQL injection prevention)
 - ✅ Comprehensive audit logging (25+ event types)
 - ✅ Session-based authentication with caching
-- ✅ Forced password change on first login
+- ✅ Secure initial `/setup` wizard for admin creation
 - ✅ Enhanced security headers (CSP, HSTS, COEP, COOP, CORP)
 - ✅ No plain-text passwords anywhere
 - ✅ Environment variables for secrets
 
-**Default Login:**
-- Username: `admin`
-- Password: `admin123`
-
-⚠️ **You MUST change this password on first login!**
+**Admin Setup:**
+- Navigate to `/setup` on first launch to securely register your admin account.
+- No insecure default passwords are included.
 
 See [Database Setup Guide](docs/database/setup-guide.md) for security details.
 
@@ -166,10 +164,11 @@ Manage your entire website without touching code:
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 16.1.6 (Webpack mode for Windows compatibility)
-- **Frontend**: React 19.2.4
-- **Database**: Supabase (PostgreSQL) v2.93.3
-- **Security**: bcrypt, CSRF protection, rate limiting, input validation
+- **Framework**: Next.js 16.3.4 (Webpack mode for Windows compatibility)
+- **Frontend**: React 19.2.8
+- **Database**: Supabase (PostgreSQL) v2.112.4
+- **Runtime**: Node.js >=22.0.0 (Native Node 25.x support)
+- **Security**: bcrypt, Stateless CSRF protection, rate limiting, input validation
 - **Styling**: Custom CSS with 5 theme options
 - **API**: Next.js API Routes
 - **Email**: Nodemailer v7.0.13 (SMTP/Resend)
@@ -316,16 +315,15 @@ const response = await fetch('YOUR_FIVEM_API');
 **Deployment issues?**
 - See [Deployment Checklist](docs/guides/deployment-checklist.md)
 
-## 🆕 What's New in v3.3.1
+## 🆕 What's New in v3.7.0
 
-### Latest Updates (January 2026)
-- 🔒 **Major Security Updates** - All critical vulnerabilities fixed
-- ⬆️ **Next.js 16.1.6** - Updated from 16.1.0 (fixes DoS vulnerabilities)
-- 📦 **Supabase 2.93.3** - Updated from 2.89.0 (latest security patches)
-- 📧 **Nodemailer 7.0.13** - Latest stable version
-- ⚛️ **React 19.2.4** - Latest stable version
-- 🗃️ **PostgreSQL 8.17.2** - Updated pg driver
-- 📊 **Vercel Analytics** - Updated to latest versions
+### Latest Updates
+- 🚀 **Node 25.x Support** - Upgraded engine requirements to support modern Node.js versions (>=22.0.0)
+- 🔒 **Stateless CSRF Security** - Replaced in-memory CSRF tokens with highly scalable, stateless cryptographic signatures ideal for Vercel and serverless edge deployment
+- 🛡️ **Secure Setup Wizard** - Replaced hardcoded default admin credentials with a secure `/setup` registration flow
+- ⬆️ **Next.js 16.3.4** - Updated from 16.1.6
+- 📦 **Supabase 2.112.4** - Updated from 2.93.3
+- ⚛️ **React 19.2.8** - Updated from 19.2.4
 - 🛠️ **Webpack Configuration** - Added for Windows compatibility (Turbopack symlink fix)
 - 🔐 **Enhanced Security Headers** - COEP, COOP, CORP added
 - 📝 **Comprehensive CSP** - Added upgrade-insecure-requests
