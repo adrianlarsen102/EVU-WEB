@@ -1,5 +1,7 @@
 # Changelog
 
+## [3.8.1](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.8.0...v3.8.1) (2026-09-10)
+
 # [3.8.0](https://github.com/adrianlarsen102/EVU-WEB/compare/v3.7.0...v3.8.0) (2026-09-09)
 
 ### Features
