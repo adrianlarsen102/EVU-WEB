@@ -9,7 +9,7 @@ We take the security of EVU Gaming Network seriously. If you discover a security
 1. **DO NOT** open a public GitHub issue for security vulnerabilities
 2. Report privately through one of these channels:
    - GitHub Security Advisories: https://github.com/adrianlarsen102/EVU-WEB/security/advisories/new
-   - Email: security@evu-gaming.local
+   - Email: security@evulotionary.dk
 3. Include detailed information:
    - Description of the vulnerability
    - Steps to reproduce
