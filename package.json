@@ -71,5 +71,8 @@
     "jest-environment-jsdom": "^30.5.0",
     "node-mocks-http": "^1.18.1",
     "release-it": "^21.0.2"
+  },
+  "overrides": {
+    "eslint": "$eslint"
   }
 }
